@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamisk Modell av Ozonlaget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .axis-label {
+            font-size: 0.8rem;
+            fill: #4a5568;
+        }
+        .domain {
+            stroke: #cbd5e0;
+        }
+        .tick line {
+            stroke: #cbd5e0;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 w-full max-w-4xl mx-auto">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Ozonlagets Endring</h1>
+            <p class="text-slate-500 mt-2">En interaktiv modell av fortid og fremtid</p>
+        </div>
+
+        <!-- Main Content: Chart and Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Chart Section -->
+            <div class="lg:col-span-2">
+                <div id="chart-container" class="relative w-full aspect-[4/3] cursor-crosshair"></div>
+                
+                <!-- Interactive Controls -->
+                <div class="mt-6">
+                    <label for="year-slider" class="block text-sm font-medium text-slate-600 mb-2">Dra for å velge år:</label>
+                    <input id="year-slider" type="range" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" />
+                </div>
+            </div>
+            
+            <!-- Info and Data Display Section -->
+            <div class="bg-slate-50 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-700" id="display-year">2024</h2>
+                    <p class="text-4xl font-bold text-sky-600 mt-1" id="display-du">319 DU</p>
+                    <p class="text-sm text-slate-500 mt-1">Dobson Units (DU)</p>
+                
+                    <div class="mt-6 pt-6 border-t border-slate-200">
+                        <h3 class="font-semibold text-slate-700 mb-2">Hva viser modellen?</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Denne grafen illustrerer den gjennomsnittlige tykkelsen på ozonlaget. Nedgangen fra 1970-tallet skyldtes utslipp av KFK-gasser. Takket være <span class="font-semibold">Montrealprotokollen</span> (1987) er laget nå i ferd med å reparere seg selv. Prognosen viser en gradvis bedring mot nivåene vi så før 1980.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="mt-6">
+                     <h3 class="font-semibold text-slate-700 mb-3">Tegnforklaring</h3>
+                     <div class="space-y-2">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+                            <span class="text-sm text-slate-600">Kritisk lavt (&lt; 220 DU)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
+                            <span class="text-sm text-slate-600">Svekket (220-300 DU)</span>
+                        </div>
+                         <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-sky-500 mr-2"></div>
+                            <span class="text-sm text-slate-600">Normalt (&gt; 300 DU)</span>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. DATA ---
+            // Forenklet datasett som representerer trenden for ozonlaget.
+            const ozoneData = [
+                // Historiske data (tilnærmet)
+                { year: 1974, value: 350 },
+                { year: 1980, value: 335 },
+                { year: 1985, value: 305 },
+                { year: 1991, value: 270 },
+                { year: 1994, value: 255 }, // Nær bunnpunktet
+                { year: 2000, value: 265 },
+                { year: 2006, value: 275 },
+                { year: 2012, value: 290 },
+                { year: 2018, value: 305 },
+                { year: 2024, value: 319 },
+                // Fremtidig prognose
+                { year: 2030, value: 330 },
+                { year: 2040, value: 345 },
+                { year: 2050, value: 355 },
+                { year: 2060, value: 360 },
+                { year: 2074, value: 365 }
+            ];
+
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 50;
+            const endYear = currentYear + 50;
+            
+            // --- 2. OPPSETT AV GRAF ---
+            const container = document.getElementById('chart-container');
+            const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+            let width = container.clientWidth - margin.left - margin.right;
+            let height = container.clientHeight - margin.top - margin.bottom;
+
+            const svg = d3.select("#chart-container")
+                .append("svg")
+                .attr("width", '100%')
+                .attr("height", '100%')
+                .attr('viewBox', `0 0 ${container.clientWidth} ${container.clientHeight}`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // --- 3. SKALAER OG AKSER ---
+            const x = d3.scaleTime()
+                .domain([new Date(startYear, 0, 1), new Date(endYear, 0, 1)])
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([200, d3.max(ozoneData, d => d.value) + 20])
+                .range([height, 0]);
+
+            // Fargeskala basert på DU-verdi
+            const colorScale = d3.scaleLinear()
+                .domain([220, 260, 300])
+                .range(["#ef4444", "#eab308", "#0ea5e9"]) // Rød, Gul, Himmelblå
+                .clamp(true);
+
+            // X-akse
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            // Y-akse
+            svg.append("g")
+                .call(d3.axisLeft(y));
+            
+            // Akse-etiketter
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("x", width / 2 + margin.left / 2)
+                .attr("y", height + margin.top + 20)
+                .text("År")
+                .attr("class", "axis-label");
+
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2 + margin.top)
+                .text("Ozon-tykkelse (DU)")
+                .attr("class", "axis-label");
+
+            // --- 4. TEGNE LINJEN ---
+            const line = d3.line()
+                .x(d => x(new Date(d.year, 0, 1)))
+                .y(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+
+            // Definer gradient for linjen
+            const gradient = svg.append("defs").append("linearGradient")
+                .attr("id", "line-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", 0).attr("y1", y(0))
+                .attr("x2", width).attr("y2", y(0));
+            
+            gradient.selectAll("stop")
+                .data(ozoneData)
+                .enter().append("stop")
+                .attr("offset", d => `${(x(new Date(d.year, 0, 1)) / width) * 100}%`)
+                .attr("stop-color", d => colorScale(d.value));
+
+            const path = svg.append("path")
+                .datum(ozoneData)
+                .attr("fill", "none")
+                .attr("stroke", "url(#line-gradient)")
+                .attr("stroke-width", 3)
+                .attr("d", line);
+            
+            // Animasjon for linjen
+            const pathLength = path.node().getTotalLength();
+            path.attr("stroke-dasharray", pathLength + " " + pathLength)
+                .attr("stroke-dashoffset", pathLength)
+                .transition()
+                .ease(d3.easeSin)
+                .duration(2000)
+                .attr("stroke-dashoffset", 0);
+            
+            // --- 5. INTERAKTIVITET ---
+            const focus = svg.append("g").style("display", "none");
+
+            focus.append("line")
+                .attr("class", "focus-line")
+                .attr("y1", 0)
+                .attr("y2", height)
+                .attr("stroke", "#94a3b8")
+                .attr("stroke-width", 1)
+                .attr("stroke-dasharray", "3,3");
+
+            focus.append("circle")
+                .attr("class", "focus-circle")
+                .attr("r", 6)
+                .attr("fill", "white")
+                .attr("stroke-width", 2);
+
+            const yearSlider = document.getElementById('year-slider');
+            const displayYear = document.getElementById('display-year');
+            const displayDU = document.getElementById('display-du');
+
+            yearSlider.min = startYear;
+            yearSlider.max = endYear;
+            yearSlider.value = currentYear;
+
+            function updateDisplay(year) {
+                const date = new Date(year, 0, 1);
+                
+                // Finn nærmeste datapunkt vha interpolering
+                const bisect = d3.bisector(d => d.year).left;
+                const i = bisect(ozoneData, year, 1);
+                const d0 = ozoneData[i - 1];
+                const d1 = ozoneData[i];
+                const d = year - d0.year > d1.year - year ? d1 : d0;
+                
+                const duValue = Math.round(d.value);
+                const xPos = x(new Date(d.year, 0, 1));
+                
+                displayYear.textContent = d.year;
+                displayDU.textContent = `${duValue} DU`;
+
+                focus.style("display", null);
+                focus.select(".focus-line").attr("x1", xPos).attr("x2", xPos);
+                focus.select(".focus-circle")
+                    .attr("transform", `translate(${xPos},${y(duValue)})`)
+                    .attr("stroke", colorScale(duValue));
+            }
+
+            yearSlider.addEventListener('input', (e) => {
+                updateDisplay(parseInt(e.target.value));
+            });
+
+            // For å la brukeren klikke på grafen
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .on("mouseover", () => focus.style("display", null))
+                .on("mouseout", () => focus.style("display", "none"))
+                .on("mousemove", (event) => {
+                    const [mx] = d3.pointer(event);
+                    const date = x.invert(mx);
+                    const year = date.getFullYear();
+                    yearSlider.value = year;
+                    updateDisplay(year);
+                });
+
+            // Initial visning
+            updateDisplay(currentYear);
+            
+            // Responsivitet
+             window.addEventListener('resize', () => {
+                width = container.clientWidth - margin.left - margin.right;
+                height = container.clientHeight - margin.top - margin.bottom;
+
+                svg.attr('viewBox', `0 0 ${container.clientWidth} ${container.clientHeight}`);
+                x.range([0, width]);
+                y.range([height, 0]);
+
+                svg.select(".x-axis").call(d3.axisBottom(x));
+                svg.select(".y-axis").call(d3.axisLeft(y));
+                
+                path.attr("d", line);
+                updateDisplay(yearSlider.value);
+            });
+        });
+    </script>
+</body>
+</html>
