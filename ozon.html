@@ -84,35 +84,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- Footer Section -->
+        <div class="text-center mt-8 pt-6 border-t border-slate-200">
+            <p class="text-sm text-slate-500">
+                Laget av Elisabeth Engum ved hjelp av Gemini Canvas, 9. september 2025
+            </p>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- 1. DATA ---
-            // Forenklet datasett som representerer trenden for ozonlaget.
+            // Utvidet datasett som representerer trenden for ozonlaget fra 1900 til 2100.
             const ozoneData = [
-                // Historiske data (tilnærmet)
-                { year: 1974, value: 350 },
+                // Stabil periode før KFK-utslipp
+                { year: 1900, value: 370 },
+                { year: 1940, value: 370 },
+                { year: 1970, value: 360 },
+                // Historisk nedgang
                 { year: 1980, value: 335 },
                 { year: 1985, value: 305 },
                 { year: 1991, value: 270 },
                 { year: 1994, value: 255 }, // Nær bunnpunktet
                 { year: 2000, value: 265 },
-                { year: 2006, value: 275 },
-                { year: 2012, value: 290 },
-                { year: 2018, value: 305 },
-                { year: 2024, value: 319 },
+                // Gradvis restitusjon
+                { year: 2010, value: 285 },
+                { year: 2025, value: 320 },
                 // Fremtidig prognose
-                { year: 2030, value: 330 },
                 { year: 2040, value: 345 },
-                { year: 2050, value: 355 },
-                { year: 2060, value: 360 },
-                { year: 2074, value: 365 }
+                { year: 2060, value: 360 }, // Nærmer seg full restitusjon
+                { year: 2080, value: 365 },
+                { year: 2100, value: 370 }  // Fullt restituert
             ];
 
             const currentYear = new Date().getFullYear();
-            const startYear = currentYear - 50;
-            const endYear = currentYear + 50;
+            const startYear = 1900;
+            const endYear = 2100;
             
             // --- 2. OPPSETT AV GRAF ---
             const container = document.getElementById('chart-container');
@@ -293,3 +301,5 @@
     </script>
 </body>
 </html>
+
+
