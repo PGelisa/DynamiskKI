@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFK-Ozon Destruksjonssyklus (Animert)</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f4f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <svg id="cfc-ozone-infographic" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Definerer pilspisser -->
+            <marker id="arrowhead-dark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+            </marker>
+            <marker id="arrowhead-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" />
+            </marker>
+             <marker id="arrowhead-cycle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+            </marker>
+        </defs>
+
+        <!-- Bakgrunn og stil -->
+        <style>
+            .sans-serif { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+            .label { font-size: 22px; fill: #1e293b; font-weight: 500; }
+            .formula { font-family: 'Courier New', Courier, monospace; font-size: 26px; fill: #0f172a; font-weight: 600; }
+            .panel-title { font-size: 24px; fill: #475569; font-weight: 600; text-anchor: middle; }
+            
+            .cfc-fill { fill: #94a3b8; }
+            .cfc-stroke { stroke: #475569; }
+            .cl-fill { fill: #ef4444; } /* Rød */
+            .cl-stroke { stroke: #b91c1c; }
+            .o3-fill { fill: #3b82f6; } /* Dyp blå */
+            .o3-stroke { stroke: #2563eb; }
+            .o2-fill { fill: #2dd4bf; } /* Lys blå/grønn */
+            .o2-stroke { stroke: #0d9488; }
+            .uv-fill { fill: #8b5cf6; } /* Lilla */
+            .uv-stroke { stroke: #7c3aed; }
+            .psc-fill { fill: #eff6ff; }
+            .psc-stroke { stroke: #dbeafe; }
+
+            .molecule-atom { stroke-width: 2px; }
+            .reaction-arrow { stroke: #334155; stroke-width: 3px; marker-end: url(#arrowhead-dark); }
+            .uv-arrow { stroke: #8b5cf6; stroke-width: 4px; marker-end: url(#arrowhead-purple); }
+            .cycle-arrow { stroke: #ef4444; stroke-width: 5px; stroke-dasharray: 15 10; fill: none; marker-end: url(#arrowhead-cycle); }
+        </style>
+        
+        <!-- Master Animation Clock -->
+        <rect id="master-clock-container" visibility="hidden">
+             <animate id="master_clock" attributeName="width" dur="12s" begin="0s" repeatCount="indefinite" />
+        </rect>
+
+        <rect width="1600" height="900" fill="#f8fafc"/>
+
+        <!-- Paneldelere -->
+        <line x1="400" y1="50" x2="400" y2="850" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8"/>
+        <line x1="800" y1="50" x2="800" y2="850" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8"/>
+        <line x1="1200" y1="50" x2="1200" y2="850" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8"/>
+
+        <!-- === PANEL 1: CFC stiger opp (0s - 3s) === -->
+        <g id="panel1">
+            <text x="200" y="80" class="sans-serif panel-title">1. Utslipp</text>
+            <path d="M -10 900 Q 200 700 410 900 Z" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+            
+            <g>
+                <!-- CFC-molekyl som stiger -->
+                <g transform="translate(150, 650)">
+                     <circle cx="0" cy="0" r="25" class="cfc-fill molecule-atom cfc-stroke" /> <!-- C -->
+                     <circle cx="-35" cy="-10" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
+                     <circle cx="35" cy="-10" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
+                     <circle cx="0" cy="35" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
+                     <circle cx="0" cy="-35" r="18" class="cfc-fill molecule-atom cfc-stroke" /> <!-- F -->
+                    <animateTransform attributeName="transform" type="translate" values="150,650; 180,250" begin="master_clock.begin" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1"/>
+                    <animate attributeName="opacity" values="1;0" begin="master_clock.begin + 2.5s" dur="0.5s" repeatCount="indefinite" fill="freeze"/>
+                </g>
+                 <text x="150" y="740" text-anchor="middle" class="sans-serif label">CFC (CCl₃F)
+                     <animate attributeName="opacity" values="1;0" begin="master_clock.begin + 0.5s" dur="0.5s" repeatCount="indefinite" fill="freeze"/>
+                 </text>
+            </g>
+            
+            <path d="M 220 600 Q 200 400 220 200" stroke="#475569" stroke-width="4" fill="none" marker-end="url(#arrowhead-dark)"/>
+            <text x="250" y="400" class="sans-serif label">CFC stiger til<tspan x="250" dy="1.2em">stratosfæren</tspan></text>
+        </g>
+
+        <!-- === PANEL 2: Fotolyse (3s - 6s) === -->
+        <g id="panel2">
+            <text x="600" y="80" class="sans-serif panel-title">2. Fotolyse av UV-lys</text>
+            <!-- UV-fotoner -->
+            <g transform="translate(480, 250)">
+                <line x1="0" y1="0" x2="100" y2="50" class="uv-arrow"/>
+                <text x="30" y="0" class="sans-serif label uv-fill">UV (hv)</text>
+                <animateTransform attributeName="transform" type="translate" values="480,250; 600, 310" dur="1s" begin="master_clock.begin + 3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="1;0" dur="0.2s" begin="master_clock.begin + 3.8s" repeatCount="indefinite" fill="freeze"/>
+            </g>
+
+            <!-- CFC blir truffet -->
+            <g opacity="0">
+                 <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.99;1" dur="3s" begin="master_clock.begin + 3s" repeatCount="indefinite"/>
+                 <!-- Resten av molekylet -->
+                 <g transform="translate(650, 350)">
+                     <circle cx="0" cy="0" r="25" class="cfc-fill molecule-atom cfc-stroke" /> <!-- C -->
+                     <circle cx="35" cy="-10" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
+                     <circle cx="0" cy="35" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
+                     <circle cx="0" cy="-35" r="18" class="cfc-fill molecule-atom cfc-stroke" /> <!-- F -->
+                 </g>
+                 <!-- Frigjort Klor -->
+                 <g transform="translate(585, 340)">
+                    <circle cx="0" cy="0" r="20" class="cl-fill molecule-atom cl-stroke" />
+                    <animateTransform id="cl_free" attributeName="transform" type="translate" values="585, 340; 880, 350" begin="master_clock.begin + 4s" dur="2s" repeatCount="indefinite" fill="freeze"/>
+                 </g>
+            </g>
+
+            <text x="600" y="600" class="sans-serif formula" text-anchor="middle">CCl₃F + hv → CCl₂F• + Cl•</text>
+        </g>
+        
+        <!-- === PANEL 3: Ozonnedbrytning (6s - 9s) === -->
+        <g id="panel3">
+             <text x="1000" y="80" class="sans-serif panel-title">3. Ozon reagerer med klor</text>
+             
+             <!-- Reaktanter (Cl ankommer, O3 flyter inn) -->
+             <g opacity="0">
+                 <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.5;1" dur="3s" begin="master_clock.begin + 6s" repeatCount="indefinite"/>
+                <!-- Klor-atom (posisjonert der det ankommer) -->
+                <g transform="translate(880, 350)">
+                    <circle cx="0" cy="0" r="20" class="cl-fill molecule-atom cl-stroke"/>
+                </g>
+                <!-- Ozon-molekyl -->
+                <g transform="translate(1120, 350)">
+                    <circle cx="0" cy="0" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                    <circle cx="35" cy="-15" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                    <circle cx="35" cy="15" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                    <animateTransform attributeName="transform" type="translate" values="1120, 350; 1020, 350" dur="1s" begin="master_clock.begin + 6s" repeatCount="indefinite" fill="freeze"/>
+                </g>
+             </g>
+             
+             <!-- Produkter -->
+             <g opacity="0">
+                <animate id="panel3_products_anim" attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.99;1" dur="3s" begin="master_clock.begin + 7.5s" repeatCount="indefinite"/>
+                <g id="clo-radical" transform="translate(930, 520)">
+                    <circle cx="0" cy="0" r="20" class="cl-fill molecule-atom cl-stroke"/>
+                    <circle cx="35" cy="0" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                    <animateTransform attributeName="transform" type="translate" values="930, 520; 1280, 250" dur="1.5s" begin="master_clock.begin + 7.5s" repeatCount="indefinite" fill="freeze"/>
+                </g>
+                <g transform="translate(1080, 520)">
+                    <circle cx="0" cy="0" r="20" class="o2-fill molecule-atom o2-stroke"/>
+                    <circle cx="35" cy="0" r="20" class="o2-fill molecule-atom o2-stroke"/>
+                </g>
+             </g>
+            <text x="950" y="360" font-size="50px">+</text>
+            <line x1="850" y1="450" x2="1150" y2="450" class="reaction-arrow" />
+            <text x="1000" y="700" class="sans-serif formula" text-anchor="middle">Cl• + O₃ → ClO• + O₂</text>
+        </g>
+
+        <!-- === PANEL 4: Regenerering (9s - 12s) === -->
+        <g id="panel4">
+            <text x="1400" y="80" class="sans-serif panel-title">4. Klor frigjøres og gjentar syklusen</text>
+            
+             <!-- Reaktanter -->
+             <g opacity="0">
+                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.5;1" dur="3s" begin="master_clock.begin + 9s" repeatCount="indefinite"/>
+                 <!-- Klor-monoksid (posisjonert der det ankommer) -->
+                <g transform="translate(1280, 250)">
+                    <circle cx="0" cy="0" r="20" class="cl-fill molecule-atom cl-stroke"/>
+                    <circle cx="35" cy="0" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                </g>
+                <!-- Oksygen atom (flyr inn) -->
+                <g transform="translate(1550, 200)">
+                    <circle cx="0" cy="0" r="22" class="o3-fill molecule-atom o3-stroke"/>
+                    <animateTransform attributeName="transform" type="translate" values="1550, 200; 1420, 250" dur="1s" begin="master_clock.begin + 9s" repeatCount="indefinite" fill="freeze"/>
+                </g>
+            </g>
+
+            <!-- Produkter -->
+            <g opacity="0">
+                 <animate id="panel4_products_appear" attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.99;1" dur="1.5s" begin="master_clock.begin + 10.5s" repeatCount="indefinite"/>
+                 <!-- Klor atom regenerert (flyr tilbake for å vise syklus) -->
+                 <g transform="translate(1320, 420)">
+                    <circle cx="0" cy="0" r="20" class="cl-fill molecule-atom cl-stroke"/>
+                     <animateTransform attributeName="transform" type="translate" values="1320, 420; 1100, 350" dur="1.5s" begin="master_clock.begin + 10.5s" repeatCount="indefinite" fill="freeze"/>
+                 </g>
+                 <!-- Oksygen molekyl -->
+                 <g transform="translate(1460, 420)">
+                    <circle cx="0" cy="0" r="20" class="o2-fill molecule-atom o2-stroke"/>
+                    <circle cx="35" cy="0" r="20" class="o2-fill molecule-atom o2-stroke"/>
+                 </g>
+            </g>
+            
+            <text x="1360" y="260" font-size="50px">+</text>
+            <line x1="1250" y1="350" x2="1550" y2="350" class="reaction-arrow" />
+            <text x="1390" y="430" font-size="50px">+</text>
+            <text x="1400" y="550" class="sans-serif formula" text-anchor="middle">ClO• + O → Cl• + O₂</text>
+
+            <!-- Katalytisk syklus-pil -->
+            <path d="M 1550 430 A 150 150, 0, 1, 1, 1300 200" class="cycle-arrow" stroke-dasharray="800" stroke-dashoffset="800">
+                <animate attributeName="stroke-dashoffset" values="800;0" dur="1.5s" begin="master_clock.begin + 10.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.99;1" dur="1.5s" begin="master_clock.begin + 10.5s" repeatCount="indefinite"/>
+            </path>
+            
+            <g transform="translate(1220, 650)">
+                 <rect x="0" y="0" width="360" height="100" rx="10" fill="#e2e8f0"/>
+                 <text x="180" y="40" text-anchor="middle" class="sans-serif label">Netto reaksjon:</text>
+                 <text x="180" y="80" text-anchor="middle" class="sans-serif formula">O₃ + O → 2 O₂</text>
+            </g>
+
+            <g id="inset-antarctica" transform="translate(1225, 770)">
+                <rect x="0" y="0" width="350" height="120" fill="#ffffff" stroke="#94a3b8" rx="8"/>
+                <path d="M40,110 C 45,90 55,80 70,85 C 85,90 90,105 95,110 L 100,100 C 105,90 120,95 125,105 L 115,115 L 60,115 Z" fill="#a5f3fc"/>
+                <text x="85" y="105" class="sans-serif" font-size="14px" text-anchor="middle">Antarktis – ozonhull</text>
+                <path d="M180,70 Q 200,60 220,70 T 260,70" fill="none" stroke="#dbeafe" stroke-width="5"/>
+                <path d="M190,80 Q 210,70 230,80 T 270,80" fill="none" stroke="#eff6ff" stroke-width="4"/>
+                <path d="M185,90 Q 205,80 225,90 T 265,90" fill="none" stroke="#bfdbfe" stroke-width="3"/>
+                <text x="260" y="60" class="sans-serif" font-size="14px" text-anchor="start">PSCs (polare<tspan x="260" dy="1.2em">stratosfæriske skyer)</tspan></text>
+            </g>
+        </g>
+    </svg>
+</body>
+</html>
+
