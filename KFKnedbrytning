@@ -230,6 +230,11 @@
                 <text x="260" y="60" class="sans-serif" font-size="14px" text-anchor="start">PSCs (polare<tspan x="260" dy="1.2em">stratosfæriske skyer)</tspan></text>
             </g>
         </g>
+
+        <!-- Bunntekst -->
+        <text x="980" y="880" text-anchor="end" class="sans-serif" font-size="16px" fill="#64748b">
+            Laget av Elisabeth Engum ved hjelp av Gemini Canvas, 10. september 2025
+        </text>
     </svg>
 </body>
 </html>
