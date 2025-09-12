@@ -75,13 +75,13 @@
         <line x1="800" y1="50" x2="800" y2="850" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8"/>
         <line x1="1200" y1="50" x2="1200" y2="850" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8"/>
 
-        <!-- === PANEL 1: CFC stiger opp (0s - 3s) === -->
+        <!-- === PANEL 1: KFK stiger opp (0s - 3s) === -->
         <g id="panel1">
             <text x="200" y="80" class="sans-serif panel-title">1. Utslipp</text>
             <path d="M -10 900 Q 200 700 410 900 Z" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
             
             <g>
-                <!-- CFC-molekyl som stiger -->
+                <!-- KFK-molekyl som stiger -->
                 <g transform="translate(150, 650)">
                      <circle cx="0" cy="0" r="25" class="cfc-fill molecule-atom cfc-stroke" /> <!-- C -->
                      <circle cx="-35" cy="-10" r="20" class="cfc-fill molecule-atom cfc-stroke" /> <!-- Cl -->
@@ -91,13 +91,13 @@
                     <animateTransform attributeName="transform" type="translate" values="150,650; 180,250" begin="master_clock.begin" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1"/>
                     <animate attributeName="opacity" values="1;0" begin="master_clock.begin + 2.5s" dur="0.5s" repeatCount="indefinite" fill="freeze"/>
                 </g>
-                 <text x="150" y="740" text-anchor="middle" class="sans-serif label">CFC (CCl₃F)
+                 <text x="150" y="740" text-anchor="middle" class="sans-serif label">KFK (CCl₃F)
                      <animate attributeName="opacity" values="1;0" begin="master_clock.begin + 0.5s" dur="0.5s" repeatCount="indefinite" fill="freeze"/>
                  </text>
             </g>
             
             <path d="M 220 600 Q 200 400 220 200" stroke="#475569" stroke-width="4" fill="none" marker-end="url(#arrowhead-dark)"/>
-            <text x="250" y="400" class="sans-serif label">CFC stiger til<tspan x="250" dy="1.2em">stratosfæren</tspan></text>
+            <text x="250" y="400" class="sans-serif label">KFK stiger til<tspan x="250" dy="1.2em">stratosfæren</tspan></text>
         </g>
 
         <!-- === PANEL 2: Fotolyse (3s - 6s) === -->
@@ -111,7 +111,7 @@
                 <animate attributeName="opacity" values="1;0" dur="0.2s" begin="master_clock.begin + 3.8s" repeatCount="indefinite" fill="freeze"/>
             </g>
 
-            <!-- CFC blir truffet -->
+            <!-- KFK blir truffet -->
             <g opacity="0">
                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.01;0.99;1" dur="3s" begin="master_clock.begin + 3s" repeatCount="indefinite"/>
                  <!-- Resten av molekylet -->
