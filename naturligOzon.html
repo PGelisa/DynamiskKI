@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animasjon av Ozonlagets Dannelse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sun-glow {
+            box-shadow: 0 0 40px 20px #fef08a, 0 0 60px 40px #fef08a inset;
+        }
+        .uv-ray {
+            position: absolute;
+            background: linear-gradient(to bottom, rgba(255,255,0,0.8), rgba(255,255,0,0));
+            width: 3px;
+            transition: all 2s ease-in-out;
+        }
+        .uv-c { background: linear-gradient(to bottom, rgba(168, 85, 247, 0.8), rgba(168, 85, 247, 0)); }
+        .uv-b { background: linear-gradient(to bottom, rgba(251, 146, 60, 0.8), rgba(251, 146, 60, 0)); }
+
+        .molecule {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 1.5s ease-in-out;
+            border-radius: 50%;
+        }
+        .oxygen-atom {
+            width: 20px;
+            height: 20px;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            border: 2px solid #1e40af; /* blue-800 */
+        }
+        .o2 .oxygen-atom:first-child { transform: translateX(-1px); }
+        .o2 .oxygen-atom:last-child { transform: translateX(1px); }
+
+        .o3 .oxygen-atom:nth-child(1) { transform: translate(0, -4px); }
+        .o3 .oxygen-atom:nth-child(2) { transform: translate(-5px, 4px); }
+        .o3 .oxygen-atom:nth-child(3) { transform: translate(5px, 4px); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-5xl aspect-[16/9] bg-gray-800 rounded-lg shadow-2xl overflow-hidden relative" id="animation-container">
+        <!-- Atmosfæren -->
+        <div class="absolute bottom-0 w-full h-1/4 bg-gradient-to-t from-sky-400 to-sky-600 flex items-center justify-center">
+             <span class="text-xl font-bold text-white opacity-80">Troposfæren</span>
+        </div>
+        <div class="absolute bottom-1/4 w-full h-3/4 bg-gradient-to-t from-sky-600 to-indigo-900 flex items-center justify-center" id="stratosphere">
+            <span class="text-2xl font-bold text-white opacity-60 tracking-widest">Stratosfæren</span>
+        </div>
+
+        <!-- Sol -->
+        <div class="sun-glow absolute -top-16 -right-16 w-48 h-48 bg-yellow-300 rounded-full"></div>
+
+        <!-- Forklaringstekst -->
+        <div id="explanation" class="absolute bottom-4 left-4 right-4 md:left-auto md:w-2/3 lg:w-1/2 bg-black bg-opacity-60 p-4 rounded-lg backdrop-blur-sm border border-gray-600">
+            <h3 id="step-title" class="text-lg font-bold text-yellow-300 mb-2"></h3>
+            <p id="step-text" class="text-sm"></p>
+            <div id="formula-container" class="mt-2 text-center text-lg font-mono tracking-wider"></div>
+        </div>
+
+    </div>
+
+    <!-- Kontroller -->
+    <div class="flex space-x-4 mt-4">
+        <button id="prev-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Forrige</button>
+        <div id="step-indicator" class="flex items-center space-x-2"></div>
+        <button id="next-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Neste</button>
+    </div>
+
+<script>
+    const container = document.getElementById('animation-container');
+    const stratosphere = document.getElementById('stratosphere');
+    const stepTitle = document.getElementById('step-title');
+    const stepText = document.getElementById('step-text');
+    const formulaContainer = document.getElementById('formula-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const stepIndicator = document.getElementById('step-indicator');
+
+    let currentStep = 0;
+    let elements = {
+        molecules: [],
+        rays: []
+    };
+
+    const steps = [
+        {
+            title: "1. Utgangspunktet: Oksygen i Stratosfæren",
+            text: "Stratosfæren, ca. 10-50 km over jorden, er rik på oksygenmolekyler (O₂). Disse molekylene er stabile under normale forhold.",
+            formula: "",
+            action: () => {
+                createO2Molecules(8);
+            }
+        },
+        {
+            title: "2. Spalting med UV-C-stråling",
+            text: "Intens, kortbølget ultrafiolett stråling (UV-C) fra solen har nok energi til å splitte et oksygenmolekyl (O₂) til to frie, svært reaktive oksygenatomer (O).",
+            formula: "O₂ + UV-C ⟶ O + O",
+            action: () => {
+                const targetO2 = elements.molecules.find(m => m.dataset.type === 'O2');
+                if (targetO2) {
+                    const ray = createRay('uv-c', targetO2);
+                    setTimeout(() => {
+                        splitO2(targetO2);
+                        container.removeChild(ray);
+                    }, 2000);
+                }
+            }
+        },
+        {
+            title: "3. Dannelse av Ozon (O₃)",
+            text: "Et fritt oksygenatom (O) reagerer raskt med et annet oksygenmolekyl (O₂) for å danne et ozonmolekyl (O₃).",
+            formula: "O + O₂ ⟶ O₃",
+            action: () => {
+                const freeOxygen = elements.molecules.find(m => m.dataset.type === 'O');
+                const targetO2 = elements.molecules.find(m => m.dataset.type === 'O2' && m.id !== freeOxygen?.dataset.parentId);
+                if (freeOxygen && targetO2) {
+                    combineToO3(freeOxygen, targetO2);
+                }
+            }
+        },
+        {
+            title: "4. Ozon absorberer UV-B-stråling",
+            text: "Ozonlaget er svært effektivt til å absorbere skadelig, lengre-bølget UV-B-stråling. Når ozon (O₃) absorberer UV-B, splittes det tilbake til et oksygenmolekyl (O₂) og et fritt oksygenatom (O).",
+            formula: "O₃ + UV-B ⟶ O₂ + O",
+            action: () => {
+                const targetO3 = elements.molecules.find(m => m.dataset.type === 'O3');
+                if (targetO3) {
+                    const ray = createRay('uv-b', targetO3);
+                    setTimeout(() => {
+                         splitO3(targetO3);
+                         container.removeChild(ray);
+                    }, 2000);
+                }
+            }
+        },
+        {
+            title: "5. En kontinuerlig syklus",
+            text: "Det frie oksygenatomet (O) kan nå starte prosessen på nytt ved å reagere med et annet O₂-molekyl. Denne pågående syklusen av dannelse og nedbrytning av ozon opprettholder en dynamisk balanse og beskytter livet på jorden.",
+            formula: "O + O₂ ⇄ O₃ + UV",
+            action: () => {
+                const freeOxygen = elements.molecules.find(m => m.dataset.type === 'O');
+                const targetO2 = elements.molecules.find(m => m.dataset.type === 'O2');
+                if (freeOxygen && targetO2) {
+                    combineToO3(freeOxygen, targetO2);
+                }
+            }
+        }
+    ];
+
+    function clearElements() {
+        elements.molecules.forEach(el => container.removeChild(el));
+        elements.rays.forEach(el => container.removeChild(el));
+        elements = { molecules: [], rays: [] };
+    }
+
+    function createMolecule(type, id, top, left) {
+        const molecule = document.createElement('div');
+        molecule.id = id;
+        molecule.dataset.type = type;
+        molecule.className = 'molecule';
+        molecule.style.top = `${top}%`;
+        molecule.style.left = `${left}%`;
+
+        if (type === 'O2') {
+            molecule.classList.add('o2');
+            molecule.innerHTML = `<div class="oxygen-atom"></div><div class="oxygen-atom"></div>`;
+        } else if (type === 'O3') {
+            molecule.classList.add('o3');
+            molecule.innerHTML = `<div class="oxygen-atom"></div><div class="oxygen-atom"></div><div class="oxygen-atom"></div>`;
+        } else if (type === 'O') {
+            molecule.classList.add('o');
+            molecule.innerHTML = `<div class="oxygen-atom"></div>`;
+        }
+        container.appendChild(molecule);
+        elements.molecules.push(molecule);
+        return molecule;
+    }
+    
+    function createO2Molecules(count) {
+        for (let i = 0; i < count; i++) {
+            const top = 20 + Math.random() * 50;
+            const left = 10 + Math.random() * 80;
+            createMolecule('O2', `o2-${i}`, top, left);
+        }
+    }
+
+    function createRay(type, target) {
+        const ray = document.createElement('div');
+        ray.className = `uv-ray ${type}`;
+        const targetRect = target.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        const startX = targetRect.left - containerRect.left + targetRect.width / 2;
+        ray.style.left = `${startX}px`;
+        ray.style.top = `-10%`;
+        ray.style.height = `${targetRect.top - containerRect.top + 10}%`;
+
+        container.appendChild(ray);
+        elements.rays.push(ray);
+
+        return ray;
+    }
+
+    function splitO2(molecule) {
+        const top = parseFloat(molecule.style.top);
+        const left = parseFloat(molecule.style.left);
+        const parentId = molecule.id;
+        
+        const atom1 = createMolecule('O', `${parentId}-a1`, top, left);
+        atom1.dataset.parentId = parentId;
+        const atom2 = createMolecule('O', `${parentId}-a2`, top, left);
+        atom2.dataset.parentId = parentId;
+        
+        elements.molecules = elements.molecules.filter(m => m.id !== parentId);
+        container.removeChild(molecule);
+
+        setTimeout(() => {
+            atom1.style.transform = 'translate(-40px, -20px)';
+            atom2.style.transform = 'translate(40px, 20px)';
+        }, 100);
+    }
+    
+    function splitO3(molecule) {
+        const top = parseFloat(molecule.style.top);
+        const left = parseFloat(molecule.style.left);
+        const parentId = molecule.id;
+        
+        const o2 = createMolecule('O2', `o2-from-${parentId}`, top, left);
+        const o = createMolecule('O', `o-from-${parentId}`, top, left);
+        
+        elements.molecules = elements.molecules.filter(m => m.id !== parentId);
+        container.removeChild(molecule);
+
+        setTimeout(() => {
+            o2.style.transform = 'translate(-40px, 20px)';
+            o.style.transform = 'translate(40px, -20px)';
+        }, 100);
+    }
+
+    function combineToO3(atom, o2molecule) {
+        const o2Top = parseFloat(o2molecule.style.top);
+        const o2Left = parseFloat(o2molecule.style.left);
+        
+        atom.style.top = `${o2Top}%`;
+        atom.style.left = `${o2Left}%`;
+        atom.style.transform = 'translate(0, 0)';
+
+        setTimeout(() => {
+            const o3Id = `o3-${Date.now()}`;
+            const o3 = createMolecule('O3', o3Id, o2Top, o2Left);
+            o3.style.transform = 'scale(0.8)';
+            
+            elements.molecules = elements.molecules.filter(m => m.id !== atom.id && m.id !== o2molecule.id);
+            container.removeChild(atom);
+            container.removeChild(o2molecule);
+
+            setTimeout(() => {
+                o3.style.transform = 'scale(1)';
+            }, 100);
+
+        }, 1500);
+    }
+
+    function updateStepIndicator() {
+        stepIndicator.innerHTML = '';
+        for (let i = 0; i < steps.length; i++) {
+            const dot = document.createElement('div');
+            dot.className = `w-3 h-3 rounded-full transition duration-300 ${i === currentStep ? 'bg-blue-500' : 'bg-gray-600'}`;
+            stepIndicator.appendChild(dot);
+        }
+    }
+
+    function runStep(stepIndex) {
+        if (stepIndex < 0 || stepIndex >= steps.length) return;
+        
+        const step = steps[stepIndex];
+        stepTitle.textContent = step.title;
+        stepText.textContent = step.text;
+        formulaContainer.innerHTML = step.formula;
+        
+        if (stepIndex === 0) {
+           clearElements();
+        }
+
+        if (typeof step.action === 'function') {
+            step.action();
+        }
+        
+        prevBtn.disabled = stepIndex === 0;
+        nextBtn.disabled = stepIndex === steps.length - 1;
+        updateStepIndicator();
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            runStep(currentStep);
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            // This is a simplified reset. For a true "rewind", a more complex state machine is needed.
+            // For this educational purpose, we restart the animation from the target step.
+            clearElements();
+            for (let i = 0; i <= currentStep; i++) {
+                runStep(i);
+            }
+        }
+    });
+
+    // Initial load
+    runStep(currentStep);
+
+</script>
+</body>
+</html>
+
+
+
+
