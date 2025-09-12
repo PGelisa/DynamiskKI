@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ozonlagets Livssyklus: En Animasjon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .info-box {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .sun-glow {
+            box-shadow: 0 0 80px 40px rgba(255, 235, 59, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-sky-800 to-indigo-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-yellow-300 rounded-full sun-glow -mt-32"></div>
+    
+    <div class="text-center w-full max-w-5xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Ozonlagets Naturlige Livssyklus</h1>
+        <p class="text-sky-200 mt-2">En visuell forklaring av hvordan ozon dannes og brytes ned.</p>
+    </div>
+
+    <div class="w-full max-w-5xl aspect-video relative rounded-lg overflow-hidden shadow-2xl bg-black bg-opacity-20 my-4">
+        <canvas id="ozoneCanvas" class="w-full h-full"></canvas>
+    </div>
+
+    <div id="controls" class="mt-2 w-full max-w-5xl flex flex-col md:flex-row items-center justify-between p-4 rounded-lg bg-white/20 info-box border-2 border-white/30">
+        <div id="explanation" class="text-center md:text-left text-sky-100 mb-4 md:mb-0 md:mr-4 flex-grow">
+            Velkommen! Klikk "Start Animasjon" for å se hvordan ozonlaget fungerer.
+        </div>
+        <div class="flex-shrink-0">
+            <button id="actionButton" class="bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform duration-200 hover:scale-105 text-lg">
+                Start Animasjon
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('ozoneCanvas');
+        const ctx = canvas.getContext('2d');
+        const actionButton = document.getElementById('actionButton');
+        const explanation = document.getElementById('explanation');
+
+        let animationFrameId;
+        let particles = [];
+        let currentState = 'initial';
+        
+        const texts = {
+            step1_intro_o2: 'Stratosfæren er full av oksygenmolekyler (O₂).',
+            step2_uvc_arrives: 'Fra solen kommer kortbølget, energirik UV-C-stråling (bølgelengde < 242 nm).',
+            step3_split_and_form: 'UV-C splitter ett O₂ til to frie atomer. Hvert atom reagerer med et O₂-molekyl, og danner totalt TO nye O₃-molekyler.',
+            step4_ozone_layer: 'Denne prosessen bygger opp ozonlaget, en blanding av O₂ og O₃, som absorberer skadelig stråling.',
+            step5_uvb_arrives: 'Nå kommer UV-B-stråling (280-315 nm) fra solen.',
+            step6_breakdown_split: 'Når UV-B treffer ozon (O₃), splittes det tilbake til et oksygenmolekyl (O₂) og et fritt oksygenatom (O).',
+            step7_equilibrium: 'Denne syklusen av dannelse og nedbrytning skaper en dynamisk balanse som beskytter livet på jorden. Start på nytt?',
+        };
+
+        const stateMachine = {
+            initial: { action: 'Start', next: 'step1_intro_o2' },
+            step1_intro_o2: { action: 'Neste', next: 'step2_uvc_arrives' },
+            step2_uvc_arrives: { action: 'Neste', next: 'step3_split_and_form' },
+            step3_split_and_form: { action: 'Neste', next: 'step4_ozone_layer' },
+            step4_ozone_layer: { action: 'Neste', next: 'step5_uvb_arrives' },
+            step5_uvb_arrives: { action: 'Neste', next: 'step6_breakdown_split' },
+            step6_breakdown_split: { action: 'Neste', next: 'step7_equilibrium' },
+            step7_equilibrium: { action: 'Start på nytt', next: 'initial' },
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            if(currentState !== 'initial') {
+                init(currentState);
+            }
+        }
+
+        class Particle {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'O2', 'O', 'O3', 'UVC', 'UVB'
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = type === 'O' ? 5 : 10;
+                this.target = null;
+                this.fading = false;
+                this.alpha = 1;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                if (this.type === 'O2') {
+                    ctx.fillStyle = '#67e8f9'; // Cyan
+                    ctx.arc(this.x - 7, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.x + 7, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'O3') {
+                    ctx.fillStyle = '#a78bfa'; // Violet
+                    ctx.arc(this.x, this.y - 8, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.x - 7, this.y + 4, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.x + 7, this.y + 4, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'O') {
+                    ctx.fillStyle = '#f87171'; // Red
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'UVC' || this.type === 'UVB') {
+                    ctx.strokeStyle = this.type === 'UVC' ? '#facc15' : '#fb923c'; // Yellow / Orange
+                    ctx.lineWidth = 3;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x, this.y + 40);
+                    for(let i = 0; i < 5; i++) {
+                        ctx.moveTo(this.x - 5, this.y + i*8);
+                        ctx.lineTo(this.x + 5, this.y + i*8 + 4);
+                    }
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            update() {
+                if(this.target) {
+                    const dx = this.target.x - this.x;
+                    const dy = this.target.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > 1) {
+                        this.x += dx / 20;
+                        this.y += dy / 20;
+                    } else {
+                        handleCollision(this, this.target);
+                        this.target = null;
+                    }
+                } else if (this.type.startsWith('UV')) {
+                    this.y += 3;
+                } else {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+                
+                if (this.fading) {
+                    this.alpha -= 0.02;
+                    if(this.alpha <= 0) this.alpha = 0;
+                }
+            }
+        }
+        
+        function init(state) {
+            particles = [];
+            switch(state) {
+                case 'initial':
+                case 'step1_intro_o2':
+                case 'step2_uvc_arrives':
+                    for (let i = 0; i < 15; i++) {
+                        particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O2'));
+                    }
+                    break;
+                case 'step3_split_and_form':
+                     for (let i = 0; i < 15; i++) {
+                        particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O2'));
+                    }
+                    const targetO2 = particles[Math.floor(particles.length / 2)];
+                    targetO2.vx = 0; targetO2.vy = 0; 
+                    const uv = new Particle(targetO2.x, -50, 'UVC');
+                    uv.target = targetO2;
+                    particles.push(uv);
+                    break;
+                case 'step4_ozone_layer':
+                case 'step5_uvb_arrives':
+                    for (let i = 0; i < 10; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O2'));
+                    for (let i = 0; i < 5; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O3'));
+                    break;
+                case 'step6_breakdown_split':
+                     for (let i = 0; i < 10; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O2'));
+                     for (let i = 0; i < 5; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O3'));
+                    const targetO3 = particles.find(p => p.type === 'O3');
+                    if (targetO3) {
+                         targetO3.vx = 0; targetO3.vy = 0;
+                         const uvb = new Particle(targetO3.x, -50, 'UVB');
+                         uvb.target = targetO3;
+                         particles.push(uvb);
+                    }
+                    break;
+                case 'step7_equilibrium':
+                    for (let i = 0; i < 10; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O2'));
+                    for (let i = 0; i < 5; i++) particles.push(new Particle(Math.random() * canvas.width, Math.random() * (canvas.height - 100) + 50, 'O3'));
+                    break;
+            }
+        }
+
+        function handleCollision(p1, p2) {
+            // UVC hits O2
+            if ((p1.type === 'UVC' && p2.type === 'O2') || (p1.type === 'O2' && p2.type === 'UVC')) {
+                const o2_to_split = p1.type === 'O2' ? p1 : p2;
+                const uv = p1.type === 'UVC' ? p1 : p2;
+                
+                uv.fading = true;
+                o2_to_split.fading = true;
+                o2_to_split.isSplitting = true; // Mark it so it can't be targeted
+                
+                actionButton.disabled = true; // Disable button during animation sequence
+                
+                setTimeout(() => {
+                    const o1 = new Particle(o2_to_split.x - 10, o2_to_split.y, 'O');
+                    const o2_atom = new Particle(o2_to_split.x + 10, o2_to_split.y, 'O');
+                    o1.vx = -1; o1.vy = 0.1;
+                    o2_atom.vx = 1; o2_atom.vy = -0.1;
+                    particles.push(o1, o2_atom);
+
+                    // After a moment, find targets for the two new O atoms
+                    setTimeout(() => {
+                        const availableO2 = particles.filter(p => p.type === 'O2' && !p.fading && !p.isSplitting);
+                        if (availableO2.length >= 2) {
+                            const target1 = availableO2[0];
+                            const target2 = availableO2[1];
+                            
+                            target1.vx = 0; target1.vy = 0;
+                            target2.vx = 0; target2.vy = 0;
+
+                            o1.target = target1;
+                            o2_atom.target = target2;
+                        }
+                    }, 1000);
+
+                    // Re-enable the button after the full sequence is likely finished
+                    setTimeout(() => {
+                        actionButton.disabled = false;
+                    }, 4000);
+
+                }, 500);
+            }
+            // O hits O2
+            else if ((p1.type === 'O' && p2.type === 'O2') || (p1.type === 'O2' && p2.type === 'O')) {
+                 const o = p1.type === 'O' ? p1 : p2;
+                 const o2 = p1.type === 'O2' ? p2 : p1;
+                 
+                 o.fading = true;
+                 o2.fading = true;
+                 
+                 setTimeout(() => {
+                    particles.push(new Particle(o2.x, o2.y, 'O3'));
+                 }, 500);
+            }
+            // UVB hits O3
+            else if ((p1.type === 'UVB' && p2.type === 'O3') || (p1.type === 'O3' && p2.type === 'UVB')) {
+                const o3 = p1.type === 'O3' ? p1 : p2;
+                const uvb = p1.type === 'UVB' ? p1 : p2;
+                
+                uvb.fading = true;
+                o3.fading = true;
+
+                setTimeout(() => {
+                    const o2_new = new Particle(o3.x - 10, o3.y, 'O2');
+                    const o_new = new Particle(o3.x + 20, o3.y, 'O');
+                    o2_new.vx = -0.5;
+                    o_new.vx = 0.5;
+                    particles.push(o2_new, o_new);
+                }, 500);
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            particles = particles.filter(p => p.alpha > 0);
+            
+            ctx.font = '16px Inter';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.textAlign = 'center';
+
+            if (currentState === 'step3_split_and_form' || currentState === 'step2_uvc_arrives') {
+                ctx.fillText('UV-C (< 242 nm)', canvas.width / 2, 30);
+            } else if (currentState === 'step5_uvb_arrives' || currentState === 'step6_breakdown_split') {
+                ctx.fillText('UV-B (280-315 nm)', canvas.width / 2, 30);
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        let hasStarted = false;
+        actionButton.addEventListener('click', () => {
+            if (actionButton.disabled) return;
+            
+            let nextState;
+            if (!hasStarted) {
+                hasStarted = true;
+                nextState = 'step1_intro_o2';
+            } else {
+                nextState = stateMachine[currentState].next;
+            }
+            
+            currentState = nextState;
+
+            if (currentState === 'initial') { 
+                hasStarted = false;
+                explanation.textContent = 'Velkommen! Klikk "Start Animasjon" for å se hvordan ozonlaget fungerer.';
+                actionButton.textContent = 'Start Animasjon';
+                init('initial');
+            } else {
+                explanation.textContent = texts[currentState];
+                actionButton.textContent = stateMachine[currentState].action;
+                init(currentState);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+             resizeCanvas();
+        });
+
+        // Initial setup
+        resizeCanvas();
+        init('initial'); 
+        animate();
+    </script>
+
+</body>
+</html>
+
