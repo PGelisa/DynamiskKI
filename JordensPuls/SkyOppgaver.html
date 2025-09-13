@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Quiz: Skyer og Nedbør</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .answer-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #10B981 !important; /* Tailwind green-500 */
+            color: white;
+            border-color: #059669;
+        }
+        .incorrect {
+            background-color: #EF4444 !important; /* Tailwind red-500 */
+            color: white;
+            border-color: #DC2626;
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="bg-white w-full max-w-2xl rounded-2xl shadow-lg p-6 md:p-8">
+        
+        <!-- Spørsmåls-visning -->
+        <div id="question-view">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-slate-800">Spørsmål <span id="question-number"></span> av <span id="total-questions"></span></h2>
+                <div class="text-lg font-semibold text-slate-600">Poeng: <span id="score">0</span></div>
+            </div>
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 min-h-[100px]">
+                <p id="question-text" class="text-slate-900 text-lg"></p>
+            </div>
+            
+            <div id="answer-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <!-- Svaralternativer blir satt inn her av JavaScript -->
+            </div>
+
+            <div id="feedback-container" class="hidden mt-4 p-4 rounded-lg">
+                <p id="feedback-text" class="text-sm"></p>
+            </div>
+            
+            <div class="mt-6 text-right">
+                <button id="next-btn" class="hidden bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">Neste spørsmål</button>
+            </div>
+        </div>
+
+        <!-- Resultat-visning -->
+        <div id="results-view" class="hidden text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Quiz fullført!</h2>
+            <p class="text-xl text-slate-600 mb-6">Du fikk <span id="final-score" class="font-bold"></span> av <span id="total-score" class="font-bold"></span> poeng.</p>
+            <div id="result-message" class="text-lg mb-8"></div>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-colors">Prøv igjen</button>
+        </div>
+
+    </div>
+
+    <script>
+        const quizDataRaw = {
+            "Vn": [
+                { "gva": 0, "question": "En luftpakke ved bakken (0 moh.) har en temperatur på 20 °C og et duggpunkt på 12 °C. Luftpakken blir tvunget til å stige. I hvilken høyde vil kondensasjonen starte, og vi får dannet en skybase? (Bruk tilnærmingsformelen LCL ≈ 125 * (T - Td))", "hint": "Finn først differansen mellom lufttemperaturen og duggpunkttemperaturen.", "WT": { "j4b": "" }, "rF": [{ "text": "800 m", "Ct": false, "anb": "Dette resultatet kan oppnås hvis man gjør en regnefeil i multiplikasjonen." }, { "text": "1000 m", "Ct": true, "anb": "Løfte-kondensasjonsnivået (LCL) er høyden der temperaturen i luftpakken har sunket til duggpunkttemperaturen. Differansen er 8 °C, som gir 125 * 8 = 1000 m." }, { "text": "1500 m", "Ct": false, "anb": "Dette resultatet kan oppnås hvis man bruker feil temperaturdifferanse i formelen." }, { "text": "2500 m", "Ct": false, "anb": "Dette tilsvarer temperaturen til duggpunktet multiplisert med 125, ikke temperaturdifferansen." }], "Kv": 0 },
+                { "gva": 0, "question": "Hvorfor er den fuktigadiabatiske temperaturgradienten lavere enn den tørradiabatiske?", "hint": "Tenk på energien som er involvert i faseovergangen fra gass til væske.", "WT": { "j4b": "" }, "rF": [{ "text": "Fordi vanndamp er en drivhusgass som holder på varmen.", "Ct": false, "anb": "Selv om vanndamp er en drivhusgass, er ikke dette den direkte årsaken til forskjellen i de adiabatiske gradientene, som beskriver en stigende luftpakke." }, { "text": "Fordi fuktig luft er tyngre enn tørr luft og stiger saktere.", "Ct": false, "anb": "Fuktig luft er faktisk lettere (mindre tett) enn tørr luft ved samme temperatur, fordi vannmolekyler (H₂O) har lavere masse enn nitrogen- (N₂) og oksygenmolekyler (O₂)." }, { "text": "Fordi det frigjøres latent varme når vanndamp kondenserer.", "Ct": true, "anb": "Når en mettet luftpakke stiger og avkjøles, kondenserer vanndamp. Denne prosessen frigir latent varme, som motvirker noe av den adiabatiske avkjølingen." }, { "text": "Fordi skyer reflekterer sollys og dermed avkjøles saktere.", "Ct": false, "anb": "Skyers refleksjon av sollys (albedo) påvirker den generelle energibalansen, men forklarer ikke temperaturgradienten inne i en stigende luftpakke." }], "Kv": 2 },
+                { "gva": 0, "question": "En umettet luftpakke stiger fra 500 moh. til 2000 moh. Temperaturen ved 500 moh. er 15 °C. Hva er temperaturen i luftpakken ved 2000 moh.? (Bruk tørrgradienten på 1 °C / 100 m)", "hint": "Først, finn den totale høydeforskjellen. Deretter, beregn den totale avkjølingen.", "WT": { "j4b": "" }, "rF": [{ "text": "5 °C", "Ct": false, "anb": "Dette ville vært korrekt hvis stigningen kun var 1000 meter." }, { "text": "0 °C", "Ct": true, "anb": "Luftpakken stiger 1500 meter. Med en tørrgradient på 1 °C per 100 m, blir avkjølingen 15 °C. Den nye temperaturen blir 15 °C - 15 °C = 0 °C." }, { "text": "-5 °C", "Ct": false, "anb": "Dette ville vært korrekt hvis stigningen var 2000 meter fra startpunktet." }, { "text": "6 °C", "Ct": false, "anb": "Dette resultatet kan oppnås hvis man feilaktig bruker den fuktigadiabatiske gradienten (ca. 0,6 °C / 100 m)." }], "Kv": 1 },
+                { "gva": 0, "question": "I en \"kald sky\" over Norge, der temperaturen er under 0 °C, hvilken prosess er avgjørende for at nedbørpartikler (snøkrystaller) skal vokse seg store nok til å falle?", "hint": "Prosessen involverer en blanding av underkjølte vanndråper og iskrystaller.", "WT": { "j4b": "" }, "rF": [{ "text": "Kollisjon-koalesens-prosessen", "Ct": false, "anb": "Denne prosessen er dominant i varme skyer (temperatur over 0 °C), der flytende vanndråper kolliderer og slår seg sammen." }, { "text": "Bergeron-prosessen", "Ct": true, "anb": "Denne prosessen beskriver hvordan iskrystaller vokser på bekostning av underkjølte vanndråper i kalde skyer, fordi metningstrykket over is er lavere enn over vann." }, { "text": "Den adiabatiske prosessen", "Ct": false, "anb": "Adiabatiske prosesser forklarer avkjøling og skydannelse, men ikke hvordan dråper eller krystaller vokser seg store inne i skyen." }, { "text": "Konveksjonsprosessen", "Ct": false, "anb": "Konveksjon er en løftemekanisme som får luft til å stige og danne skyer, men den beskriver ikke selve veksten av nedbørpartikler." }], "Kv": 1 },
+                { "gva": 0, "question": "En varm sommerdag dannes det raskt store, tårnformede Cumulonimbusskyer som gir kraftige regnbyger og torden. Hvilken løftemekanisme er mest sannsynlig årsaken til denne skydannelsen?", "hint": "Tenk på hvordan solen varmer opp bakken på en klar dag.", "WT": { "j4b": "" }, "rF": [{ "text": "Orografisk løft", "Ct": false, "anb": "Dette skjer når luft presses over fjell, og gir ofte skyer og nedbør på vindsiden." }, { "text": "Frontløft", "Ct": false, "anb": "Dette skjer når en varm luftmasse presses opp over en kaldere luftmasse langs en front." }, { "text": "Konvergens", "Ct": false, "anb": "Dette skjer når luft strømmer sammen fra forskjellige retninger og tvinges oppover." }, { "text": "Konveksjon", "Ct": true, "anb": "Dette er vertikal luftbevegelse drevet av kraftig oppvarming av bakken, som fører til at ustabil luft stiger raskt og danner bygeskyer." }], "Kv": 3 },
+                { "gva": 0, "question": "**Fjellscenario, del 1:** En luftpakke ved kysten (0 moh.) har temperatur 22 °C og duggpunkt 14 °C. Den presses over en 2000 meter høy fjellkjede. Hva er temperaturen i luftpakken ved skybasen (LCL)?", "hint": "Først, beregn høyden på skybasen (LCL). Deretter, beregn temperaturfallet opp til den høyden.", "WT": { "j4b": "" }, "rF": [{ "text": "14 °C", "Ct": false, "anb": "Dette er duggpunkttemperaturen ved start. Temperaturen i luftpakken blir lik duggpunktet ved LCL, men det er ikke 14 °C i den høyden." }, { "text": "12 °C", "Ct": true, "anb": "Skybasen (LCL) er på 1000 m (125 * (22-14)). Temperaturen synker tørradiabatisk (1 °C/100m) opp til denne høyden. T(1000m) = 22 °C - (1 * 10) = 12 °C." }, { "text": "10 °C", "Ct": false, "anb": "Dette ville vært korrekt hvis skybasen var på 1200 meter." }, { "text": "22 °C", "Ct": false, "anb": "Dette er starttemperaturen. Luft som stiger vil alltid avkjøles på grunn av trykkfallet." }] },
+                { "gva": 0, "question": "**Fjellscenario, del 2:** Fra forrige oppgave: Luftpakken fortsetter å stige fra skybasen (1000 moh., temp 12 °C) til fjelltoppen på 2000 moh. Hva er temperaturen på toppen? (Bruk en fuktigadiabatisk gradient på 0.6 °C / 100 m).", "hint": "Nå som skyen er dannet, må du bruke den fuktigadiabatiske gradienten for den resterende stigningen.", "WT": { "j4b": "" }, "rF": [{ "text": "2 °C", "Ct": false, "anb": "Denne beregningen bruker den tørradiabatiske gradienten hele veien til toppen, noe som er feil etter at skyen er dannet." }, { "text": "12 °C", "Ct": false, "anb": "Dette er temperaturen ved skybasen, ikke på toppen. Luftpakken fortsetter å avkjøles mens den stiger." }, { "text": "6 °C", "Ct": true, "anb": "Stigningen inne i skyen er 1000 m. Avkjølingen er 1000 m * (0.6 °C / 100 m) = 6 °C. Temperaturen på toppen blir 12 °C - 6 °C = 6 °C." }, { "text": "0 °C", "Ct": false, "anb": "Dette resultatet kan oppnås ved en regnefeil i den fuktigadiabatiske avkjølingen." }] },
+                { "gva": 0, "question": "**Fjellscenario, del 3:** Fra forrige oppgave: Luftpakken, nå tørr etter å ha gitt fra seg all fuktighet som nedbør, synker ned på lesiden av fjellet til en dal på 200 moh. Hva blir temperaturen i dalen?", "hint": "Synkende luft er tørr og varmes opp etter den tørradiabatiske gradienten. Beregn den totale høyden luften synker.", "WT": { "j4b": "" }, "rF": [{ "text": "22 °C", "Ct": false, "anb": "Dette er den opprinnelige starttemperaturen. På grunn av frigjøring av latent varme på vindsiden, vil luften være varmere på lesiden." }, { "text": "6 °C", "Ct": false, "anb": "Dette er temperaturen på fjelltoppen. Luft som synker blir alltid varmet opp." }, { "text": "24 °C", "Ct": true, "anb": "Luften synker 1800 m (fra 2000 m til 200 m). Den varmes tørradiabatisk (1 °C / 100 m). Oppvarmingen blir 18 °C. Ny temperatur: 6 °C (på toppen) + 18 °C = 24 °C." }, { "text": "16.8 °C", "Ct": false, "anb": "Denne beregningen bruker feilaktig den fuktigadiabatiske gradienten for den synkende luften." }] },
+                { "gva": 0, "question": "Se for deg at du ser ut av vinduet og himmelen er dekket av et jevnt, grått og flatt skydekke (Stratus). Hva kan du si om stabiliteten i atmosfæren?", "hint": "Tenk på om denne skytypen er et resultat av sterk vertikal (oppadstigende) bevegelse eller ikke.", "WT": { "j4b": "" }, "rF": [{ "text": "Atmosfæren er svært ustabil.", "Ct": false, "anb": "Ustabil luft fører til kraftig vertikal bevegelse og dannelse av bygeskyer (Cumulus, Cumulonimbus), ikke flate lagskyer." }, { "text": "Atmosfæren er stabil.", "Ct": true, "anb": "Stabil luft motsetter seg vertikal bevegelse. Hvis luft likevel blir løftet, vil den spre seg horisontalt og danne lagskyer som Stratus." }, { "text": "Atmosfæren er tørr.", "Ct": false, "anb": "Selv om luften kan være relativt tørr under skydekket, forteller selve skytypen oss mest om stabiliteten, ikke den generelle fuktigheten." }, { "text": "Det er ingen sammenheng mellom skytype og stabilitet.", "Ct": false, "anb": "Det er en veldig sterk sammenheng; skyenes form er et direkte visuelt tegn på bevegelsene og stabiliteten i atmosfæren." }] },
+                { "gva": 0, "question": "En luftpakke ved 1500 moh. har en temperatur på 8 °C. Temperaturen i luften rundt (miljøgradienten) er 10 °C på samme høyde. Hva vil skje med luftpakken hvis den får et lite dytt oppover?", "hint": "Sammenlign temperaturen til luftpakken med omgivelsene. Er den varmere (lettere) eller kaldere (tyngre)?", "WT": { "j4b": "" }, "rF": [{ "text": "Den vil fortsette å stige av seg selv.", "Ct": false, "anb": "Dette skjer hvis pakken er varmere (lettere) enn omgivelsene. Her er den kaldere." }, { "text": "Den vil synke tilbake til utgangspunktet.", "Ct": true, "anb": "Luftpakken er kaldere og dermed tyngre (høyere tetthet) enn luften rundt. Tyngdekraften vil trekke den ned igjen. Dette er en stabil atmosfære." }, { "text": "Den vil holde seg i den nye høyden.", "Ct": false, "anb": "Dette skjer i en nøytral atmosfære, der pakkens temperatur er lik omgivelsenes temperatur." }, { "text": "Den vil umiddelbart danne en sky.", "Ct": false, "anb": "Skydannelse avhenger av om luftpakken er mettet med vanndamp (når duggpunktet), ikke bare av temperaturforskjellen til omgivelsene." }] }
+            ]
+        };
+
+        // Transform data to a more usable format
+        const quizData = quizDataRaw.Vn.map(q => ({
+            question: q.question,
+            options: q.rF.map(opt => ({
+                text: opt.text,
+                isCorrect: opt.Ct,
+                rationale: opt.anb
+            }))
+        }));
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Element references
+        const questionView = document.getElementById('question-view');
+        const resultsView = document.getElementById('results-view');
+        
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const scoreEl = document.getElementById('score');
+        const questionTextEl = document.getElementById('question-text');
+        const answerOptionsEl = document.getElementById('answer-options');
+        const feedbackContainerEl = document.getElementById('feedback-container');
+        const feedbackTextEl = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const finalScoreEl = document.getElementById('final-score');
+        const totalScoreEl = document.getElementById('total-score');
+        const resultMessageEl = document.getElementById('result-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            questionView.classList.remove('hidden');
+            resultsView.classList.add('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Reset UI for the new question
+            feedbackContainerEl.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            answerOptionsEl.innerHTML = '';
+
+            const question = quizData[currentQuestionIndex];
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            totalQuestionsEl.textContent = quizData.length;
+            questionTextEl.innerHTML = question.question.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.classList.add('answer-btn', 'w-full', 'bg-white', 'border', 'border-slate-300', 'p-4', 'rounded-lg', 'text-left', 'hover:bg-slate-50', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500');
+                button.dataset.correct = option.isCorrect;
+                button.dataset.rationale = option.rationale;
+                button.addEventListener('click', selectAnswer);
+                answerOptionsEl.appendChild(button);
+            });
+        }
+        
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === 'true';
+            const rationale = selectedBtn.dataset.rationale;
+
+            if (isCorrect) {
+                score++;
+                scoreEl.textContent = score;
+                selectedBtn.classList.add('correct');
+                feedbackContainerEl.className = 'mt-4 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800';
+            } else {
+                selectedBtn.classList.add('incorrect');
+                feedbackContainerEl.className = 'mt-4 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800';
+            }
+            
+            feedbackTextEl.textContent = rationale;
+            feedbackContainerEl.classList.remove('hidden');
+            
+            // Highlight the correct answer if the wrong one was chosen
+            Array.from(answerOptionsEl.children).forEach(btn => {
+                if (btn.dataset.correct === 'true' && !isCorrect) {
+                    btn.classList.add('correct');
+                }
+                btn.disabled = true; // Disable all buttons after an answer is selected
+            });
+
+            nextBtn.classList.remove('hidden');
+        }
+
+        function handleNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            questionView.classList.add('hidden');
+            resultsView.classList.remove('hidden');
+            finalScoreEl.textContent = score;
+            totalScoreEl.textContent = quizData.length;
+
+            const percentage = (score / quizData.length) * 100;
+            let message = '';
+            if (percentage === 100) {
+                message = 'Perfekt! Du er en ekte meteorolog!';
+            } else if (percentage >= 75) {
+                message = 'Kjempebra! Du har god kontroll på dette.';
+            } else if (percentage >= 50) {
+                message = 'Bra jobbet! Litt repetisjon, så sitter det.';
+            } else {
+                message = 'Godt forsøk! Ta en titt på teorien en gang til.';
+            }
+            resultMessageEl.textContent = message;
+        }
+
+        nextBtn.addEventListener('click', handleNextQuestion);
+        restartBtn.addEventListener('click', startQuiz);
+
+        // Initial load
+        startQuiz();
+    </script>
+
+</body>
+</html>
