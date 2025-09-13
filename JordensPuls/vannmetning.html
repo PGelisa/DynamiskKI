@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sammenheng Temperatur og Vanndamp</title>
+    <!-- Importerer Chart.js biblioteket -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Tailwind's gray-50 */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+    <div class="w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-2">Sammenheng mellom temperatur, metningstrykk og maksimal vanndamptetthet</h1>
+        <p class="text-sm text-gray-500 text-center mb-6">Utforsk hvordan luftens kapasitet til å holde på vanndamp endrer seg med temperaturen.</p>
+        <div class="relative h-96">
+            <!-- Canvas-elementet hvor grafen vil bli tegnet -->
+            <canvas id="dualYAxisChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Funksjon for å beregne metningstrykk (p*) i Pascal
+        function calculateSaturationPressure(T) {
+            // Formel: p*(T) = 6.1078 * 10^((7.5 * T) / (237.3 + T)) * 100
+            const pressureInHpa = 6.1078 * Math.pow(10, (7.5 * T) / (237.3 + T));
+            return pressureInHpa * 100; // Konverterer fra hPa til Pa
+        }
+
+        // Funksjon for å beregne maksimal vanndamptetthet (ρ*) i g/m³
+        function calculateVaporDensity(T, saturationPressure) {
+            const Mv = 18.01528; // Molekylmasse for vann (g/mol)
+            const R = 8.314;     // Universell gasskonstant (J/(mol·K))
+            const tempInKelvin = T + 273.15;
+            
+            // Formel: ρ*(T) = (p*(T) * Mv) / (R * (T + 273.15))
+            return (saturationPressure * Mv) / (R * tempInKelvin);
+        }
+
+        // Generer data for grafen
+        const temperatures = [];
+        const saturationPressures = [];
+        const vaporDensities = [];
+
+        for (let T = 0; T <= 100; T++) {
+            temperatures.push(T);
+            const p_star = calculateSaturationPressure(T);
+            saturationPressures.push(p_star);
+            vaporDensities.push(calculateVaporDensity(T, p_star));
+        }
+
+        // Konfigurasjon for Chart.js
+        const ctx = document.getElementById('dualYAxisChart').getContext('2d');
+        const dualYAxisChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: temperatures,
+                datasets: [{
+                    label: 'Metningstrykk (Pa)',
+                    data: saturationPressures,
+                    borderColor: 'rgba(59, 130, 246, 1)',  // blå farge
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2.5,
+                    yAxisID: 'y-pressure',
+                    tension: 0.4, // Gjør linjen jevnere
+                    pointRadius: 0 // Fjerner datapunkter for en renere linje
+                }, {
+                    label: 'g vanndamp per m³',
+                    data: vaporDensities,
+                    borderColor: 'rgba(239, 68, 68, 1)',   // rød farge
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2.5,
+                    yAxisID: 'y-density',
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                stacked: false,
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#fff',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                             title: function(context) {
+                                 return `Temperatur: ${context[0].label}°C`;
+                             },
+                             label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(2);
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                         labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Temperatur (°C)',
+                            font: {
+                                size: 14,
+                                weight: '500'
+                            },
+                            color: '#4b5563' // gray-600
+                        },
+                         grid: {
+                            display: false
+                        }
+                    },
+                    'y-pressure': {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Metningstrykk (Pa)',
+                            font: {
+                                size: 14,
+                                weight: '500'
+                            },
+                            color: 'rgba(59, 130, 246, 1)'
+                        },
+                         grid: {
+                            drawOnChartArea: true, 
+                            color: '#e5e7eb' // gray-200
+                        },
+                        ticks: {
+                           color: 'rgba(59, 130, 246, 1)'
+                        }
+                    },
+                    'y-density': {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'g vanndamp per m³',
+                             font: {
+                                size: 14,
+                                weight: '500'
+                            },
+                            color: 'rgba(239, 68, 68, 1)'
+                        },
+                        grid: {
+                            drawOnChartArea: false, // Forhindrer overlappende rutenett
+                        },
+                        ticks: {
+                           color: 'rgba(239, 68, 68, 1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
