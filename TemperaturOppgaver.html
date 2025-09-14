@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Temperatur og Klima</title>
+    <style>
+        /* Generell design for siden */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Hovedcontainer for quizen */
+        #quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 25px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Container for hvert spørsmål */
+        .question-container {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .question-container:last-of-type {
+            border-bottom: none;
+        }
+
+        /* Spørsmålsteksten */
+        h3 {
+            font-size: 1.25em;
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+
+        /* Stil for svaralternativene */
+        .option {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option:hover {
+            background-color: #ecf0f1;
+        }
+        
+        .option label {
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        
+        input[type="radio"] {
+            cursor: pointer;
+        }
+
+        /* Knappen for å sjekke svar */
+        button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Stil for tilbakemelding (riktig/galt) */
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background-color: #e8f5e9; /* Grønn bakgrunn for riktig svar */
+            color: #2e7d32;
+            border-left: 5px solid #4caf50;
+        }
+
+        .feedback.incorrect {
+            background-color: #ffebee; /* Rød bakgrunn for feil svar */
+            color: #c62828;
+            border-left: 5px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container">
+        <h1>Quiz: Temperatur og Klima</h1>
+
+        <div class="question-container">
+            <h3>1. Hva er hovedårsaken til at solinnstrålingen er sterkest ved ekvator og svakere mot polene?</h3>
+            <div class="options-container" id="q1-options">
+                <div class="option">
+                    <input type="radio" id="q1a1" name="q1" value="false">
+                    <label for="q1a1">Jordens avstand til solen varierer.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q1a2" name="q1" value="true">
+                    <label for="q1a2">Jordens krumning gjør at solvinkelen er brattere ved ekvator.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q1a3" name="q1" value="false">
+                    <label for="q1a3">Atmosfæren er tynnere ved ekvator.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q1a4" name="q1" value="false">
+                    <label for="q1a4">Det er mer hav ved ekvator som absorberer varme.</label>
+                </div>
+            </div>
+            <button onclick="checkAnswer(1)">Sjekk svar</button>
+            <p class="feedback" id="feedback1"></p>
+        </div>
+
+        <div class="question-container">
+            <h3>2. Hvilken rolle spiller hav- og vindstrømmer for den globale energibalansen?</h3>
+            <div class="options-container" id="q2-options">
+                <div class="option">
+                    <input type="radio" id="q2a1" name="q2" value="false">
+                    <label for="q2a1">De har ingen betydning for energitransport.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q2a2" name="q2" value="false">
+                    <label for="q2a2">De skaper energi ved ekvator.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q2a3" name="q2" value="true">
+                    <label for="q2a3">De transporterer varme fra områder med energioverskudd til områder med energiunderskudd.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q2a4" name="q2" value="false">
+                    <label for="q2a4">De kjøler ned hele planeten jevnt.</label>
+                </div>
+            </div>
+            <button onclick="checkAnswer(2)">Sjekk svar</button>
+            <p class="feedback" id="feedback2"></p>
+        </div>
+        
+        <div class="question-container">
+            <h3>3. Du står ved foten av et fjell (0 moh) hvor temperaturen er 12 °C. Hva er den anslåtte temperaturen på toppen av fjellet, som er 2000 meter høyt, hvis vi antar at luften er tørr?</h3>
+            <div class="options-container" id="q3-options">
+                <div class="option">
+                    <input type="radio" id="q3a1" name="q3" value="false">
+                    <label for="q3a1">22 °C</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q3a2" name="q3" value="false">
+                    <label for="q3a2">2 °C</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q3a3" name="q3" value="false">
+                    <label for="q3a3">12 °C</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q3a4" name="q3" value="true">
+                    <label for="q3a4">-8 °C</label>
+                </div>
+            </div>
+            <button onclick="checkAnswer(3)">Sjekk svar</button>
+            <p class="feedback" id="feedback3"></p>
+        </div>
+        
+        <div class="question-container">
+            <h3>4. Hva er fenomenet 'inversjon', som ofte kan oppstå i daler om vinteren?</h3>
+            <div class="options-container" id="q4-options">
+                <div class="option">
+                    <input type="radio" id="q4a1" name="q4" value="false">
+                    <label for="q4a1">At temperaturen synker raskere enn normalt med høyden.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q4a2" name="q4" value="true">
+                    <label for="q4a2">At kald, tung luft legger seg i dalbunnen med et lag varmere luft over.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q4a3" name="q4" value="false">
+                    <label for="q4a3">At det alltid blåser kraftig i dalbunnen.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q4a4" name="q4" value="false">
+                    <label for="q4a4">At snøen smelter raskere i dalen enn på fjellet.</label>
+                </div>
+            </div>
+            <button onclick="checkAnswer(4)">Sjekk svar</button>
+            <p class="feedback" id="feedback4"></p>
+        </div>
+
+        <div class="question-container">
+            <h3>5. Hvilken av disse faktorene bidrar mest til 'urban varmeøy'-effekten?</h3>
+            <div class="options-container" id="q5-options">
+                <div class="option">
+                    <input type="radio" id="q5a1" name="q5" value="false">
+                    <label for="q5a1">Store grøntområder og parker i byen.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q5a2" name="q5" value="false">
+                    <label for="q5a2">Høy albedo på overflater som lyse tak.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q5a3" name="q5" value="true">
+                    <label for="q5a3">Mørke overflater som asfalt og varme fra bygninger og transport.</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="q5a4" name="q5" value="false">
+                    <label for="q5a4">Hyppig regnvær over byområder.</label>
+                </div>
+            </div>
+            <button onclick="checkAnswer(5)">Sjekk svar</button>
+            <p class="feedback" id="feedback5"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // Her ligger all logikken for quizen
+        
+        // En database med forklaringer til hvert svar
+        const rationales = {
+            q1: {
+                "true": "Riktig! En bratt (nesten 90°) solvinkel konsentrerer solenergien over et mindre område, noe som gir høyere oppvarming.",
+                "false": "Feil. Selv om noen av de andre faktorene kan spille en rolle for klima, er det jordens krumning og solvinkelen som er den primære årsaken."
+            },
+            q2: {
+                "true": "Helt korrekt! Dette er deres hovedfunksjon: å transportere varme fra ekvator mot polene og dermed jevne ut globale temperaturforskjeller.",
+                "false": "Ikke helt. Strømmene er avgjørende for å flytte på energien som jorden mottar fra solen."
+            },
+            q3: {
+                "true": "Korrekt utregning! Temperaturen synker med ca. 10 °C per 1000 meter for tørr luft. Et fall på 20 °C fra 12 °C gir -8 °C.",
+                "false": "Feil. Husk at temperaturen synker med ca. 6-10 °C per 1000 meter man går oppover i troposfæren."
+            },
+            q4: {
+                "true": "Riktig! Dette skaper et 'lokk' som hindrer luftsirkulasjon og kan fange forurensning nede ved bakken.",
+                "false": "Feil. Inversjon er det motsatte av normal temperaturgradient, og er vanlig når det er lite vind."
+            },
+            q5: {
+                "true": "Korrekt! Asfalt og mørke tak absorberer mer solenergi (lav albedo), og menneskelig aktivitet genererer tilleggsvarme.",
+                "false": "Feil. Grøntområder og lyse overflater bidrar heller til å redusere temperaturen i en by."
+            }
+        };
+
+        function checkAnswer(questionNumber) {
+            const questionName = `q${questionNumber}`;
+            
+            // Finn det valgte svaralternativet
+            const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+            
+            if (!selectedOption) {
+                alert("Vennligst velg et svar før du sjekker.");
+                return;
+            }
+
+            const isCorrect = selectedOption.value === 'true';
+            const feedbackElement = document.getElementById(`feedback${questionNumber}`);
+            
+            // Gi tilbakemelding
+            if (isCorrect) {
+                feedbackElement.textContent = rationales[questionName]["true"];
+                feedbackElement.className = 'feedback correct';
+            } else {
+                feedbackElement.textContent = rationales[questionName]["false"];
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            // Deaktiver knapper og radioknapper for dette spørsmålet etter svar
+            const options = document.querySelectorAll(`input[name="${questionName}"]`);
+            options.forEach(option => {
+                option.disabled = true;
+            });
+
+            const button = selectedOption.closest('.question-container').querySelector('button');
+            button.disabled = true;
+        }
+    </script>
+
+</body>
+</html>
