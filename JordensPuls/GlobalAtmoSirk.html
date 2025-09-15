@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamisk Infografikk: Atmosfærisk Sirkulasjon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Forhindrer scrolling av hele siden */
+        }
+        .info-panel {
+            scrollbar-width: thin;
+            scrollbar-color: #4A5568 #2D3748;
+        }
+        .info-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        .info-panel::-webkit-scrollbar-track {
+            background: #2D3748;
+        }
+        .info-panel::-webkit-scrollbar-thumb {
+            background-color: #4A5568;
+            border-radius: 10px;
+            border: 3px solid #2D3748;
+        }
+        .clickable {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .clickable:hover {
+            filter: brightness(1.2);
+            transform: scale(1.02);
+        }
+        .active-feature {
+            stroke: #FBBF24;
+            stroke-width: 5px;
+            filter: drop-shadow(0 0 8px #FBBF24);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <div class="flex flex-col lg:flex-row h-screen">
+        <!-- Hovedinfografikk -->
+        <div class="w-full lg:w-2/3 h-1/2 lg:h-full flex flex-col items-center justify-center p-4 bg-gray-800 relative">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4 text-center absolute top-4 left-4 right-4">Jordens Atmosfæriske Sirkulasjon</h1>
+             <p class="text-sm text-gray-400 absolute top-12 left-4 right-4 text-center">(Klikk på et element i diagrammet)</p>
+
+            <svg id="circulation-diagram" viewBox="0 0 1000 600" class="w-full h-full max-w-4xl">
+                <!-- Jordens overflate -->
+                <path d="M 50 550 Q 500 450 950 550" stroke="#4A5568" stroke-width="2" fill="none" />
+                <text x="50" y="580" fill="#A0AEC0" font-size="20">0° (Ekvator)</text>
+                <text x="350" y="580" fill="#A0AEC0" font-size="20">30°</text>
+                <text x="650" y="580" fill="#A0AEC0" font-size="20">60°</text>
+                <text x="890" y="580" fill="#A0AEC0" font-size="20">90° (Pol)</text>
+
+                <!-- Tropopause -->
+                <path d="M 50 50 Q 500 -50 950 150" stroke="#4A90E2" stroke-dasharray="10 5" stroke-width="2" fill="none" />
+                <text x="150" y="30" fill="#4A90E2" font-size="18">Tropopausen</text>
+
+                <!-- Hadleycellen -->
+                <g id="hadley" class="clickable">
+                    <title>Hadleycellen</title>
+                    <path d="M 100 540 L 100 100 A 200 150 0 0 1 380 250 L 380 540 Z" fill="rgba(239, 68, 68, 0.2)" stroke="#EF4444" stroke-width="2"/>
+                    <path d="M 125 400 L 125 150" stroke="#EF4444" stroke-width="5" marker-end="url(#arrow-red)"/>
+                    <path d="M 150 120 C 250 100 300 150 350 250" stroke="#EF4444" stroke-width="5" fill="none" marker-end="url(#arrow-red)"/>
+                    <path d="M 355 300 L 355 450" stroke="#4A90E2" stroke-width="5" marker-end="url(#arrow-blue)"/>
+                    <path d="M 330 530 L 150 530" stroke="#EF4444" stroke-width="5" fill="none" marker-end="url(#arrow-red)"/>
+                    <text x="200" y="350" fill="#F87171" font-size="24" font-weight="bold">Hadley</text>
+                </g>
+
+                <!-- Ferrelcellen -->
+                <g id="ferrel" class="clickable">
+                    <title>Ferrelcellen</title>
+                    <!-- Korrigert form for å vise at tropopausen er lavere ved 60° -->
+                    <path d="M 420 540 L 420 250 A 200 150 0 0 1 680 300 L 680 540 Z" fill="rgba(251, 146, 60, 0.2)" stroke="#F59E0B" stroke-width="2"/>
+                    <!-- Korrigert synkende luft ved 30° -->
+                    <path d="M 445 280 L 445 450" stroke="#4A90E2" stroke-width="5" marker-end="url(#arrow-blue)"/>
+                    <!-- Korrigert luftstrøm i høyden mot ekvator -->
+                    <path d="M 650 290 C 600 280 550 270 450 260" stroke="#F59E0B" stroke-width="5" fill="none" marker-end="url(#arrow-orange)"/>
+                    <!-- Korrigert stigende luft ved 60° -->
+                    <path d="M 655 450 L 655 310" stroke="#EF4444" stroke-width="5" marker-end="url(#arrow-red)"/>
+                    <!-- Korrigert overflatevind mot polene (vestavind) -->
+                    <path d="M 450 530 L 630 530" stroke="#F59E0B" stroke-width="5" fill="none" marker-end="url(#arrow-orange)"/>
+                    <text x="490" y="400" fill="#FBBF24" font-size="24" font-weight="bold">Ferrel</text>
+                </g>
+
+                <!-- Polarcellen -->
+                <g id="polar" class="clickable">
+                    <title>Polarcellen</title>
+                    <!-- Justert høyde for å vise lavere tropopause mot polen -->
+                    <path d="M 720 540 L 720 310 A 200 150 0 0 1 920 350 L 920 540 Z" fill="rgba(59, 130, 246, 0.2)" stroke="#3B82F6" stroke-width="2"/>
+                    <!-- Justert stigende luft -->
+                    <path d="M 745 420 L 745 320" stroke="#EF4444" stroke-width="5" marker-end="url(#arrow-red)"/>
+                    <!-- Justert luftstrøm i høyden -->
+                    <path d="M 750 315 C 800 305 850 325 900 350" stroke="#3B82F6" stroke-width="5" fill="none" marker-end="url(#arrow-blue)"/>
+                    <!-- Justert synkende luft -->
+                    <path d="M 905 360 L 905 480" stroke="#3B82F6" stroke-width="5" marker-end="url(#arrow-blue)"/>
+                    <path d="M 880 530 L 750 530" stroke="#3B82F6" stroke-width="5" fill="none" marker-end="url(#arrow-blue)"/>
+                    <text x="780" y="400" fill="#60A5FA" font-size="24" font-weight="bold">Polar</text>
+                </g>
+
+                <!-- Labels and other features -->
+                <g id="itcz" class="clickable">
+                    <title>Den intertropiske konvergenssonen (ITCZ)</title>
+                    <rect x="70" y="400" width="100" height="140" fill="transparent"/>
+                    <text x="60" y="480" fill="#A0AEC0" font-size="16" transform="rotate(-90, 80, 480)">LAVTRYKK</text>
+                    <text x="70" y="420" fill="#F87171" font-size="16" transform="rotate(-90, 80, 420)">Tordenvær</text>
+                </g>
+
+                <g id="subtropical-high" class="clickable">
+                    <title>Subtropisk høytrykk</title>
+                    <rect x="340" y="450" width="50" height="90" fill="transparent"/>
+                    <text x="350" y="500" fill="#A0AEC0" font-size="16">HØYTRYKK</text>
+                    <text x="355" y="480" fill="#FBBF24" font-size="16">(Tørre områder)</text>
+                </g>
+                
+                <g id="subpolar-low" class="clickable">
+                    <title>Subpolart lavtrykk / Polarfronten</title>
+                    <rect x="640" y="450" width="50" height="90" fill="transparent"/>
+                    <text x="650" y="500" fill="#A0AEC0" font-size="16">LAVTRYKK</text>
+                    <text x="655" y="480" fill="white" font-size="16">(Polarfront)</text>
+                </g>
+
+                 <g id="polar-high" class="clickable">
+                    <title>Polart høytrykk</title>
+                    <rect x="890" y="480" width="50" height="60" fill="transparent"/>
+                    <text x="890" y="500" fill="#A0AEC0" font-size="16">HØYTRYKK</text>
+                </g>
+
+                <g id="trade-winds" class="clickable">
+                     <title>Passatvindene</title>
+                    <rect x="150" y="510" width="180" height="40" fill="transparent"/>
+                    <text x="190" y="510" fill="white" font-size="18">Passatvinder (Østlige)</text>
+                </g>
+                
+                <g id="westerlies" class="clickable">
+                     <title>Vestavindsbeltet</title>
+                    <rect x="450" y="510" width="180" height="40" fill="transparent"/>
+                    <text x="490" y="510" fill="white" font-size="18">Vestavinder</text>
+                </g>
+
+                <g id="polar-easterlies" class="clickable">
+                     <title>Polare østavinder</title>
+                    <rect x="750" y="510" width="130" height="40" fill="transparent"/>
+                    <text x="750" y="510" fill="white" font-size="18">Polare østavinder</text>
+                </g>
+
+                <g id="jet-streams" class="clickable">
+                    <title>Jetstrømmene</title>
+                    <circle cx="380" cy="200" r="30" fill="#F59E0B" fill-opacity="0.7"/>
+                    <text x="372" y="208" font-size="30" fill="white">J</text>
+                    <text x="400" y="200" font-size="16" fill="white">Subtropisk</text>
+                    <!-- Justert posisjon for Polarjetten -->
+                    <circle cx="680" cy="300" r="30" fill="#3B82F6" fill-opacity="0.7"/>
+                    <text x="672" y="308" font-size="30" fill="white">J</text>
+                    <text x="700" y="300" font-size="16" fill="white">Polar</text>
+                </g>
+
+
+                <!-- Arrow definitions -->
+                <defs>
+                    <marker id="arrow-red" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#EF4444" />
+                    </marker>
+                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#3B82F6" />
+                    </marker>
+                    <marker id="arrow-orange" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#F59E0B" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+
+        <!-- Informasjonspanel -->
+        <div class="w-full lg:w-1/3 h-1/2 lg:h-full bg-gray-900 p-6 md:p-8 flex flex-col">
+             <div id="info-panel" class="info-panel flex-grow overflow-y-auto pr-2">
+                <h2 id="info-title" class="text-3xl font-bold text-yellow-400 mb-4">Velkommen!</h2>
+                <p id="info-description" class="text-lg text-gray-300 leading-relaxed">
+                    Dette er en interaktiv modell av jordens generelle atmosfæriske sirkulasjon.
+                    <br><br>
+                    Solen varmer opp ekvator mer enn polene, noe som skaper temperaturforskjeller som driver globale vindsystemer. Denne bevegelsen av luft fordeler varme over hele planeten.
+                    <br><br>
+                    <strong>Klikk på et av elementene i diagrammet til venstre</strong> for å lære mer om de ulike delene av dette komplekse systemet.
+                </p>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        const infoData = {
+            'hadley': {
+                title: 'Hadleycellen',
+                description: `Hadleycellen er en tropisk sirkulasjonscelle, mer spesifikt en konveksjonscelle, som dominerer mellom ekvator og ca. 30° breddegrad. 
+                <br><br><strong>1. Stigning:</strong> Varm, fuktig luft stiger ved ekvator (ITCZ), avkjøles og danner massive tordenskyer og mye nedbør. Dette skaper et lavtrykksbelte ved overflaten.
+                <br><br><strong>2. Divergens i høyden:</strong> Luften som har steget, sprer seg mot polene i høyden. Corioliskraften bøyer denne luftstrømmen mot øst.
+                <br><br><strong>3. Nedsynking:</strong> Rundt 30° breddegrad har luften blitt avkjølt og synker ned mot overflaten. Nedsynkingen varmer opp luften og tørker den ut, noe som skaper subtropiske høytrykksbelter og verdens store ørkener.
+                <br><br><strong>4. Returstrøm:</strong> Ved overflaten strømmer luften tilbake mot ekvator som passatvindene.`
+            },
+            'ferrel': {
+                title: 'Ferrelcellen',
+                description: `Ferrelcellen er en sirkulasjonscelle i midlere breddegrader (ca. 30°-60°). I motsetning til de andre cellene er den ikke drevet direkte av temperaturforskjeller, men fungerer mer som et "gir" mellom Hadley- og Polarcellen. Ferrelcellen er ikke en konveksjonscelle. 
+                <br><br>Den er drevet av bevegelsene i de tilstøtende cellene og av virvler (høytrykks- og lavtrykkssystemer) som beveger seg gjennom området. Ved overflaten skaper dette de dominerende vestavindene, som blåser fra vest mot øst. Denne sonen er preget av svært variabelt vær, da kald polarluft møter varm tropisk luft.`
+            },
+            'polar': {
+                title: 'Polarcellen',
+                description: `Polarcellen er den minste og svakeste av de tre cellene, og ligger mellom ca. 60° breddegrad og polene. Polarcellen er også en konveksjonscelle.
+                <br><br><strong>1. Nedsynking:</strong> Kald, tett luft synker over polene, noe som skaper et høytrykksområde.
+                <br><br><strong>2. Bevegelse mot ekvator:</strong> Ved overflaten strømmer den kalde luften bort fra polene. Corioliskraften bøyer denne vinden mot vest, og skaper de polare østavindene.
+                <br><br><strong>3. Stigning:</strong> Rundt 60° breddegrad møter den kalde polarluften den varmere luften fra Ferrelcellen. Den lettere, varmere luften blir tvunget til å stige over den kaldere luften. Dette området kalles polarfronten og er preget av lavtrykkssystemer.`
+            },
+            'itcz': {
+                title: 'Den intertropiske konvergenssonen (ITCZ)',
+                description: `Dette er et belte med lavtrykk nær ekvator hvor passatvindene fra nord og sør møtes (konvergerer). Den intense soloppvarmingen fører til at luften stiger kraftig, noe som resulterer i hyppige tordenvær og mye nedbør. Dette er "motoren" i Hadleycellen. Plasseringen av ITCZ flytter seg med årstidene, og følger området med den sterkeste solinnstrålingen. Vi kaller det et termisk lavtrykk.`
+            },
+            'subtropical-high': {
+                title: 'Subtropisk høytrykk',
+                description: `Rundt 30° nord og sør for ekvator synker luften fra Hadleycellen ned og skaper et belte med stabilt høytrykk. Den synkende luften blir varmet opp og tørket ut, noe som forhindrer skydannelse. Dette er grunnen til at mange av verdens største ørkener, som Sahara og Kalahari, ligger på disse breddegradene. Vi kaller det et dynamisk høytrykk.`
+            },
+            'subpolar-low': {
+                title: 'Subpolart lavtrykk / Polarfronten',
+                description: `Dette er en sone med lavtrykk rundt 60° breddegrad. Her møtes den kalde, tette polarluften (fra Polarcellen) og den varmere, lettere luften fra midlere breddegrader (fra Ferrelcellen). Grensen mellom disse to luftmassene kalles polarfronten. Den varme luften blir tvunget til å stige over den kalde, noe som fører til ustabilt vær, skyer, nedbør og utvikling av de store lavtrykkssystemene som ofte påvirker været i Norge. Vi kaller det et dynamisk lavtrykk.`
+            },
+            'polar-high': {
+                title: 'Polart høytrykk',
+                description: `Over de iskalde polområdene er luften veldig kald og tett. Denne tette luften synker, noe som skaper et permanent område med høytrykk nær overflaten. Dette er utgangspunktet for de polare østavindene. Vi kaller det et termisk høytrykk.`
+            },
+            'trade-winds': {
+                title: 'Passatvindene',
+                description: `Passatvindene er de stabile overflatevindene som blåser fra de subtropiske høytrykksbeltene (ca. 30°) mot lavtrykksbeltet ved ekvator (ITCZ). På grunn av Corioliseffekten blir de bøyd mot vest på begge halvkuler, slik at de blåser fra nordøst på den nordlige halvkule og fra sørøst på den sørlige. Disse vindene var historisk sett avgjørende for seilskip.`
+            },
+            'westerlies': {
+                title: 'Vestavindsbeltet',
+                description: `I Ferrelcellen, mellom 30° og 60° breddegrad, er den dominerende vindretningen ved overflaten fra vest. Luften beveger seg i utgangspunktet mot polene fra de subtropiske høytrykkene, men Corioliskraften bøyer vinden kraftig mot øst. Norge ligger midt i dette beltet, og det er derfor mesteparten av været vårt kommer fra vest.`
+            },
+
+            'polar-easterlies': {
+                title: 'Polare østavinder',
+                description: `Dette er kalde overflatevinder som blåser fra det polare høytrykket mot det subpolare lavtrykksbeltet. Corioliskraften bøyer dem mot vest, slik at de blir østlige vinder. De er generelt svake og variable.`
+            },
+            'jet-streams': {
+                title: 'Jetstrømmene',
+                description: `Jetstrømmene er smale bånd med svært sterk vind høyt oppe i atmosfæren, nær tropopausen. De blåser fra vest mot øst og dannes på grunn av store temperaturforskjeller mellom tilstøtende luftmasser.
+                <br><br><strong>Polarjetstrømmen:</strong> Ligger over polarfronten (ca. 60°) og er den sterkeste av de to. Den er et resultat av den store temperaturkontrasten mellom kald polarluft og varmere luft fra sør. Dens buktende bevegelse (Rossby-bølger) skaper høytrykksrygger og lavtrykkstråg som styrer været nede ved bakken.
+                <br><br><strong>Subtropisk jetstrøm:</strong> Ligger rundt 30° breddegrad og er knyttet til Hadleycellen. Den er generelt svakere og mer stabil i sin posisjon.`
+            },
+        };
+
+        const infoTitle = document.getElementById('info-title');
+        const infoDescription = document.getElementById('info-description');
+        const diagram = document.getElementById('circulation-diagram');
+        let currentActiveElement = null;
+
+        function updateInfo(featureId) {
+            const data = infoData[featureId];
+            if (data) {
+                infoTitle.textContent = data.title;
+                infoDescription.innerHTML = data.description;
+            }
+            
+            // Håndter aktiv visuell status
+            const newActiveElement = document.getElementById(featureId);
+            if (currentActiveElement) {
+                currentActiveElement.classList.remove('active-feature');
+            }
+            if (newActiveElement) {
+                newActiveElement.classList.add('active-feature');
+                currentActiveElement = newActiveElement;
+            }
+        }
+        
+        diagram.querySelectorAll('.clickable').forEach(element => {
+            element.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const featureId = element.id;
+                updateInfo(featureId);
+            });
+        });
+
+    </script>
+
+</body>
+</html>
+
+
+
