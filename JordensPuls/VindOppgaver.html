@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Vind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .feedback {
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            border-radius: 0.375rem;
+            display: none;
+        }
+        .correct {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        input[type="radio"] {
+            transform: scale(1.2);
+            margin-right: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-2xl">
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Quiz: Vind og værsystemer</h1>
+            <p class="text-gray-600 mb-6">Test din kunnskap om kreftene som driver vinden.</p>
+            <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+
+            <div id="quiz-content">
+                <!-- Spørsmålene blir satt inn her av JavaScript -->
+            </div>
+
+            <div id="quiz-navigation" class="mt-6">
+                 <button type="button" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 text-lg">Sjekk svar</button>
+            </div>
+            
+            <div id="result-container" class="hidden text-center">
+                <h2 class="text-2xl font-bold mb-4">Resultat</h2>
+                <p id="score" class="text-xl mb-6"></p>
+                <button type="button" id="restartBtn" class="bg-gray-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-700 transition duration-300 text-lg">Start på nytt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "1. Hvilken kraft er den primære 'startmotoren' som setter luften i bevegelse og skaper vind?", options: ["Corioliskraften", "Trykkgradientkraften", "Friksjonskraften", "Sentrifugalkraften"], correctAnswer: 1, feedback: ["Denne kraften påvirker retningen til vinden som allerede er i bevegelse, men den starter ikke bevegelsen.", "Riktig! Denne kraften oppstår på grunn av forskjeller i lufttrykk og skyver luft fra høytrykk mot lavtrykk, noe som initierer vinden.", "Denne kraften bremser vinden nær jordoverflaten, den setter ikke luften i bevegelse.", "Denne kraften er relevant når vinden beveger seg i en kurve, men den er ikke den grunnleggende kraften som starter vinden."] },
+            { question: "2. Hvordan påvirker Corioliskraften vinden på den nordlige halvkule?", options: ["Den bøyer vinden av mot venstre.", "Den øker vindstyrken.", "Den bøyer vinden av mot høyre.", "Den har ingen effekt."], correctAnswer: 2, feedback: ["Avbøyning mot venstre skjer på den sørlige halvkule.", "Corioliskraften påvirker retningen, ikke primært styrken på vinden.", "Riktig! På grunn av jordens rotasjon blir all bevegelse, inkludert vind, bøyd av mot høyre på den nordlige halvkule.", "Denne kraften er fundamental for vindens bevegelse over større avstander."] },
+            { question: "3. Hva er den viktigste effekten av friksjon på vinden nær jordoverflaten?", options: ["Den får vinden til å blåse parallelt med isobarene.", "Den reduserer vindhastigheten og endrer retningen inn mot lavtrykk.", "Den øker Corioliskraftens effekt.", "Den fjerner trykkforskjellene."], correctAnswer: 1, feedback: ["Dette kjennetegner geostrofisk vind, som oppstår høyt oppe der friksjonen er ubetydelig.", "Riktig! Friksjon bremser vinden, noe som svekker Corioliskraften og lar trykkgradientkraften 'vinne' litt, slik at vinden krysser isobarene.", "Siden Corioliskraften avhenger av hastighet, vil friksjon (som reduserer hastigheten) faktisk redusere effekten.", "Friksjon påvirker luftens bevegelse, ikke de grunnleggende trykkforskjellene som driver den."] },
+            { question: "4. Hva kjennetegner en Föhnvind?", options: ["Den er en kald og fuktig vind som kommer fra havet.", "Den er en kald vind som strømmer ned fra isbreer.", "Den er en sesongbasert vind som gir kraftig regn.", "Den er en varm og tørr vind som oppstår på lesiden av fjell."], correctAnswer: 3, feedback: ["Dette beskriver heller en sjøbris.", "Dette er definisjonen på en katabatisk vind.", "Dette beskriver en monsunvind.", "Riktig! Luften mister fuktighet som nedbør på vei opp fjellet (losiden) og varmes opp når den synker på den andre siden (lesiden)."] },
+            { question: "5. Hva er årsaken til at solgangsvind (sjøbris) oppstår på en solrik dag?", options: ["Havet varmes opp raskere enn land.", "Corioliskraften skyver luften inn mot land.", "Land varmes opp raskere enn havet, noe som skaper et lavtrykk over land.", "Globale vindsystemer blir sterkere om dagen."], correctAnswer: 2, feedback: ["Det motsatte er tilfellet; vann har høyere varmekapasitet og varmes saktere opp.", "Solgangsvind er et så lokalt fenomen at Corioliskraften har svært liten betydning.", "Riktig! Den raske oppvarmingen av land fører til at luften stiger, trykket synker, og kjøligere luft fra havet strømmer inn for å erstatte den.", "Solgangsvind er et lokalt fenomen drevet av lokal oppvarming, ikke globale systemer."] },
+            { question: "6. Se for deg værkartet under. Hvordan vil vinden ved bakken mest sannsynlig blåse i punkt A?", options: ["Rett fra H til L, vinkelrett på isobarene.", "Parallelt med isobarene, mot venstre.", "På skrå over isobarene, fra høytrykket og inn mot lavtrykket.", "Sirkulerende med klokken ut fra høytrykket."], image: "https://pgelisa.github.io/REA3043_jordenspuls/bilder/IsobarLH_AB.png", correctAnswer: 2, feedback: ["Dette ville skjedd uten jordrotasjon. Corioliskraften og friksjon endrer retningen.", "Parallelt med isobarene er typisk for geostrofisk vind høyt oppe, og retningen ville vært mot høyre på grunn av Corioliseffekten.", "Riktig! Trykkgradientkraften skyver luften mot L, Corioliskraften bøyer av mot høyre, og friksjonen gjør at den krysser isobarene på skrå inn mot lavtrykket.", "Vinden sirkulerer ut fra et høytrykk, men i punkt A er den på vei mot lavtrykket."] },
+            { question: "7. Hva er forskjellen på geostrofisk vind og gradientvind?", options: ["Geostrofisk vind tar hensyn til friksjon, mens gradientvind ikke gjør det.", "Geostrofisk vind er en balanse mellom tre krefter, mens gradientvind er en balanse mellom to.", "Geostrofisk vind blåser langs rette isobarer, mens gradientvind blåser langs kurvede isobarer.", "Det er ingen forskjell, de er to navn på det samme fenomenet."], correctAnswer: 2, feedback: ["Ingen av disse idealiserte vindene tar hensyn til friksjon fra bakken.", "Det er omvendt. Gradientvind inkluderer sentrifugalkraften i tillegg til trykkgradient- og corioliskraften.", "Riktig! Geostrofisk vind er en balanse mellom trykkgradient og Coriolis langs rette baner. Gradientvind inkluderer sentrifugalkraften for å beskrive vind i kurver rundt trykksystemer.", "De beskriver to beslektede, men distinkte, idealiserte vindforhold."] },
+            { question: "8. Du er på fjelltur en klar og vindstille sommernatt. Du kjenner en svak, kjølig bris som stryker nedover dalsiden. Hvilken type vind er dette?", options: ["Dalvind", "Föhnvind", "Fjellvind", "Solgangsvind"], correctAnswer: 2, feedback: ["Dalvind er en oppadgående vind som oppstår om dagen når fjellsidene varmes opp.", "Föhnvind er en varm og tørr vind som vanligvis er sterkere og knyttet til større værsystemer som krysser fjellkjeder.", "Riktig! Om natten avkjøles luften langs fjellsidene, blir tyngre og synker nedover dalen. Dette kalles fjellvind.", "Solgangsvind er et kystfenomen knyttet til forskjellen mellom land og sjø."] },
+            { question: "9. Hvorfor er Corioliskraften sterkest ved polene og null ved ekvator?", options: ["Fordi vinden blåser fortere ved polene.", "Fordi avstanden et punkt på overflaten beveger seg er størst ved ekvator og minst ved polene.", "Fordi rotasjonshastigheten til jordoverflaten rundt jordens vertikale akse er størst ved polene.", "Fordi det er høyere lufttrykk ved polene."], correctAnswer: 2, feedback: ["Corioliskraftens styrke avhenger av breddegraden, uavhengig av vindhastigheten.", "Dette er riktig, men det fører til at effekten er størst der rotasjonshastigheten rundt jordaksen er lavest (polene) og minst der den er høyest (ekvator).", "Riktig! Ved polene snurrer bakken under deg en hel runde på 24 timer, mens ved ekvator beveger du deg rett frem uten å snurre rundt din egen vertikale akse. Denne lokale rotasjonen skaper corioliseffekten.", "Lufttrykk påvirker trykkgradientkraften, ikke Corioliskraften direkte."] }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const quizContentEl = document.getElementById('quiz-content');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultContainerEl = document.getElementById('result-container');
+        const scoreEl = document.getElementById('score');
+        const restartBtn = document.getElementById('restartBtn');
+        const progressBar = document.getElementById('progress-bar');
+        
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            let optionsHtml = '';
+            currentQuestion.options.forEach((option, index) => {
+                optionsHtml += `<div><label class="flex items-center p-2 rounded-md hover:bg-gray-100 cursor-pointer"><input type="radio" name="answer" value="${index}" class="mr-3"> ${option}</label></div>`;
+            });
+            
+            let imageHtml = '';
+            if (currentQuestion.image) {
+                imageHtml = `<img src="${currentQuestion.image}" alt="Værkart med høytrykk og lavtrykk" class="mx-auto my-4 rounded-md border" style="max-width: 300px;">`;
+            }
+
+            quizContentEl.innerHTML = `
+                <div class="question-container p-4 border rounded-lg bg-gray-50">
+                    <p class="text-lg font-semibold mb-4">${currentQuestion.question}</p>
+                    ${imageHtml}
+                    <div class="space-y-2">${optionsHtml}</div>
+                    <div class="feedback"></div>
+                </div>
+            `;
+            
+            updateProgressBar();
+            submitBtn.textContent = 'Sjekk svar';
+            submitBtn.disabled = false;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showFeedback() {
+            const selectedOption = quizContentEl.querySelector('input[name="answer"]:checked');
+            if (!selectedOption) return;
+
+            const answerValue = parseInt(selectedOption.value);
+            const feedbackEl = quizContentEl.querySelector('.feedback');
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            feedbackEl.textContent = currentQuestion.feedback[answerValue];
+            feedbackEl.style.display = 'block';
+
+            if (answerValue === currentQuestion.correctAnswer) {
+                feedbackEl.className = 'feedback correct';
+                score++;
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+            }
+            
+            // Disable all radio buttons
+            quizContentEl.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true);
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const selectedOption = quizContentEl.querySelector('input[name="answer"]:checked');
+            if (!selectedOption && submitBtn.textContent === 'Sjekk svar') {
+                 alert("Vennligst velg et svar før du går videre.");
+                 return;
+            }
+
+            if (submitBtn.textContent === 'Sjekk svar') {
+                showFeedback();
+                if (currentQuestionIndex < quizData.length - 1) {
+                    submitBtn.textContent = 'Neste spørsmål';
+                } else {
+                    submitBtn.textContent = 'Se resultat';
+                }
+            } else if (submitBtn.textContent === 'Neste spørsmål') {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else if (submitBtn.textContent === 'Se resultat') {
+                progressBar.style.width = `100%`;
+                quizContentEl.classList.add('hidden');
+                document.getElementById('quiz-navigation').classList.add('hidden');
+                resultContainerEl.classList.remove('hidden');
+                scoreEl.textContent = `Du fikk ${score} av ${quizData.length} riktige!`;
+            }
+        });
+        
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultContainerEl.classList.add('hidden');
+            quizContentEl.classList.remove('hidden');
+            document.getElementById('quiz-navigation').classList.remove('hidden');
+            loadQuestion();
+        });
+
+        // Load the first question
+        loadQuestion();
+    </script>
+
+</body>
+</html>
+
