@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="no" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samtalekort - Psykisk Helse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* -- Stil for kort-flipping -- */
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 1.5rem; /* enda rundere hjørner */
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #f0f9ff; /* lys blå bakgrunn */
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center p-4 bg-slate-100">
+
+    <div id="app" class="w-full max-w-2xl mx-auto flex flex-col items-center">
+        <!-- Tittel -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Samtalekort</h1>
+            <p class="text-slate-600 mt-2 text-lg">La oss snakke om følelser og hvordan vi bruker ord.</p>
+        </header>
+
+        <!-- Kort-holder -->
+        <div class="card w-full h-80 md:h-96 perspective-1000">
+            <div class="card-inner">
+                <!-- Forsiden av kortet -->
+                <div id="card-front" class="card-front">
+                    <p class="text-xl md:text-2xl font-semibold text-slate-700"></p>
+                </div>
+                <!-- Baksiden av kortet -->
+                <div id="card-back" class="card-back">
+                    <p class="text-lg md:text-xl text-slate-800"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fremdriftsindikator -->
+        <div id="progress" class="text-center my-6 text-slate-500 font-medium"></div>
+
+        <!-- Knapper for navigasjon -->
+        <div class="flex flex-wrap justify-center gap-4 mt-4">
+            <button id="flip-btn" class="px-8 py-3 bg-white text-slate-700 font-semibold rounded-full shadow-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                Snu kortet
+            </button>
+            <button id="next-btn" class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                Neste kort
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const cardData = [
+            {
+                front: "Tenk deg at du skal holde en presentasjon foran hele klassen. Hva skjer i kroppen og tankene dine da?",
+                back: "Mange kjenner på **nervøsitet**. Det er en normal reaksjon når vi skal prestere. **Angst** er en sterkere og mer vedvarende frykt som kan komme uten en åpenbar grunn og kan hindre deg i hverdagen. Hva er forskjellen for deg?"
+            },
+            {
+                front: "En venn du hadde en avtale med, avlyser i siste liten. Hvordan kan en slik situasjon påvirke resten av dagen din?",
+                back: "Det er vanlig å bli **trist** eller **nedfor**. Slike følelser er en vanlig del av livet. **Depresjon** er en langvarig tilstand (over 2 uker) der man mister glede over ting, føler seg tom og har lite energi. Når følte du deg trist sist, og hva hjalp da?"
+            },
+            {
+                front: "Du ankommer en fest hvor du nesten ikke kjenner noen. Hvilke tanker og følelser kan dukke opp da?",
+                back: "Mange kan kjenne på **sjenanse** eller **blyghet**. Det er vanlig å føle seg usikker i nye sosiale situasjoner. **Sosial angst** er en intens frykt for å bli negativt vurdert, som kan føre til at man unngår sosiale sammenkomster helt."
+            },
+            {
+                front: "Hva tenker du er forskjellen på å ha en 'dårlig dag' og å ha 'psykisk uhelse'?",
+                back: "En **dårlig dag** er midlertidig. Vi har alle dager hvor ting føles tungt. **Psykisk uhelse** er når de vonde følelsene varer over tid og påvirker hvordan du fungerer i hverdagen. Det er viktig å be om hjelp hvis en 'dårlig dag' blir til 'dårlige uker'."
+            },
+            {
+                front: "Ordet 'angst' blir ofte brukt i dagligtalen. Hva tror du er grunnen til det?",
+                back: "Kanskje fordi det er et sterkt ord som beskriver en ubehagelig følelse? Men når vi bruker diagnoser som 'angst' om vanlige følelser, kan det vanne ut betydningen for de som faktisk har disse lidelsene. Hva tenker du om det?"
+            },
+            {
+                front: "En venn sier 'Jeg er så deprimert' etter å ha sett en trist film. Hvordan kan du møte det vennen din sier?",
+                back: "Du kan anerkjenne følelsen uten å bekrefte diagnosen. For eksempel: 'Det høres ut som filmen gjorde et sterkt inntrykk på deg' eller 'Det er kjipt å føle seg sånn'. Dette åpner for samtale om følelsen uten å sykeliggjøre den."
+            },
+            {
+                front: "Du har en viktig prøve neste dag. Hvilke tanker kan dukke opp kvelden før?",
+                back: "Dette kalles **bekymring**. Det er normalt å bekymre seg for fremtiden. **Generalisert angst** er når man bekymrer seg overdrevent og ukontrollert for mange forskjellige ting over lang tid, noe som går utover livskvaliteten."
+            },
+            {
+                front: "Du får en dårligere karakter på en prøve enn du hadde håpet på. Hva skjer med tankene og følelsene dine da?",
+                back: "Ofte dukker **selvkritikk** opp. Men hvis slike tanker blir konstante og du jevnt over føler deg verdiløs, kan det være tegn på **dårlig selvfølelse**. Hvordan kan du møte deg selv med mer omsorg når du har det vanskelig?"
+            },
+            {
+                front: "Noen ganger sier vi 'Jeg har litt OCD' fordi vi liker å ha det ryddig. Hvorfor kan dette være problematisk?",
+                back: "**OCD (tvangslidelse)** er en alvorlig diagnose med påtrengende tvangstanker og ritualer som tar over hverdagen. Å bruke uttrykket lettvint kan bagatellisere hvor vanskelig det er for de som faktisk lider av det. Hva er forskjellen på å like orden og å ha en tvangslidelse?"
+            },
+            {
+                front: "Hvordan kan vi bli flinkere til å snakke om følelser uten å bruke diagnoser?",
+                back: "Vi kan prøve å bruke mer presise ord! I stedet for 'jeg har angst', kan vi si 'jeg føler meg veldig urolig' eller 'jeg gruer meg skikkelig'. Dette beskriver følelsen, ikke en diagnose. Hvilke andre ord kan vi bruke for å beskrive ubehag?"
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        const cardElement = document.querySelector('.card');
+        const cardInnerElement = document.querySelector('.card-inner');
+        const cardFrontText = document.querySelector('#card-front p');
+        const cardBackText = document.querySelector('#card-back p');
+        const progressElement = document.getElementById('progress');
+        const flipBtn = document.getElementById('flip-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        // Funksjon for å formatere tekst med fet skrift
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-blue-700">$1</strong>');
+        }
+
+        function updateCard() {
+            const card = cardData[currentCardIndex];
+            cardFrontText.innerHTML = formatText(card.front);
+            cardBackText.innerHTML = formatText(card.back);
+            progressElement.textContent = `Kort ${currentCardIndex + 1} av ${cardData.length}`;
+            
+            // Sørg for at kortet alltid vises med forsiden først når man bytter
+            if (cardElement.classList.contains('flipped')) {
+                cardElement.classList.remove('flipped');
+                isFlipped = false;
+            }
+        }
+
+        flipBtn.addEventListener('click', () => {
+            cardElement.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex + 1) % cardData.length;
+            updateCard();
+        });
+
+        // Initialiser første kort
+        updateCard();
+    </script>
+
+</body>
+</html>
+
+
