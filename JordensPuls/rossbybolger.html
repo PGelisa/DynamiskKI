@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografikk: Rossbybølger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Lys blågrå bakgrunn */
+        }
+        .header-bg {
+            background-color: #2c3e50; /* Mørk blå */
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .arrow {
+            position: relative;
+            width: 100%;
+            height: 4px;
+            background-color: #3498db; /* Blå pil */
+            margin: 20px 0;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: -6px;
+            border: 8px solid transparent;
+            border-left-color: #3498db;
+        }
+        .text-high-pressure {
+            color: #e74c3c; /* Rød for høytrykk */
+        }
+        .text-low-pressure {
+            color: #3498db; /* Blå for lavtryrykk */
+        }
+        .diagram-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: auto;
+        }
+        .diagram-image {
+            width: 100%;
+            height: auto;
+        }
+        .annotation {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="header-bg text-white p-6 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold">Slik skaper Rossbybølger høytrykk og lavtrykk</h1>
+        <p class="mt-2 text-lg">En visuell guide til konvergens og divergens i atmosfæren</p>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <!-- Introduksjon -->
+        <div class="card p-6 mb-8 text-center">
+            <h2 class="text-2xl font-bold mb-2 text-gray-700">Hva er Rossbybølger?</h2>
+            <p>Rossbybølger er enorme, buktende bevegelser i jetstrømmen i den øvre delen av atmosfæren. De er avgjørende for å transportere varme mot polene og kald luft mot ekvator, og de styrer i stor grad været vårt på bakken.</p>
+        </div>
+
+        <!-- Hoveddiagram -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-bold text-center mb-4">Dynamikken i en Rossbybølge</h2>
+            <div class="diagram-container">
+                <!-- Selve bildet som viser bølgen -->
+                <svg viewBox="0 0 400 200" class="diagram-image" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Bakgrunn med piler for retning -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+                        </marker>
+                    </defs>
+                    <path d="M 10,100 Q 100,-20 200,100 T 390,100" stroke="#3498db" stroke-width="5" fill="none" stroke-linecap="round" marker-end="url(#arrowhead)"/>
+                    
+                    <!-- Tekst for pol og ekvator -->
+                    <text x="200" y="20" font-size="12" text-anchor="middle" font-weight="bold">Mot polene</text>
+                    <text x="200" y="190" font-size="12" text-anchor="middle" font-weight="bold">Mot ekvator</text>
+                    
+                    <!-- Konvergens-område -->
+                    <circle cx="100" cy="58" r="30" fill="rgba(231, 76, 60, 0.2)" />
+                    <text x="100" y="62" font-size="14" text-anchor="middle" font-weight="bold" class="text-high-pressure">H</text>
+                    
+                     <!-- Divergens-område -->
+                    <circle cx="300" cy="142" r="30" fill="rgba(52, 152, 219, 0.2)" />
+                    <text x="300" y="146" font-size="14" text-anchor="middle" font-weight="bold" class="text-low-pressure">L</text>
+                </svg>
+
+                <!-- Annotasjoner/forklaringer til diagrammet -->
+                <div class="annotation" style="top: 5%; left: 15%;">
+                    <span class="text-high-pressure font-bold">KONVERGENS</span><br>Luften hoper seg opp
+                </div>
+                 <div class="annotation" style="top: 15%; left: 28%;">
+                    Høytrykksrygg
+                </div>
+                 <div class="annotation" style="bottom: 15%; right: 28%;">
+                    Lavtrykkstråg
+                </div>
+                <div class="annotation" style="bottom: 5%; right: 15%;">
+                     <span class="text-low-pressure font-bold">DIVERGENS</span><br>Luften sprer seg
+                </div>
+            </div>
+            <p class="text-center mt-4 text-gray-600">Nøkkelen er <span class="font-bold">Corioliseffekten</span>, som endrer seg med breddegraden.</p>
+        </div>
+
+        <!-- Forklaring i to kolonner -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Kolonne 1: Konvergens -->
+            <div class="card p-6">
+                <h3 class="text-xl font-bold mb-3 text-center text-high-pressure">1. Bevegelse mot polene → Konvergens</h3>
+                <div class="space-y-4">
+                    <p><strong class="text-gray-700">Økende Coriolis:</strong> Når en luftpakke i Rossbybølgen beveger seg mot polene, kommer den til breddegrader der jorden roterer "raskere" under den. Dette øker Corioliseffekten.</p>
+                    <p><strong class="text-gray-700">Luften bremser og svinger:</strong> Den økte "spinnet" fra Corioliseffekten får luften til å svinge kraftigere mot øst. Denne kraftige svingen bremser farten på luften som kommer bakfra.</p>
+                    <p><strong class="text-gray-700">Opphopning (Konvergens):</strong> Fordi luften foran bremser opp, begynner luften bak å "hope seg opp". Denne konvergensen i høyden tvinger luft nedover.</p>
+                    <p class="font-bold p-3 bg-red-50 rounded-lg text-center">Resultat: Synkende luft skaper et <span class="text-high-pressure">høytrykk</span> på bakken. Vi får en <span class="text-high-pressure">høytrykksrygg</span>, ofte med stabilt og pent vær.</p>
+                </div>
+            </div>
+
+            <!-- Kolonne 2: Divergens -->
+             <div class="card p-6">
+                <h3 class="text-xl font-bold mb-3 text-center text-low-pressure">2. Bevegelse mot ekvator → Divergens</h3>
+                <div class="space-y-4">
+                    <p><strong class="text-gray-700">Avtagende Coriolis:</strong> Når luftpakken svinger tilbake mot ekvator, minker Corioliseffekten.</p>
+                    <p><strong class="text-gray-700">Luften akselererer:</strong> Med mindre "spinn" som holder den igjen, kan luften akselerere og svinger slakere mot øst.</p>
+                    <p><strong class="text-gray-700">Utspredning (Divergens):</strong> Luften foran beveger seg raskere bort fra luften som kommer bak. Det skapes et "vakuum" eller en spredning av luft i høyden.</p>
+                    <p class="font-bold p-3 bg-blue-50 rounded-lg text-center">Resultat: For å fylle tomrommet i høyden, suges luft opp fra bakken. Dette skaper et <span class="text-low-pressure">lavtrykk</span>. Vi får et <span class="text-low-pressure">lavtrykkstråg</span>, ofte med skyer og nedbør.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Oppsummering -->
+        <div class="card p-6 mt-8">
+            <h2 class="text-2xl font-bold mb-3 text-center">Oppsummert</h2>
+            <ul class="list-disc list-inside space-y-2 text-center max-w-2xl mx-auto">
+                <li>Bølgetoppene som går mot <strong class="text-high-pressure">polene</strong> blir til høytrykksrygger på grunn av <strong class="text-high-pressure">konvergens</strong>.</li>
+                <li>Bølgedalene som går mot <strong class="text-low-pressure">ekvator</strong> blir til lavtrykkstrakter på grunn av <strong class="text-low-pressure">divergens</strong>.</li>
+                <li>Denne konstante vekslingen er det som driver de store værsystemene på våre breddegrader.</li>
+            </ul>
+        </div>
+    </main>
+
+</body>
+</html>
