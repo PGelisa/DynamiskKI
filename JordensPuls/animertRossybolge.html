@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Infografikk: Rossbybølger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header-bg { background-color: #2c3e50; }
+        .text-high-pressure { color: #e74c3c; }
+        .text-low-pressure { color: #3498db; }
+        
+        .infographic-container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1rem;
+            width: 100%;
+            max-width: 900px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            padding: 1.5rem;
+        }
+
+        .step-content { display: none; }
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        #explanation-box {
+            min-height: 160px; /* Sørger for lik høyde mellom steg */
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .nav-button {
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-button:hover { background-color: #2980b9; transform: scale(1.05); }
+        .nav-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* SVG Animasjoner */
+        .svg-element { visibility: hidden; }
+        .svg-element.visible { visibility: visible; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulsate-high { animation: pulsate 2s infinite ease-in-out; }
+        .pulsate-low { animation: pulsate 2s infinite ease-in-out; }
+        @keyframes pulsate {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .air-particle {
+            fill: #ffffff;
+            stroke: #5d6d7e;
+            stroke-width: 0.5;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="header-bg text-white p-4 text-center shadow-md">
+        <h1 class="text-2xl md:text-3xl font-bold">Rossbybølger skaper høytrykk og lavtrykk</h1>
+    </header>
+
+    <main class="flex-grow">
+        <div class="infographic-container">
+            <!-- SVG Diagram -->
+            <div>
+                <svg id="rossby-animation" viewBox="0 0 400 200" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <path id="wavePath" d="M 10,100 Q 100,20 200,100 T 390,100" fill="none"/>
+                    </defs>
+
+                    <!-- Statiske elementer -->
+                    <text x="200" y="15" font-size="10" text-anchor="middle" font-weight="bold" class="svg-element" id="label-pole">Mot polene</text>
+                    <text x="200" y="195" font-size="10" text-anchor="middle" font-weight="bold" class="svg-element" id="label-equator">Mot ekvator</text>
+                    
+                    <!-- Bølge-sti -->
+                    <use href="#wavePath" stroke="#bdc3c7" stroke-width="5" stroke-linecap="round" class="svg-element" id="wave-path-static"/>
+                    
+                    <!-- Dynamiske elementer -->
+                    <g id="convergence-zone" class="svg-element" transform="translate(100, 100)">
+                        <circle r="30" fill="rgba(231, 76, 60, 0.2)" />
+                        <circle r="30" fill="rgba(231, 76, 60, 0.3)" class="pulsate-high" />
+                        <text font-size="14" text-anchor="middle" dy=".3em" font-weight="bold" class="text-high-pressure">H</text>
+                    </g>
+                    <g id="divergence-zone" class="svg-element" transform="translate(300, 100)">
+                        <circle r="30" fill="rgba(52, 152, 219, 0.2)" />
+                        <circle r="30" fill="rgba(52, 152, 219, 0.3)" class="pulsate-low" />
+                        <text font-size="14" text-anchor="middle" dy=".3em" font-weight="bold" class="text-low-pressure">L</text>
+                    </g>
+                    
+                    <!-- Animerte partikler -->
+                    <g id="particles-full-path" class="svg-element">
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="0s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="1.5s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="3s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="4.5s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="6s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                         <circle class="air-particle" r="3"><animateMotion dur="9s" repeatCount="indefinite" begin="7.5s" calcMode="linear" keyTimes="0; 0.66; 1" keyPoints="0; 0.5; 1"><mpath href="#wavePath"/></animateMotion></circle>
+                    </g>
+                </svg>
+            </div>
+            
+            <!-- Tekst og Navigasjon -->
+            <div class="flex flex-col items-center">
+                <div id="explanation-box" class="w-full mb-4">
+                    <!-- Steg 0 -->
+                    <div id="step-0" class="step-content active">
+                        <h2 class="text-xl font-bold mb-2">Rossbybølger og været</h2>
+                        <p>Denne interaktive guiden viser hvordan store bølger i atmosfæren, kalt Rossbybølger, skaper høytrykk og lavtrykk som styrer været vårt. Trykk "Neste" for å begynne.</p>
+                    </div>
+                    <!-- Steg 1 -->
+                    <div id="step-1" class="step-content">
+                        <h2 class="text-xl font-bold mb-2">Hva er Rossbybølger?</h2>
+                        <p>Dette er en Rossbybølge, en enorm, buktende bevegelse i jetstrømmen. Den transporterer varm luft mot polene og kald luft mot ekvator. Nøkkelen til å forstå den er <span class="font-bold">Corioliseffekten</span>, som endrer seg med breddegraden.</p>
+                    </div>
+                    <!-- Steg 2 -->
+                    <div id="step-2" class="step-content">
+                        <h2 class="text-xl font-bold mb-2 text-high-pressure">1. Mot polene → Lavere hastighet</h2>
+                        <p>Når luften beveger seg mot polene, øker Corioliseffekten. Det økte dreiemomentet fra Corioliseffekten fører til at vindhstigheten bremses opp, for å bevare det totale dreiemomentet. Legg merke til hvordan partiklene beveger seg <span class="font-bold">saktere</span> på vei opp mot bølgetoppen.</p>
+                    </div>
+                     <!-- Steg 3 -->
+                    <div id="step-3" class="step-content">
+                        <h2 class="text-xl font-bold mb-2 text-high-pressure">Resultat: Konvergens og høytrykk</h2>
+                        <p>Fordi luften foran sakker farten, hoper luften bak seg opp. Denne <span class="font-bold">konvergensen</span> i høyden tvinger luft nedover og skaper en stabil <span class="text-high-pressure font-bold">høytrykksrygg (H)</span> på bakken.</p>
+                    </div>
+                    <!-- Steg 4 -->
+                    <div id="step-4" class="step-content">
+                        <h2 class="text-xl font-bold mb-2 text-low-pressure">2. Mot ekvator → Høyere hastighet</h2>
+                        <p>Når luften svinger tilbake mot ekvator, minker Corioliseffekten. Det reduserte dreiemomentet fra Coriolieffekten fører da vil at vindhastigheten øker. Partiklene beveger seg nå <span class="font-bold">raskere</span> ned i bølgedalen.</p>
+                    </div>
+                    <!-- Steg 5 -->
+                     <div id="step-5" class="step-content">
+                        <h2 class="text-xl font-bold mb-2 text-low-pressure">Resultat: Divergens og lavtrykk</h2>
+                        <p>Siden luften foran akselererer, strekkes luftstrømmen ut. Denne <span class="font-bold">divergensen</span> skaper et "sug" som trekker luft opp fra bakken, og danner et ustabilt <span class="text-low-pressure font-bold">lavtrykkstråg (L)</span>.</p>
+                    </div>
+                    <!-- Steg 6 -->
+                    <div id="step-6" class="step-content">
+                        <h2 class="text-xl font-bold mb-2">Oppsummering</h2>
+                        <p>Denne dynamikken er i konstant bevegelse. Høytrykksrygger mot polene gir høytrykk og pent vær, mens tråg (lavtrykkstråg) mot ekvator gir lavtrykk og nedbør. Nå har du sett hvordan de store værsystemene dannes! Trykk "Start på nytt".</p>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button id="prev-btn" class="nav-button">Forrige</button>
+                    <button id="next-btn" class="nav-button">Neste</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = 7;
+            let currentStep = 0;
+
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            const svgElements = {
+                wavePath: document.getElementById('wave-path-static'),
+                poleLabel: document.getElementById('label-pole'),
+                equatorLabel: document.getElementById('label-equator'),
+                particlesFullPath: document.getElementById('particles-full-path'),
+                convergenceZone: document.getElementById('convergence-zone'),
+                divergenceZone: document.getElementById('divergence-zone'),
+            };
+
+            function updateState() {
+                // Oppdater tekst
+                for (let i = 0; i < steps; i++) {
+                    document.getElementById(`step-${i}`).classList.toggle('active', i === currentStep);
+                }
+
+                // Oppdater knapper
+                prevBtn.disabled = currentStep === 0;
+                if (currentStep === steps - 1) {
+                    nextBtn.textContent = 'Start på nytt';
+                } else {
+                    nextBtn.textContent = 'Neste';
+                }
+
+                // Oppdater SVG-visning basert på steg
+                // Starttilstand
+                Object.values(svgElements).forEach(el => el.classList.remove('visible'));
+
+                if (currentStep >= 1) {
+                    svgElements.wavePath.classList.add('visible');
+                    svgElements.poleLabel.classList.add('visible');
+                    svgElements.equatorLabel.classList.add('visible');
+                }
+                if (currentStep >= 2) {
+                    svgElements.particlesFullPath.classList.add('visible');
+                }
+                 if (currentStep >= 3) {
+                    svgElements.convergenceZone.classList.add('visible');
+                }
+                if (currentStep >= 4) {
+                    // Partiklene er allerede synlige og viser nå den raskere delen
+                }
+                 if (currentStep >= 5) {
+                    svgElements.divergenceZone.classList.add('visible');
+                }
+                 if (currentStep >= 6) { // Oppsummering viser alt
+                    Object.values(svgElements).forEach(el => el.classList.add('visible'));
+                }
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentStep < steps - 1) {
+                    currentStep++;
+                } else {
+                    // Start på nytt
+                    currentStep = 0;
+                }
+                updateState();
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    updateState();
+                }
+            });
+
+            // Initialiser
+            updateState();
+        });
+    </script>
+</body>
+</html>
+
+
+
+
