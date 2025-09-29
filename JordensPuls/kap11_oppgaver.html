@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Quiz: Sirkulasjon i Atmosfæren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .question-card {
+            display: none;
+        }
+        .question-card.active {
+            display: block;
+        }
+        .option-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-label:hover {
+            background-color: #f9fafb;
+        }
+        input[type="radio"]:checked + .option-label {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        /* Feedback styles */
+        .feedback {
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .feedback.correct {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .feedback.incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-md">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Quiz: Sirkulasjon i Atmosfæren</h1>
+            <p id="progress-text" class="text-slate-600 mb-6">Spørsmål 1 av 20</p>
+
+            <div id="quiz-container">
+                <!-- Spørsmål blir lastet inn her av JavaScript -->
+            </div>
+
+            <div id="results-container" class="hidden text-center">
+                <h2 class="text-2xl font-bold text-slate-900">Resultat</h2>
+                <p id="score-text" class="text-xl my-4"></p>
+                <p id="summary-text" class="text-slate-600 mb-6"></p>
+                
+                <div id="review-feedback" class="text-left bg-slate-100 p-4 rounded-lg mt-6">
+                    <!-- Tilpasset tilbakemelding kommer her -->
+                </div>
+
+                <button id="retryBtn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors mt-6">Prøv igjen</button>
+            </div>
+
+            <div class="mt-6">
+                <button id="nextBtn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors hidden">Neste spørsmål</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Hvorfor mottar ekvator mer solenergi per arealenhet enn polene?",
+                options: { a: "På grunn av drivhuseffekten.", b: "På grunn av solstrålenes innfallsvinkel.", c: "På grunn av avstanden til sola." },
+                correct: "b",
+                topic: "Grunnleggende sirkulasjon og trykk",
+                feedback: {
+                    a: "Ikke helt. Drivhuseffekten påvirker temperaturen globalt, men forklarer ikke forskjellen i innstråling mellom ekvator og polene.",
+                    b: "Helt riktig! Ved ekvator treffer solstrålene mer direkte (nærmere 90° vinkel), slik at energien konsentreres over et mindre område. Mot polene treffer strålene skrått og sprer seg over et større område.",
+                    c: "Feil. Jordens bane er litt elliptisk, men denne avstandsforskjellen er ikke hovedårsaken til den store temperaturforskjellen mellom ekvator og polene."
+                }
+            },
+            {
+                question: "Corioliseffekten bøyer av vinder mot venstre på den nordlige halvkule.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Corioliseffekten",
+                feedback: {
+                    a: "Feil. Regelen er at Corioliseffekten bøyer av vinder mot HØYRE på den nordlige halvkule, og mot venstre på den sørlige.",
+                    b: "Korrekt! På den nordlige halvkule bøyes vinder av mot HØYRE. På den sørlige halvkule bøyes de mot venstre."
+                }
+            },
+            {
+                question: "Hvilken sirkulasjonscelle finner vi nærmest ekvator?",
+                options: { a: "Ferrel-cellen", b: "Polarcellen", c: "Hadley-cellen" },
+                correct: "c",
+                topic: "Trecellemodellen",
+                feedback: {
+                    a: "Feil. Ferrel-cellen ligger på midlere breddegrader (ca. 30-60°), mellom Hadley- og Polarcellen.",
+                    b: "Feil. Polarcellen er den minste og svakeste cellen, og ligger nærmest polene (ca. 60-90°).",
+                    c: "Riktig! Hadley-cellen er den store, termisk drevne cellen som strekker seg fra ekvator til ca. 30° nord og sør, der varm luft stiger ved ekvator og synker ved 30°."
+                }
+            },
+            {
+                question: "Hva kalles vindsystemet som blåser fra de subtropiske høytrykkene mot ekvator?",
+                options: { a: "Vestavinden", b: "Passatvinden", c: "Polarvinden" },
+                correct: "b",
+                topic: "Vindsystemer ved bakken",
+                feedback: {
+                    a: "Feil. Vestavinden er den fremherskende vinden på våre breddegrader, i Ferrel-cellen, og blåser fra vest mot øst.",
+                    b: "Riktig! Passatvindene er de stabile vindene som blåser fra de subtropiske høytrykkene (ca. 30°) mot lavtrykket ved ekvator (ITCZ). De bøyes av mot vest av Coriolis.",
+                    c: "Feil. Polarvindene blåser fra høytrykket ved polene mot lavere breddegrader."
+                }
+            },
+            {
+                question: "Den Intertropiske Konvergenssonen (ITCZ) er et område med stabilt, synkende luft og lite nedbør.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Vindsystemer ved bakken",
+                feedback: {
+                    a: "Feil. ITCZ er preget av det motsatte: ustabil, stigende luft som følge av at passatvindene møtes (konvergerer), noe som fører til kraftig sky-dannelse og mye nedbør.",
+                    b: "Helt riktig! ITCZ er et lavtrykksbelte med varm, fuktig og stigende luft. Dette gir et belte med ustabilt vær og mye regn, og er grunnen til at vi finner regnskoger i dette området."
+                }
+            },
+            {
+                question: "Norges vær er hovedsakelig påvirket av...",
+                options: { a: "Passatvindene", b: "Polarvindene", c: "Vestavindbeltet" },
+                correct: "c",
+                topic: "Vindsystemer ved bakken",
+                feedback: {
+                    a: "Feil. Passatvindene finner vi mye lenger sør, mellom 30° og ekvator.",
+                    b: "Ikke direkte. Vi kan få innslag av kald polarluft, men det er ikke det dominerende vindsystemet.",
+                    c: "Riktig! Norge ligger på midlere breddegrader, midt i vestavindbeltet. Dette er luftstrømmen i Ferrel-cellen, som fører lavtrykk fra Atlanterhavet inn mot oss."
+                }
+            },
+            {
+                question: "Jetstrømmer er...",
+                options: { a: "Svake vinder ved bakken", b: "Kraftige, smale luftstrømmer i høyden", c: "Vinder som kun finnes over havet" },
+                correct: "b",
+                topic: "Sirkulasjon i høyden",
+                feedback: {
+                    a: "Feil. Jetstrømmer er det motsatte av svake - de kan ha vindhastigheter på flere hundre km/t, og finnes høyt oppe i atmosfæren.",
+                    b: "Helt korrekt! De er som elver av vind i den øvre troposfæren, og dannes på grensen mellom store luftmasser med ulik temperatur, som f.eks. langs polarfronten.",
+                    c: "Feil. Jetstrømmer finnes over både hav og land, og bukter seg rundt hele jordkloden."
+                }
+            },
+            {
+                question: "Et høytrykk er assosiert med stigende luft og skyet vær.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Grunnleggende sirkulasjon og trykk",
+                feedback: {
+                    a: "Feil. Stigende luft avkjøles, noe som fører til kondensasjon, skyer og nedbør. Dette er typisk for lavtrykk.",
+                    b: "Riktig! Et høytrykk er assosiert med synkende luft. Når luften synker, varmes den opp og tørker ut, noe som løser opp skyer og gir pent, stabilt vær."
+                }
+            },
+            {
+                question: "Hva er hovedårsaken til ren termisk sirkulasjon?",
+                options: { a: "Jordrotasjon", b: "Temperaturforskjeller", c: "Månens tiltrekning" },
+                correct: "b",
+                topic: "Grunnleggende sirkulasjon og trykk",
+                feedback: {
+                    a: "Feil. Jordrotasjonen (Coriolis) påvirker og kompliserer sirkulasjonen, men det er ikke den grunnleggende årsaken.",
+                    b: "Riktig! Termisk sirkulasjon drives av at varm luft har lavere tetthet og stiger, mens kald luft har høyere tetthet og synker. Dette skaper trykkforskjeller som setter luften i bevegelse.",
+                    c: "Feil. Månens tiltrekning skaper tidevann i havet, men er ikke drivkraften bak vindsirkulasjon."
+                }
+            },
+            {
+                question: "Rundt 30° breddegrad finner vi ofte...",
+                options: { a: "Regnskog og lavtrykk", b: "Ørkener og høytrykk", c: "Isbreer og polarklima" },
+                correct: "b",
+                topic: "Trecellemodellen",
+                feedback: {
+                    a: "Feil. Regnskog og lavtrykk finner vi typisk rundt ekvator (ITCZ).",
+                    b: "Helt riktig! Her synker den tørre luften fra Hadley-cellen ned og danner stabile, dynamiske høytrykk. Dette gir tørt klima og er grunnen til at mange av verdens store ørkener ligger her.",
+                    c: "Feil. Isbreer og polarklima finner vi på høyere breddegrader, nærmere polene."
+                }
+            },
+            {
+                question: "Corioliseffekten er sterkest ved ekvator.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Corioliseffekten",
+                feedback: {
+                    a: "Feil. Corioliseffekten er faktisk lik null ved ekvator. Det er derfor tropiske orkaner nesten aldri dannes helt inntil ekvator.",
+                    b: "Riktig! Corioliseffekten er lik null ved ekvator og øker i styrke mot polene, der den er sterkest."
+                }
+            },
+            {
+                question: "Prosessen der et lavtrykk dannes kalles...",
+                options: { a: "Syklogenese", b: "Fotosyntese", c: "Subduksjon" },
+                correct: "a",
+                topic: "Polarfronten",
+                feedback: {
+                    a: "Korrekt! Syklogenese betyr bokstavelig talt 'syklon-dannelse' og er faguttrykket for utviklingen av et lavtrykk, ofte langs polarfronten.",
+                    b: "Feil. Fotosyntese er prosessen planter bruker for å omdanne sollys til energi.",
+                    c: "Feil. Subduksjon er en geologisk prosess der en tektonisk plate synker under en annen."
+                }
+            },
+            {
+                question: "Hvilke to luftmasser møtes ved polarfronten?",
+                options: { a: "Varm, tørr og kald, tørr luft.", b: "Varm, fuktig tropisk luft og kald, tørr polarluft.", c: "To like kalde luftmasser." },
+                correct: "b",
+                topic: "Polarfronten",
+                feedback: {
+                    a: "Ikke helt. Den varme luften er typisk fuktig, ikke tørr.",
+                    b: "Helt riktig! Polarfronten er den skarpe grensen der varm, fuktig luft fra subtropene møter kald, tørr luft fra polområdene. Denne temperaturkontrasten er energikilden for lavtrykkene.",
+                    c: "Feil. Hele poenget med en front er at to ulike luftmasser møtes. Hvis de var like, ville det ikke vært noen front."
+                }
+            },
+            {
+                question: "En høytrykksrygg i en Rossbybølge (bølgetopp) er assosiert med stabilt og pent vær ved bakken.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "a",
+                topic: "Sirkulasjon i høyden",
+                feedback: {
+                    a: "Helt riktig! I en høytrykksrygg (bølgetopp) i jetstrømmen vil luften i høyden spres (divergens). For å 'fylle tomrommet' synker luft fra enda høyere lag ned, noe som skaper høytrykk og stabilt vær ved bakken.",
+                    b: "Feil. Det er et tråg (bølgedal) som er assosiert med ustabilt vær og lavtrykk ved bakken, fordi luften i høyden her 'kolliderer' (konvergens) og tvinges nedover, noe som 'dytter' luften ved bakken oppover."
+                }
+            },
+            {
+                question: "Ferrel-cellen er drevet av...",
+                options: { a: "Direkte termisk sirkulasjon", b: "Bevegelsene i Hadley- og Polarcellen", c: "Solvinden" },
+                correct: "b",
+                topic: "Trecellemodellen",
+                feedback: {
+                    a: "Feil. Hadley- og Polarcellene er termisk direkte (varm luft stiger, kald luft synker). Ferrel-cellen er termisk indirekte.",
+                    b: "Riktig! Ferrel-cellen fungerer som et 'tannhjul' som blir dratt rundt av de to andre cellene. Den drives mekanisk av den synkende luften fra Hadley-cellen ved 30° og den stigende luften langs polarfronten ved 60°.",
+                    c: "Feil. Solvinden er en strøm av partikler fra solen og påvirker ikke den troposfæriske sirkulasjonen på denne måten."
+                }
+            },
+            {
+                question: "En 'blokkering' i været skyldes ofte...",
+                options: { a: "En rask jetstrøm", b: "En stasjonær Rossbybølge", c: "En solformørkelse" },
+                correct: "b",
+                topic: "Sirkulasjon i høyden",
+                feedback: {
+                    a: "Tvert imot. En rask, rett jetstrøm (høy soneindeks) gir raskt vekslende vær. Det er når den sakker ned og bukter seg kraftig at blokkeringer kan oppstå.",
+                    b: "Korrekt! Når en stor buktning (Rossbybølge) i jetstrømmen blir liggende nesten i ro over et område, blokkerer den for den normale vest-øst bevegelsen av værsystemer. Dette kan gi lange perioder med enten tørt og varmt vær (blokkerende høytrykk) eller vått og kjølig vær.",
+                    c: "Feil. En solformørkelse er et kortvarig astronomisk fenomen som ikke skaper langvarige værmønstre."
+                }
+            },
+            {
+                question: "I et termisk lavtrykk er luften kaldere enn omgivelsene og synker.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Grunnleggende sirkulasjon og trykk",
+                feedback: {
+                    a: "Feil. Kald, synkende luft danner et termisk HØYTRYKK. Tenk på polene.",
+                    b: "Riktig! I et termisk lavtrykk er luften VARMERE enn omgivelsene, noe som gjør den lettere og får den til å STIGE. Tenk på ekvator."
+                }
+            },
+            {
+                question: "På den sørlige halvkule bøyes vinden mot...",
+                options: { a: "Høyre", b: "Venstre", c: "Den endrer ikke retning" },
+                correct: "b",
+                topic: "Corioliseffekten",
+                feedback: {
+                    a: "Feil. Avbøyning mot høyre skjer på den nordlige halvkule.",
+                    b: "Riktig! På den sørlige halvkule er avbøyningen på grunn av Coriolis alltid mot venstre.",
+                    c: "Feil. All bevegelse over avstand på en roterende klode blir påvirket av Corioliseffekten (unntatt helt ved ekvator)."
+                }
+            },
+            {
+                question: "Polarfronten er en stabil sone med lite vær.",
+                options: { a: "Sant", b: "Usant" },
+                correct: "b",
+                topic: "Polarfronten",
+                feedback: {
+                    a: "Feil. Polarfronten er det stikk motsatte: en svært ustabil og dynamisk sone.",
+                    b: "Riktig! Polarfronten er en svært aktiv og ustabil sone. Den store temperaturforskjellen her er en enorm energikilde som gir opphav til de fleste av lavtrykkene som treffer oss i Norge. Den kalles ofte 'fødestuen for lavtrykk'."
+                }
+            },
+            {
+                question: "Hva er et dynamisk høytrykk et resultat av?",
+                options: { a: "Kald luft ved bakken", b: "Luft som presses nedover fra høyden", c: "Sterk soloppvarming" },
+                correct: "b",
+                topic: "Trecellemodellen",
+                feedback: {
+                    a: "Feil. Kald luft ved bakken skaper et termisk høytrykk, som ved polene.",
+                    b: "Riktig! Et dynamisk høytrykk (som ved 30° bredde) dannes av mekaniske årsaker i atmosfæren, typisk ved at luft i de øvre lagene tvinges nedover. Dette skjer i den synkende grenen av Hadley-cellen.",
+                    c: "Feil. Sterk soloppvarming fører til at luften stiger og danner et termisk lavtrykk, som ved ekvator."
+                }
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let topicsToReview = []; // Array for å lagre temaer fra gale svar
+
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const nextBtn = document.getElementById('nextBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+        const summaryText = document.getElementById('summary-text');
+        const reviewFeedback = document.getElementById('review-feedback');
+
+        function loadQuestion() {
+            quizContainer.innerHTML = '';
+            nextBtn.classList.add('hidden');
+
+            if (currentQuestionIndex < quizData.length) {
+                progressText.textContent = `Spørsmål ${currentQuestionIndex + 1} av ${quizData.length}`;
+                const currentQuestion = quizData[currentQuestionIndex];
+                
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card active';
+                
+                let optionsHtml = '';
+                for (const key in currentQuestion.options) {
+                    optionsHtml += `
+                        <div>
+                            <input type="radio" name="option" value="${key}" id="option-${key}" class="sr-only">
+                            <label for="option-${key}" class="option-label">${currentQuestion.options[key]}</label>
+                        </div>
+                    `;
+                }
+
+                questionCard.innerHTML = `
+                    <p class="font-semibold text-lg mb-4">${currentQuestionIndex + 1}. ${currentQuestion.question}</p>
+                    <div class="space-y-3" id="options-container">
+                        ${optionsHtml}
+                    </div>
+                    <div id="feedback-container" class="mt-4"></div>
+                `;
+
+                quizContainer.appendChild(questionCard);
+                const optionsContainer = questionCard.querySelector('#options-container');
+                optionsContainer.addEventListener('change', handleOptionSelect);
+
+            } else {
+                showResults();
+            }
+        }
+
+        function handleOptionSelect(event) {
+            const selectedValue = event.target.value;
+            const currentQuestion = quizData[currentQuestionIndex];
+            const feedbackContainer = document.getElementById('feedback-container');
+            const radioButtons = document.querySelectorAll('input[name="option"]');
+            
+            let feedbackClass = '';
+            let feedbackText = '';
+
+            if (selectedValue === currentQuestion.correct) {
+                score++;
+                feedbackClass = 'correct';
+            } else {
+                feedbackClass = 'incorrect';
+                // Legg til temaet i listen over temaer som bør repeteres
+                topicsToReview.push(currentQuestion.topic);
+            }
+            
+            feedbackText = currentQuestion.feedback[selectedValue];
+            if (selectedValue !== currentQuestion.correct) {
+                 feedbackText += `<br><br><strong>Riktig svar:</strong> ${currentQuestion.options[currentQuestion.correct]}`;
+            }
+
+            feedbackContainer.innerHTML = `<div class="feedback ${feedbackClass}">${feedbackText}</div>`;
+            
+            radioButtons.forEach(radio => {
+                radio.disabled = true;
+            });
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.textContent = 'Se resultat';
+            }
+            nextBtn.classList.remove('hidden');
+        }
+        
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            progressText.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            scoreText.textContent = `Du fikk ${score} av ${quizData.length} riktige!`;
+            
+            let summary = '';
+            if (score === quizData.length) {
+                 summary = 'Perfekt score! Imponerende!';
+            } else if (score / quizData.length > 0.8) {
+                summary = 'Strålende! Du har veldig god kontroll på dette.';
+            } else if (score / quizData.length > 0.5) {
+                summary = 'Godt jobbet! Du har en solid forståelse for temaet.';
+            } else {
+                summary = 'Bra forsøk! Ta gjerne quizen en gang til for å repetere konseptene.';
+            }
+            summaryText.textContent = summary;
+            
+            // Generer tilpasset tilbakemelding
+            generateReviewFeedback();
+        }
+
+        function generateReviewFeedback() {
+            if (topicsToReview.length === 0) {
+                reviewFeedback.innerHTML = `<h3 class="font-bold mb-2">Ingen feil!</h3><p>Du hadde alt riktig. Fantastisk jobbet!</p>`;
+                return;
+            }
+
+            // Tell antall feil per tema
+            const topicCounts = topicsToReview.reduce((acc, topic) => {
+                acc[topic] = (acc[topic] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Sorter temaer etter antall feil
+            const sortedTopics = Object.keys(topicCounts).sort((a, b) => topicCounts[b] - topicCounts[a]);
+
+            let feedbackHtml = `<h3 class="font-bold mb-2">Forslag til repetisjon:</h3><p class="mb-3">Basert på svarene dine, kan det være lurt å se litt ekstra på:</p><ul class="list-disc list-inside space-y-1">`;
+            
+            sortedTopics.forEach(topic => {
+                feedbackHtml += `<li><strong>${topic}</strong> (${topicCounts[topic]} feil)</li>`;
+            });
+
+            feedbackHtml += `</ul>`;
+            reviewFeedback.innerHTML = feedbackHtml;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+
+        retryBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            topicsToReview = [];
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            progressText.classList.remove('hidden');
+            nextBtn.textContent = 'Neste spørsmål';
+            loadQuestion();
+        });
+
+        // Start quizen
+        loadQuestion();
+    </script>
+</body>
+</html>
+
