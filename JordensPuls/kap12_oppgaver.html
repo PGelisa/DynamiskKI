@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Quiz: Fronter og sterke lavtrykk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .quiz-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .correct {
+            background-color: #D1FAE5; /* green-100 */
+            border-color: #10B981; /* green-500 */
+            color: #065F46; /* green-800 */
+        }
+        .incorrect {
+            background-color: #FEE2E2; /* red-100 */
+            border-color: #EF4444; /* red-500 */
+            color: #991B1B; /* red-800 */
+        }
+        #feedback-container {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-2xl w-full">
+
+        <!-- Start Page -->
+        <div id="start-page">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Quiz: Fronter og lavtrykk</h1>
+            <p class="text-slate-600 mb-6">Test din kunnskap fra kapittel 12. Du vil få 15 spørsmål med utfyllende tilbakemeldinger.</p>
+            <button onclick="startQuiz()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300">Start quiz</button>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz-page" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Spørsmål <span id="question-number"></span> av 15</h2>
+                <div class="text-lg font-semibold text-blue-600">Poeng: <span id="score">0</span></div>
+            </div>
+            
+            <div id="image-container" class="mb-4"></div>
+            <p id="question-text" class="text-lg text-slate-700 mb-6"></p>
+            
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Options will be injected here -->
+            </div>
+            
+            <div id="feedback-container" class="mt-6 text-left"></div>
+
+            <button id="next-button" onclick="nextQuestion()" class="hidden w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300">Neste spørsmål</button>
+        </div>
+
+        <!-- Result Page -->
+        <div id="result-page" class="hidden text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Quiz fullført!</h1>
+            <p class="text-xl text-slate-600 mb-4">Du fikk <span id="final-score" class="font-bold text-blue-600"></span> av 15 riktige.</p>
+            <div id="summary-container" class="text-left bg-slate-100 p-4 rounded-lg mt-8">
+                <h3 class="font-bold text-lg text-slate-800 mb-2">Repetisjonsforslag:</h3>
+                <p id="summary-text" class="text-slate-700 mb-4">Basert på dine svar, kan det være lurt å se over følgende temaer:</p>
+                <ul id="topics-list" class="list-disc list-inside text-slate-700 space-y-1">
+                    <!-- Topics to review will be injected here -->
+                </ul>
+                 <p id="no-review-needed" class="hidden text-slate-700">Imponerende! Du hadde alt riktig. Du har god kontroll på dette temaet.</p>
+            </div>
+            <button onclick="restartQuiz()" class="w-full mt-8 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300">Prøv igjen</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Hva er den korrekte definisjonen på en luftmasse?",
+                options: ["En stor mengde luft med raskt varierende temperatur.", "En liten lomme med luft som har høy fuktighet.", "En stor mengde luft med relativt ensartet temperatur og fuktighet.", "Luften som befinner seg kun over havområder."],
+                correct: 2,
+                topic: "Luftmasser",
+                feedback: "En luftmasse kjennetegnes av at den har homogene (ensartede) egenskaper over et stort horisontalt område, fordi den har blitt liggende i ro over et kildeområde og tatt til seg egenskapene derfra."
+            },
+            {
+                question: "Hvilke egenskaper har en maritim polar (mP) luftmasse?",
+                options: ["Varm og tørr", "Kald og tørr", "Varm og fuktig", "Kald og fuktig"],
+                correct: 3,
+                topic: "Luftmasser",
+                feedback: "'Maritim' betyr at den er dannet over hav og derfor er fuktig. 'Polar' betyr at den kommer fra høye breddegrader og derfor er kald. mP-luft gir typisk kjølig og ustabilt bygevær."
+            },
+            {
+                question: "Hvilken skytype er det første synlige tegnet på en kommende varmfront?",
+                options: ["Cumulonimbus", "Cirrus", "Stratus", "Altocumulus"],
+                correct: 1,
+                topic: "Varmfronter",
+                feedback: "De tynne, høytliggende Cirrus-skyene (fjærskyer) er de aller første skyene som dannes i den varme luften som glir slakt oppover i forkant av en varmfront. De er et klassisk tegn på et værskifte."
+            },
+            {
+                question: "Hvilken type nedbør er mest typisk for en kaldfront?",
+                options: ["Langvarig, jevnt regn", "Kortvarige, intense byger", "Lett yr", "Ingen nedbør"],
+                correct: 1,
+                topic: "Kaldfronter",
+                feedback: "Siden en kaldfront er bratt, blir den varme luften foran tvunget raskt og kraftig til værs. Dette danner mektige bygeskyer (Cumulonimbus) som gir intense, men kortvarige byger, ofte med torden."
+            },
+            {
+                image: "https://placehold.co/600x300/e2e8f0/475569?text=Figur:+Tverrsnitt+av+fronter",
+                question: "Se for deg en figur som viser tverrsnittet av en varmfront og en kaldfront. Hvilken front har den bratteste helningen?",
+                options: ["Varmfronten", "Kaldfronten", "De er like bratte", "Helningen har ingen betydning"],
+                correct: 1,
+                topic: "Frontenes struktur",
+                feedback: "Kaldfronten er mye brattere. Den kalde, tette luften i en kaldfront pløyer seg som en kile inn under den varmere luften, noe som skaper en bratt frontflate og kraftig løft av luften."
+            },
+            {
+                question: "Hva skjer når en kaldfront tar igjen en varmfront?",
+                options: ["Det dannes et høytrykk", "Frontene løses opp", "Det dannes en stasjonær front", "Det dannes en okkludert front"],
+                correct: 3,
+                topic: "Okkluderte fronter",
+                feedback: "Denne prosessen kalles en okklusjon. Den varme luften i varmsektoren blir løftet helt vekk fra bakken, og lavtrykket går inn i sitt modne og mest intense stadium."
+            },
+            {
+                image: "https://i.imgur.com/Gg5J8eM.png",
+                question: "Studer figuren som viser livssyklusen til et lavtrykk. Hva kalles stadiet vist i figur 'c' og 'd', der lavtrykket har en tydelig varm- og kaldfront?",
+                options: ["Startfasen", "Utviklingsfasen", "Okklusjonsstadiet", "Oppløsningsstadiet"],
+                correct: 1,
+                topic: "Den norske syklonmodellen",
+                feedback: "Dette er utviklingsfasen, også kalt modningsstadiet. Her har bølgen på polarfronten utviklet seg til et lavtrykk med en klar varmsektor og definerte fronter."
+            },
+            {
+                question: "Hva kalles området med varm luft mellom en varmfront og en kaldfront?",
+                options: ["Varmsektor", "Tropesone", "Lavtrykksøye", "Kaldluftkile"],
+                correct: 0,
+                topic: "Den norske syklonmodellen",
+                feedback: "Dette området kalles varmsektoren. Været her er typisk mildt og fuktig, men relativt stabilt sammenlignet med været i selve frontsonene."
+            },
+            {
+                question: "Hvorfor beveger en kaldfront seg typisk raskere enn en varmfront?",
+                options: ["Fordi corioliskraften er sterkere på kald luft.", "Fordi kald, tett luft enklere pløyer seg under og løfter varmere luft.", "Fordi varm luft har mer friksjon mot bakken.", "Fordi solen varmer opp baksiden av kaldfronten."],
+                correct: 1,
+                topic: "Frontenes bevegelse",
+                feedback: "Korrekt! Den kalde luften har høyere tetthet og fungerer som en effektiv 'bulldoser' som skyver den lettere, varme luften unna raskere enn den varme luften klarer å gli opp over den kalde."
+            },
+            {
+                image: "https://i.imgur.com/2nL6NFr.png",
+                question: "Hvilket symbol på et værkart representerer en okkludert front?",
+                options: [ "A) Rød linje med halvsirkler", "B) Blå linje med trekanter", "C) Lilla linje med både halvsirkler og trekanter", "D) En stiplet linje"],
+                correct: 2,
+                topic: "Værkartanalyse",
+                feedback: "Symbolene for varmfront (røde halvsirkler) og kaldfront (blå trekanter) kombineres på samme side av en lilla linje for å vise en okkludert front."
+            },
+            {
+                image: "https://i.imgur.com/E13lbz2.png",
+                question: "Se på værkartet. Hvilket vær er mest sannsynlig i punkt B, som ligger i varmsektoren?",
+                options: ["Intense snøbyger og sterk vind.", "Klart, kaldt vær.", "Mildt, fuktig og ofte overskyet vær, kanskje med litt yr.", "Torden og kraftige regnbyger."],
+                correct: 2,
+                topic: "Værkartanalyse",
+                feedback: "Varmsektoren (B) inneholder den varme luftmassen. Her er luften relativt stabil, noe som gir et jevnt skydekke (Stratus) og kanskje litt lett nedbør, men ikke de dramatiske bygene man finner ved kaldfronten (A)."
+            },
+            {
+                question: "Hva er definisjonen på en 'værbombe' (eksplosiv syklogenese)?",
+                options: ["Et lavtrykk som gir mer enn 100 mm nedbør.", "Et lavtrykk der vindstyrken overstiger orkan styrke.", "Et lavtrykk der trykket faller med minst 24 hPa på 24 timer.", "Et lavtrykk som dannes svært nær ekvator."],
+                correct: 2,
+                topic: "Sterke lavtrykk",
+                feedback: "Dette er den meteorologiske definisjonen. Et slikt raskt trykkfall fører til en ekstremt rask økning i vindstyrken og er ofte årsaken til ekstremvær."
+            },
+            {
+                question: "Hvorfor svekkes og dør et lavtrykk ut etter okklusjonsstadiet?",
+                options: ["Fordi solen begynner å skinne på det.", "Fordi det beveger seg inn over land.", "Fordi energikilden, temperaturkontrasten ved bakken, er kuttet av.", "Fordi corioliskraften slutter å virke."],
+                correct: 2,
+                topic: "Den norske syklonmodellen",
+                feedback: "Lavtrykk henter energien sin fra temperaturforskjellen mellom varm og kald luft ved bakken. Når den varme luften er løftet helt vekk (okkludert), forsvinner denne energikilden, og lavtrykket 'sulter'."
+            },
+            {
+                question: "Vandrende lavtrykk på våre breddegrader er et resultat av ustabilitet og bølger langs...",
+                options: ["Ekvator", "Jetstrømmen", "Polarfronten", "Vendekretsene"],
+                correct: 2,
+                topic: "Opphav til lavtrykk",
+                feedback: "Polarfronten er den globale grensesonen mellom kalde polare luftmasser og varme subtropiske luftmasser. Ustabilitet og bølger langs denne fronten er 'fødestedet' for de fleste av våre lavtrykk."
+            },
+             {
+                image: "https://i.imgur.com/E13lbz2.png",
+                question: "Se på værkartet igjen. Hvilket utviklingsstadium befinner dette lavtrykket seg i?",
+                options: ["Startfasen", "Utviklingsfasen", "Okklusjonsstadiet", "Oppløsningsstadiet"],
+                correct: 2,
+                topic: "Værkartanalyse",
+                feedback: "Siden lavtrykket har en tydelig okkludert front (lilla) som går inn mot senteret, har det nådd okklusjonsstadiet. Dette er et modent lavtrykk som sannsynligvis har nådd sin maksimale styrke."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let topicsToReview = [];
+
+        const startPage = document.getElementById('start-page');
+        const quizPage = document.getElementById('quiz-page');
+        const resultPage = document.getElementById('result-page');
+
+        const questionNumberEl = document.getElementById('question-number');
+        const scoreEl = document.getElementById('score');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const nextButton = document.getElementById('next-button');
+        const imageContainer = document.getElementById('image-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        
+        function startQuiz() {
+            startPage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            resultPage.classList.add('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            topicsToReview = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            scoreEl.textContent = score;
+            questionTextEl.textContent = currentQuestion.question;
+            
+            imageContainer.innerHTML = '';
+            if (currentQuestion.image) {
+                const img = document.createElement('img');
+                img.src = currentQuestion.image;
+                img.alt = "Illustrasjon for spørsmål " + (currentQuestionIndex + 1);
+                img.className = "rounded-lg mx-auto max-h-60";
+                imageContainer.appendChild(img);
+            }
+
+            optionsContainerEl.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'quiz-option p-4 bg-slate-100 rounded-lg text-left hover:bg-slate-200 border-2 border-transparent';
+                button.onclick = () => selectAnswer(index);
+                optionsContainerEl.appendChild(button);
+            });
+            
+            nextButton.classList.add('hidden');
+            feedbackContainer.innerHTML = '';
+        }
+
+        function selectAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = optionsContainerEl.children;
+
+            // Disable all buttons after one is clicked
+            for (let i = 0; i < options.length; i++) {
+                options[i].disabled = true;
+            }
+
+            if (selectedIndex === currentQuestion.correct) {
+                score++;
+                options[selectedIndex].classList.add('correct');
+                feedbackContainer.innerHTML = `<p class="text-green-700 font-semibold">Riktig!</p><p class="mt-2 text-slate-600">${currentQuestion.feedback}</p>`;
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[currentQuestion.correct].classList.add('correct');
+                topicsToReview.push(currentQuestion.topic);
+                feedbackContainer.innerHTML = `<p class="text-red-700 font-semibold">Ikke helt. Riktig svar er markert.</p><p class="mt-2 text-slate-600">${currentQuestion.feedback}</p>`;
+            }
+
+            scoreEl.textContent = score;
+            nextButton.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+        
+        function showResults() {
+            quizPage.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = score;
+
+            const topicsListEl = document.getElementById('topics-list');
+            const noReviewNeededEl = document.getElementById('no-review-needed');
+            const summaryTextEl = document.getElementById('summary-text');
+            
+            topicsListEl.innerHTML = '';
+            const uniqueTopics = [...new Set(topicsToReview)];
+
+            if (uniqueTopics.length > 0) {
+                uniqueTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.textContent = topic;
+                    topicsListEl.appendChild(li);
+                });
+                noReviewNeededEl.classList.add('hidden');
+                topicsListEl.classList.remove('hidden');
+                summaryTextEl.classList.remove('hidden');
+
+            } else {
+                 noReviewNeededEl.classList.remove('hidden');
+                 topicsListEl.classList.add('hidden');
+                 summaryTextEl.classList.add('hidden');
+            }
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+    </script>
+</body>
+</html>
+
