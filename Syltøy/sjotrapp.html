@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trappeformel - Optimalisering for Sjøtrapp</title>
+    <!-- Laster inn Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Lys, nøytral bakgrunn */
+        }
+        .container-card {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            max-width: 480px;
+            margin: 20px auto;
+        }
+        .input-style {
+            padding: 10px;
+            border: 1px solid #ccd6e0;
+            border-radius: 8px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .input-style:focus {
+            border-color: #10b981; /* Grønn/teal for optimalisering */
+            outline: none;
+        }
+        .result-box {
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 8px;
+            background-color: #e0f2f1; /* Light cyan/teal */
+            border-left: 5px solid #009688; /* Teal border */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+<div class="container-card bg-white p-6 md:p-8 rounded-xl">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Optimalisering: Trapp & Vinkel</h1>
+    <p class="text-sm text-gray-500 mb-6">Finner den perfekte trinnstørrelsen som tilfredsstiller både **Trappeformel** ($2O+I \approx 600 \text{ mm}$) og din **Ønskede Vinkel** innenfor gitt høydeintervall.</p>
+
+    <!-- INPUT FELT -->
+    <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="minHeight" class="block text-sm font-medium text-gray-700 mb-1">Minimum Høyde ($\mathbf{H}_{\text{min}}$)</label>
+                <div class="relative">
+                    <input type="number" id="minHeight" value="200" placeholder="Eks: 200" class="input-style pr-12" min="10" step="1">
+                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm">cm</span>
+                </div>
+            </div>
+            <div>
+                <label for="maxHeight" class="block text-sm font-medium text-gray-700 mb-1">Maksimum Høyde ($\mathbf{H}_{\text{max}}$)</label>
+                <div class="relative">
+                    <input type="number" id="maxHeight" value="280" placeholder="Eks: 280" class="input-style pr-12" min="10" step="1">
+                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm">cm</span>
+                </div>
+            </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-1">Høydeintervall som dekker f.eks. tidevannsforskjeller (i cm).</p>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="maxRiser" class="block text-sm font-medium text-gray-700 mb-1">Maksimalt Opptrinn ($\mathbf{O}_{\text{max}}$)</label>
+                <div class="relative">
+                    <input type="number" id="maxRiser" value="25" placeholder="Eks: 25" class="input-style pr-12" min="15" max="30" step="0.5">
+                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm">cm</span>
+                </div>
+            </div>
+            <div>
+                <label for="desiredAngle" class="block text-sm font-medium text-gray-700 mb-1">Ønsket Trappevinkel ($\mathbf{\alpha}_{\text{ønsket}}$)</label>
+                <div class="relative">
+                    <input type="number" id="desiredAngle" value="45" placeholder="Eks: 45" class="input-style pr-12" min="10" max="70" step="1">
+                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm">grader</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="calculateOptimizedStairs()"
+            class="mt-6 w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl transition duration-150 ease-in-out shadow-lg transform hover:scale-[1.01]">
+        Finn Optimal Løsning
+    </button>
+
+    <!-- RESULTAT OG VARSLER -->
+    <div id="resultContainer" class="mt-8 hidden">
+        <h2 class="text-xl font-semibold text-gray-800 mb-3">Optimal Løsning Funnet</h2>
+
+        <!-- Hovedresultater -->
+        <div class="grid grid-cols-3 gap-4 text-sm font-medium">
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 col-span-1">
+                <p class="text-gray-500">Antall Opptrinn ($\mathbf{N}$)</p>
+                <p id="numRisers" class="text-xl font-bold text-teal-600"></p>
+            </div>
+             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 col-span-2">
+                <p class="text-gray-500">Total Høyde Nødvendig ($\mathbf{H}$)</p>
+                <p id="finalHeight" class="text-xl font-bold text-teal-600"></p>
+            </div>
+        </div>
+
+        <div class="mt-4 space-y-3">
+            <div class="result-box border-teal-600">
+                <p class="text-gray-500">Optimalt **Opptrinn ($\mathbf{O}$)**</p>
+                <p id="riserHeight" class="font-bold text-teal-800 text-xl"></p>
+            </div>
+            <div class="result-box border-teal-600">
+                <p class="text-gray-500">Optimalt **Inntrinn ($\mathbf{I}$)**</p>
+                <p id="treadDepth" class="font-bold text-teal-800 text-xl"></p>
+            </div>
+        </div>
+        
+        <!-- Vinkel og Lengde -->
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <p class="text-sm font-medium text-gray-700">Faktisk Vinkel (Match mot ønsket vinkel):</p>
+            <p id="actualAngle" class="text-lg font-bold text-gray-800 mb-3"></p>
+            
+            <p class="text-sm font-medium text-gray-700">Total Nødvendig Løpelengde:</p>
+            <p id="totalRun" class="text-lg font-bold text-gray-800"></p>
+        </div>
+
+        <!-- Meldinger (Varsler/Feil) -->
+        <div id="messages" class="mt-4 space-y-2"></div>
+    </div>
+</div>
+
+<script>
+    // Definerer standard trappekonstanter i millimeter (mm)
+    const IDEAL_FORMULA_SUM = 600; 
+    const O_MAX_LEGAL = 210; // Standard maks for varsling
+
+    /**
+     * Hjelpefunksjon for å formatere tall med én desimal og legge til enhet (cm).
+     */
+    function format(value, unit = 'cm') {
+        return value.toFixed(1) + ' ' + unit;
+    }
+
+    /**
+     * Viser en melding i meldingsboksen.
+     */
+    function displayMessage(text, type) {
+        const container = document.getElementById('messages');
+        const colorMap = {
+            error: 'bg-red-100 border-red-500 text-red-700',
+            warning: 'bg-yellow-100 border-yellow-500 text-yellow-700',
+            info: 'bg-blue-100 border-blue-500 text-blue-700'
+        };
+        const element = document.createElement('div');
+        element.className = `p-3 rounded-lg border-l-4 font-medium ${colorMap[type]}`;
+        element.innerHTML = `<p>${text}</p>`;
+        container.appendChild(element);
+    }
+
+    /**
+     * Finner det nøyaktige Opptrinnet (O) som tilfredsstiller 
+     * både ønsket vinkel (alpha) og trappeformelen (2O + I = 600).
+     * @param {number} alpha_rad - Ønsket vinkel i radianer.
+     * @returns {number} - Det perfekte Opptrinnet i mm.
+     */
+    function calculateTargetRiser(alpha_rad) {
+        const tanAlpha = Math.tan(alpha_rad);
+        // Formel utledet fra: O / I = tan(alpha) OG I = 600 - 2O
+        return (IDEAL_FORMULA_SUM * tanAlpha) / (1 + 2 * tanAlpha);
+    }
+
+    /**
+     * Hovedfunksjonen for å beregne trappetrinn.
+     */
+    function calculateOptimizedStairs() {
+        // Henter input i CM
+        const H_min_cm = parseFloat(document.getElementById('minHeight').value); 
+        const H_max_cm = parseFloat(document.getElementById('maxHeight').value); 
+        const O_max_cm = parseFloat(document.getElementById('maxRiser').value); 
+        const alpha_desired_deg = parseFloat(document.getElementById('desiredAngle').value); 
+        
+        const resultContainer = document.getElementById('resultContainer');
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = ''; 
+        resultContainer.classList.add('hidden');
+
+        // 1. Validering og Konvertering til MM
+        if (isNaN(H_min_cm) || isNaN(H_max_cm) || isNaN(O_max_cm) || isNaN(alpha_desired_deg) || H_min_cm <= 0 || H_max_cm <= H_min_cm || O_max_cm <= 0) {
+            displayMessage('Vennligst sjekk at alle verdier er gyldige, og at Max Høyde er større enn Min Høyde.', 'error');
+            return;
+        }
+
+        const H_min_mm = H_min_cm * 10;
+        const H_max_mm = H_max_cm * 10;
+        const O_max_mm = O_max_cm * 10;
+        const alpha_desired_rad = alpha_desired_deg * (Math.PI / 180);
+
+        // --- 2. Finn det PERFEKTE Opptrinnet (O_target) ---
+        // Dette O-et oppfyller 2O + I = 600 OG O/I = tan(alpha_desired)
+        let O_target_mm = calculateTargetRiser(alpha_desired_rad);
+        
+        // --- 3. Bestem Optimalt Antall Trinn (N) ---
+        
+        let N_final;
+        let O_final_mm;
+
+        if (O_target_mm > O_max_mm) {
+            displayMessage(`ADVARSEL: Den ønskede vinkelen (${alpha_desired_deg}°) krever et Opptrinn på ${format(O_target_mm/10)} cm for å være komfortabel, men du tillater maks ${format(O_max_cm)}. Kompromiss: Vi bruker O_max, noe som vil bryte vinkelen.`, 'warning');
+            
+            // Kompromiss: Sett O_final til O_max, da komfort overstyrer vinkel.
+            O_final_mm = O_max_mm;
+            
+            // Finn minste N som dekker H_min med O_final
+            N_final = Math.ceil(H_min_mm / O_final_mm);
+
+            // Sjekk om den nye N*O_final overskrider H_max
+            const H_check_mm = N_final * O_final_mm;
+            if (H_check_mm > H_max_mm) {
+                 displayMessage(`FEIL: Det nødvendige Opptrinnet krever et totalt spenn på ${format(H_check_mm/10)} cm, som overskrider din $\mathbf{H}_{\text{max}}$. Øk $\mathbf{H}_{\text{max}}$.`, 'error');
+                 return;
+            }
+
+        } else {
+            // Target O er innenfor O_max. Vi bruker O_target.
+            O_final_mm = O_target_mm;
+            
+            // Finn minste N som dekker H_min med O_target
+            const N_min_needed = Math.ceil(H_min_mm / O_final_mm);
+            
+            // Finn største N som kan brukes uten å overskride H_max med O_target
+            const N_max_allowed = Math.floor(H_max_mm / O_final_mm);
+
+            if (N_min_needed <= N_max_allowed) {
+                // PERFEKT MATCH: N er innenfor H_range. Velg N som plasserer H nærmest midten av intervallet.
+                const H_mid_mm = (H_min_mm + H_max_mm) / 2;
+                let N_closest = N_min_needed;
+                let min_diff = Math.abs(N_closest * O_final_mm - H_mid_mm);
+
+                for (let N_check = N_min_needed + 1; N_check <= N_max_allowed; N_check++) {
+                    const diff = Math.abs(N_check * O_final_mm - H_mid_mm);
+                    if (diff < min_diff) {
+                        min_diff = diff;
+                        N_closest = N_check;
+                    }
+                }
+                N_final = N_closest;
+
+            } else {
+                // INGEN PERFEKT MATCH: O_target gir enten for høy eller for lav H for alle heltall N.
+                displayMessage(`Optimalt Opptrinn (${format(O_final_mm/10)}) passer ikke inn i H-intervallet med et heltall N. Kompromiss: Vi bruker N som dekker $\mathbf{H}_{\text{min}}$.`, 'warning');
+                
+                N_final = N_min_needed;
+                
+                // Vi må sjekke om O_final blir for stor hvis vi MÅ treffe H_min/H_max
+                // Dette skjer sjelden, men vi bruker N_min_needed som et utgangspunkt.
+                // O_final_mm forblir O_target_mm.
+            }
+        }
+
+        // --- 4. Finalberegning og Sjekker ---
+        const I_final_mm = IDEAL_FORMULA_SUM - (2 * O_final_mm);
+        const H_final_mm = N_final * O_final_mm;
+        const numTreads = N_final - 1;
+
+        // Vinkel og Formel Sjekk
+        const formulaSum = (2 * O_final_mm) + I_final_mm;
+        const alpha_actual_rad = Math.atan(O_final_mm / I_final_mm);
+        const alpha_actual_deg = alpha_actual_rad * (180 / Math.PI); 
+
+        // Sjekk Legal O
+        if (O_final_mm > O_MAX_LEGAL) {
+            displayMessage(`ADVARSEL: Opptrinnet (${format(O_final_mm/10)}) er høyere enn standard byggekrav (${O_MAX_LEGAL/10} cm). Akseptabelt for sjøtrapp, men vær oppmerksom på brattheten.`, 'warning');
+        }
+
+        // --- 5. Oppdater UI med resultater ---
+        document.getElementById('numRisers').textContent = N_final + ' stk';
+        document.getElementById('finalHeight').textContent = format(H_final_mm / 10);
+        document.getElementById('riserHeight').textContent = format(O_final_mm / 10);
+        document.getElementById('treadDepth').textContent = format(I_final_mm / 10);
+        document.getElementById('totalRun').textContent = format((I_final_mm * numTreads) / 10);
+        document.getElementById('actualAngle').textContent = `${alpha_actual_deg.toFixed(1)} grader (${formulaSum.toFixed(1)} mm)`;
+
+        resultContainer.classList.remove('hidden');
+        
+        if (Math.abs(alpha_actual_deg - alpha_desired_deg) <= 0.1 && O_final_mm === O_target_mm) {
+             displayMessage('Perfekt match! Trinnene er ideelle for både komfort og din ønskede vinkel.', 'info');
+        } else if (O_final_mm !== O_target_mm) {
+            displayMessage('Vinkelen ble justert (satt til O_max) for å unngå for høyt opptrinn, men komfortformelen er fortsatt oppfylt.', 'warning');
+        } else {
+             displayMessage('Løsningen er funnet! Vinkelen kan avvike litt fordi $\mathbf{H}_{\text{final}}$ måtte tilpasses et heltall N i ditt intervall.', 'info');
+        }
+    }
+</script>
+
+</body>
+</html>
