@@ -1,8 +1,131 @@
-{% assign doclist = site.pages | sort: 'url' %}
-<ul>
-{% for doc in doclist %}
-  {% if doc.name contains '.html' %}
-    <li><a href="{{ site.baseurl }}{{ doc.url }}">{{ doc.url }}</a></li>
-  {% endif %}
-{% endfor %}
-</ul>
+<!DOCTYPE html>
+<html lang="no" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prosjektsider</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center bg-gray-100 p-4">
+
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <header class="text-center mb-6">
+            <h1 id="page-title" class="text-3xl font-bold text-gray-800">Laster inn filer...</h1>
+            <p id="page-description" class="text-md text-gray-500 mt-2">En liste over alle HTML-prosjekter i denne mappen.</p>
+        </header>
+
+        <main>
+            <!-- Liste med filer vil bli satt inn her av JavaScript -->
+            <div id="file-list" class="space-y-3">
+                <!-- Laster-animasjon -->
+                <div class="animate-pulse flex space-x-4 p-4 border border-gray-200 rounded-lg">
+                    <div class="rounded-full bg-gray-300 h-6 w-6"></div>
+                    <div class="flex-1 space-y-3 py-1">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                    </div>
+                </div>
+                 <div class="animate-pulse flex space-x-4 p-4 border border-gray-200 rounded-lg">
+                    <div class="rounded-full bg-gray-300 h-6 w-6"></div>
+                    <div class="flex-1 space-y-3 py-1">
+                        <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vises hvis ingen filer blir funnet -->
+            <div id="no-files-message" class="hidden text-center text-gray-500 mt-6 bg-gray-50 p-6 rounded-lg">
+                <p>Fant ingen HTML-filer i den angitte mappen.</p>
+                <p class="text-sm mt-2">Sjekk at konfigurasjonen i scriptet er korrekt.</p>
+            </div>
+        </main>
+        
+        <footer class="text-center text-xs text-gray-400 mt-8">
+            <p>Listen genereres automatisk via GitHub API.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- KONFIGURASJON ---
+        // ENDRE VERDIENE UNDER FOR Å PASSE DITT PROSJEKT
+
+        const GITHUB_USERNAME = "DIN_BRUKERNAVN"; // Bytt ut med ditt GitHub-brukernavn
+        const GITHUB_REPO_NAME = "DITT_REPO_NAVN"; // Bytt ut med navnet på ditt repository
+        const FOLDER_PATH = "mappenavn"; // Bytt ut med navnet på mappen du vil liste filer fra. La stå som "" for roten.
+        const PAGE_TITLE = "Mine Prosjekter"; // Tittelen som skal vises på siden
+
+        // --- SLUTT PÅ KONFIGURASJON ---
+
+
+        // Funksjon for å hente og vise filene
+        async function fetchAndDisplayFiles() {
+            // Bygger URL-en til GitHub API-et for å hente innholdet i mappen
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO_NAME}/contents/${FOLDER_PATH}`;
+            const fileListContainer = document.getElementById('file-list');
+            
+            // Oppdaterer tittel og beskrivelse basert på konfigurasjon
+            document.getElementById('page-title').textContent = PAGE_TITLE;
+            if (FOLDER_PATH) {
+                document.getElementById('page-description').textContent = `En liste over alle HTML-filer i mappen '${FOLDER_PATH}'.`;
+            } else {
+                 document.getElementById('page-description').textContent = `En liste over alle HTML-filer i roten av prosjektet.`;
+            }
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`Nettverksfeil: ${response.statusText}`);
+                }
+                const files = await response.json();
+
+                // Filtrerer ut kun HTML-filer og sorterer dem alfabetisk
+                const htmlFiles = files
+                    .filter(file => file.type === 'file' && file.name.endsWith('.html') && file.name !== 'index.html')
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                // Tømmer laster-animasjonen
+                fileListContainer.innerHTML = '';
+
+                if (htmlFiles.length === 0) {
+                    // Viser melding hvis ingen filer ble funnet
+                    document.getElementById('no-files-message').classList.remove('hidden');
+                } else {
+                    // Bygger HTML for hver fil og legger den til i listen
+                    htmlFiles.forEach(file => {
+                        const fileName = file.name;
+                        // Bestemmer lenken basert på om mappen er i roten eller ikke
+                        const fileLink = FOLDER_PATH ? `${FOLDER_PATH}/${fileName}` : fileName;
+
+                        const listItem = document.createElement('a');
+                        listItem.href = fileLink;
+                        listItem.className = 'flex items-center p-4 bg-gray-50 hover:bg-blue-100 border border-gray-200 rounded-lg transition-all duration-200 ease-in-out transform hover:scale-105';
+                        
+                        listItem.innerHTML = `
+                            <svg class="w-6 h-6 text-blue-500 mr-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span class="font-medium text-gray-700">${fileName}</span>
+                            <svg class="w-5 h-5 text-gray-400 ml-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        `;
+                        fileListContainer.appendChild(listItem);
+                    });
+                }
+            } catch (error) {
+                fileListContainer.innerHTML = `<div class="text-center text-red-600 bg-red-50 p-4 rounded-lg">
+                                                   <p>Kunne ikke laste fil-listen.</p>
+                                                   <p class="text-sm mt-1">Feilmelding: ${error.message}</p>
+                                                   <p class="text-sm mt-2">Sjekk at brukernavn, repo-navn og mappenavn er korrekt.</p>
+                                               </div>`;
+            }
+        }
+
+        // Kjører funksjonen når siden er lastet inn
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayFiles);
+    </script>
+</body>
+</html>
