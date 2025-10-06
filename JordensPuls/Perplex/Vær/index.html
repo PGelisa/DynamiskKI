@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moderne Værvarsling - Interaktiv Infografikk</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Moderne Værvarsling</h1>
+            <p class="subtitle">Fra observasjon til værmelding</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <nav class="nav-sidebar">
+            <div class="nav-header">
+                <h3>Navigasjon</h3>
+            </div>
+            <ul class="nav-steps">
+                <li class="nav-step active" data-step="1"><span class="step-number">1</span><span class="step-title">Datainnsamling</span></li>
+                <li class="nav-step" data-step="2"><span class="step-number">2</span><span class="step-title">Databearbeiding</span></li>
+                <li class="nav-step" data-step="3"><span class="step-number">3</span><span class="step-title">Værmodeller</span></li>
+                <li class="nav-step" data-step="4"><span class="step-number">4</span><span class="step-title">Bakkenivå</span></li>
+                <li class="nav-step" data-step="5"><span class="step-number">5</span><span class="step-title">Høydenivå</span></li>
+                <li class="nav-step" data-step="6"><span class="step-number">6</span><span class="step-title">Tolkning</span></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+
+            <section class="step-content active" data-step="1" id="step1">
+                <h2>1. Datainnsamling - Observasjoner</h2>
+                <p>Globalt observasjonsnettverk samler værdata 4 ganger daglig (00, 06, 12, 18 UTC) fra ulike kilder.</p>
+                <svg class="main-svg" viewBox="0 0 800 400" aria-label="Observasjonskilder" role="img" tabindex="0">
+                    <!-- Bakkestasjoner -->
+                    <circle class="clickable" data-info="bakkestasjoner" cx="150" cy="300" r="20" fill="#1E90FF" />
+                    <text x="150" y="340" text-anchor="middle">Bakkestasjoner</text>
+
+                    <!-- Radiosonder -->
+                    <circle class="clickable" data-info="radiosonder" cx="350" cy="300" r="20" fill="#00CED1" />
+                    <text x="350" y="340" text-anchor="middle">Værballonger</text>
+
+                    <!-- Radar -->
+                    <circle class="clickable" data-info="radar" cx="550" cy="300" r="20" fill="#4682B4" />
+                    <text x="550" y="340" text-anchor="middle">Radar</text>
+
+                    <!-- Satellitter -->
+                    <circle class="clickable" data-info="satellitter" cx="750" cy="300" r="20" fill="#87CEEB" />
+                    <text x="750" y="340" text-anchor="middle">Satellitter</text>
+                    
+                    <!-- Dataflyt piler -->
+                    <line x1="150" y1="280" x2="400" y2="150" stroke="#1E90FF" stroke-width="3" marker-end="url(#arrow)" />
+                    <line x1="350" y1="280" x2="400" y2="150" stroke="#00CED1" stroke-width="3" marker-end="url(#arrow)" />
+                    <line x1="550" y1="280" x2="400" y2="150" stroke="#4682B4" stroke-width="3" marker-end="url(#arrow)" />
+                    <line x1="750" y1="280" x2="400" y2="150" stroke="#87CEEB" stroke-width="3" marker-end="url(#arrow)" />
+
+                    <!-- Sammlepunkter (Data-senter) -->
+                    <rect x="380" y="140" width="40" height="30" fill="#104E8B" />
+                    <text x="400" y="180" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12">Datamottak</text>
+
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                </svg>
+            </section>
+
+            <section class="step-content" data-step="2" id="step2">
+                <h2>2. Databearbeiding og Assimilering</h2>
+                <p>Rådata kvalitetssjekkes og kombineres med modelldata for å lage analysekart som viser værtilstanden.</p>
+                <div class="info-panel">
+                    <p>Dataassimilering sørger for å optimalisere prognosene ved å bruke både observasjoner og forutsigelser.</p>
+                </div>
+                <!-- Enkel animasjon av dataflyt -->
+                <svg class="main-svg" viewBox="0 0 600 200" aria-label="Dataassimilering" role="img" tabindex="0">
+                    <rect x="50" y="50" width="100" height="100" fill="#1E90FF" />
+                    <text x="100" y="120" text-anchor="middle" fill="#fff">Observasjoner</text>
+                    <rect x="250" y="50" width="100" height="100" fill="#00CED1" />
+                    <text x="300" y="120" text-anchor="middle" fill="#fff">Modelldata</text>
+                    <polygon points="190,100 230,80 230,120" fill="#333" />
+                    <rect x="350" y="70" width="200" height="60" fill="#104E8B" />
+                    <text x="450" y="110" text-anchor="middle" fill="#fff" font-weight="bold">Analysekart</text>
+                </svg>
+            </section>
+
+            <section class="step-content" data-step="3" id="step3">
+                <h2>3. Numeriske Værmodeller</h2>
+                <p>Superdatamaskiner beregner værutviklingen basert på fysiske lover i 3D atmosfera.</p>
+                <ul>
+                    <li>Global modell: ECMWF (~9 km oppløsning, 10 dager prognose)</li>
+                    <li>Regionalmodell: MEPS (2.5 km, for Norden, 66 timer prognose)</li>
+                    <li>Spesialisert Arktisk modell: AROME-Arctic (2.5 km, 66 timer)</li>
+                </ul>
+                <svg class="main-svg" viewBox="0 0 600 300" aria-label="Numerisk modellering" role="img" tabindex="0">
+                    <!-- 3D rutenett med tidssteg animasjon -->
+                    <rect x="50" y="50" width="80" height="100" fill="#4682B4" opacity="0.8" />
+                    <rect x="150" y="70" width="80" height="100" fill="#00CED1" opacity="0.6" />
+                    <rect x="250" y="90" width="80" height="100" fill="#87CEEB" opacity="0.4" />
+                    <text x="70" y="170" fill="#fff" font-size="14" font-weight="bold">Analyse</text>
+                    <text x="170" y="200" fill="#000" font-size="14" font-weight="bold">Tidssteg 1</text>
+                    <text x="270" y="230" fill="#000" font-size="14" font-weight="bold">Tidssteg 2</text>
+                </svg>
+            </section>
+
+            <section class="step-content" data-step="4" id="step4">
+                <h2>4. Prognosekart - Bakkenivå</h2>
+                <p>Vise trykksystemer og fronter med korrekt retning (mot klokken rundt lavtrykk på nordlige halvkule).</p>
+                <svg class="main-svg" viewBox="0 0 800 400" aria-label="Bakkekart" role="img" tabindex="0">
+                    <!-- Lavtrykk, høytrykk -->
+                    <circle cx="400" cy="200" r="50" stroke="#FF0000" stroke-width="3" fill="none" />
+                    <text x="400" y="205" text-anchor="middle" fill="#FF0000" font-weight="bold" font-size="20">L</text>
+
+                    <circle cx="600" cy="150" r="50" stroke="#0000FF" stroke-width="3" fill="none" />
+                    <text x="600" y="155" text-anchor="middle" fill="#0000FF" font-weight="bold" font-size="20">H</text>
+
+                    <!-- Kaldfront (trekanter mot varm luft) -->
+                    <path d="M360,170 L360,230 L440,200 Z" fill="#0080FF" />
+                    <g fill="#0080FF" stroke="none">
+                        <polygon points="360,170 370,190 360,210" />
+                        <polygon points="375,180 385,200 375,220" />
+                        <polygon points="390,190 400,210 390,230" />
+                    </g>
+
+                    <!-- Varmfront (halvsirkler mot kald luft) -->
+                    <path d="M440,230 L440,170 L570,200 Z" fill="#FF8080" />
+                    <g fill="#FF8080" stroke="none">
+                        <circle cx="460" cy="190" r="10" />
+                        <circle cx="490" cy="200" r="10" />
+                        <circle cx="520" cy="190" r="10" />
+                        <circle cx="550" cy="200" r="10" />
+                    </g>
+                    
+                    <text x="360" y="260" font-size="14" fill="#0080FF">Kaldfront (trekanter på kald side)</text>
+                    <text x="440" y="270" font-size="14" fill="#FF4040">Varmfront (halvsirkler på varm side)</text>
+                </svg>
+            </section>
+
+            <section class="step-content" data-step="5" id="step5">
+                <h2>5. Prognosekart - Høydenivå (Jetstrøm)</h2>
+                <p>Rygger («ridge») har lav jetstrømshastighet og høytrykk ved bakken. Tråg («trough») har høy hastighet og lavtrykk ved bakken.</p>
+                <svg class="main-svg" viewBox="0 0 800 300" aria-label="Jetstrøm og høydekart" role="img" tabindex="0">
+                    <!-- Jetstrøm bølgeform -->
+                    <path d="M50 150 Q150 50 250 150 T450 150 T650 150" stroke="#1E90FF" stroke-width="5" fill="none" />
+                    <text x="150" y="40" font-size="16" fill="#003366" font-weight="bold">Rygg (lav jetshastighet = høytrykk)</text>
+                    <text x="290" y="40" font-size="16" fill="#990000" font-weight="bold">Tråg (høy jetshastighet = lavtrykk)</text>
+                    <circle cx="150" cy="50" r="15" fill="#1E90FF" opacity="0.6" />
+                    <circle cx="310" cy="50" r="15" fill="#FF5733" opacity="0.6" />
+                </svg>
+                <p>Jetstrømmens mønster styrer værsystemene ved bakken og påvirker hvor høytrykk og lavtrykk dannes.</p>
+            </section>
+
+            <section class="step-content" data-step="6" id="step6">
+                <h2>6. Tolkning og Formidling</h2>
+                <p>Meteorologer tolker prognosene og lager værmeldinger for publikum og spesialbransjer.</p>
+                <ul>
+                    <li>Ekstremvarsler for flom, uvær med mer (spesialtjenester)</li>
+                    <li>Kraftindustrien bruker værdata for produksjonsplanlegging, spesielt vind- og vannkraft</li>
+                    <li>Lokale modifikasjoner og usikkerhet vurderes i tolkningen</li>
+                </ul>
+                <p>Daglige værmeldinger bygger på denne komplekse prosessen.</p>
+            </section>
+
+            <div class="navigation-controls">
+                <button id="prevBtn" aria-label="Forrige trinn">Forrige</button>
+                <button id="nextBtn" aria-label="Neste trinn">Neste</button>
+            </div>
+        </main>
+    </div>
+
+    <div id="infoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+        <div class="modal-content" role="document">
+            <button id="closeModal" aria-label="Lukk informasjon">×</button>
+            <h3 id="modalTitle">Mer informasjon</h3>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
