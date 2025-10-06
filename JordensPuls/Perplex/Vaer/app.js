@@ -3,14 +3,10 @@ class WeatherApp {
         this.currentStep = 1;
         this.totalSteps = 6;
         this.modalData = {
-            bakkestasjoner: `<h4>Bakkestasjoner</h4>
-                <p>Automatiske værstasjoner måler temperatur, luftfuktighet, vindstyrke, lufttrykk, og nedbør. Over 300 stasjoner i Norge.</p>`,
-            radiosonder: `<h4>Værballonger / Radiosonder</h4>
-                <p>Bæres opp i atmosfæren og måler temperatur, fuktighet og vind opp til 30-35 km høyde, to ganger daglig.</p>`,
-            radar: `<h4>Værradar</h4>
-                <p>Detekterer nedbør, vindshear og turbulens via radarstråler med oppdatering hvert 5-15 minutt.</p>`,
-            satellitter: `<h4>Satellitter</h4>
-                <p>Polære og geostasjonære satellitter gir global overvåkning av atmosfæren og skydekke, med mange instrumenttyper.</p>`
+            bakkestasjoner: `<h4>Bakkestasjoner</h4><p>Automatiske værstasjoner måler temperatur, luftfuktighet, vindstyrke, lufttrykk, og nedbør. Over 300 stasjoner i Norge.</p>`,
+            radiosonder: `<h4>Værballonger / Radiosonder</h4><p>Bæres opp i atmosfæren og måler temperatur, fuktighet og vind opp til 30-35 km høyde, to ganger daglig.</p>`,
+            radar: `<h4>Værradar</h4><p>Detekterer nedbør, vindshear og turbulens via radarstråler med oppdatering hvert 5-15 minutt.</p>`,
+            satellitter: `<h4>Satellitter</h4><p>Polære og geostasjonære satellitter gir global overvåkning av atmosfæren og skydekke, med mange instrumenttyper.</p>`
         };
         this.init();
     }
