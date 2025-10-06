@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moderne Værvarsling - Interaktiv Infografikk</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container">
@@ -54,141 +54,747 @@
 
         <!-- Main content -->
         <main class="main-content">
-            <!-- Step 1 -->
+            <!-- Step 1: Data Collection -->
             <section class="step-content active" data-step="1">
-                <h2>1. Datainnsamling - Observasjoner</h2>
-                <p>Globalt observasjonsnettverk samler værdata 4 ganger daglig fra ulike kilder.</p>
-                <svg class="main-svg" viewBox="0 0 800 400" role="img" aria-label="Observasjonskilder">
-                    <circle class="clickable" data-info="bakkestasjoner" cx="150" cy="300" r="20" fill="#1E90FF"/>
-                    <text x="150" y="340" text-anchor="middle">Bakkestasjoner</text>
-                    <circle class="clickable" data-info="radiosonder" cx="350" cy="300" r="20" fill="#00CED1"/>
-                    <text x="350" y="340" text-anchor="middle">Værballonger</text>
-                    <circle class="clickable" data-info="radar" cx="550" cy="300" r="20" fill="#4682B4"/>
-                    <text x="550" y="340" text-anchor="middle">Radar</text>
-                    <circle class="clickable" data-info="satellitter" cx="750" cy="300" r="20" fill="#87CEEB"/>
-                    <text x="750" y="340" text-anchor="middle">Satellitter</text>
+                <div class="step-header">
+                    <h2>1. Datainnsamling - Observasjoner</h2>
+                    <p class="step-description">Globalt observasjonsnettverk samler værdata 4 ganger daglig (00, 06, 12, 18 UTC) fra ulike kilder.</p>
+                </div>
 
-                    <!-- Dataflow -->
-                    <line x1="150" y1="280" x2="400" y2="150" stroke="#1E90FF" stroke-width="3" marker-end="url(#arrow)"/>
-                    <line x1="350" y1="280" x2="400" y2="150" stroke="#00CED1" stroke-width="3" marker-end="url(#arrow)"/>
-                    <line x1="550" y1="280" x2="400" y2="150" stroke="#4682B4" stroke-width="3" marker-end="url(#arrow)"/>
-                    <line x1="750" y1="280" x2="400" y2="150" stroke="#87CEEB" stroke-width="3" marker-end="url(#arrow)"/>
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 500" role="img" aria-label="Observasjonskilder og dataflyt">
+                        <!-- Background atmosphere gradient -->
+                        <defs>
+                            <radialGradient id="atmosphereGradient" cx="50%" cy="100%" r="50%">
+                                <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:0.1"/>
+                            </radialGradient>
+                            <marker id="dataArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+                            </marker>
+                        </defs>
 
-                    <rect x="380" y="140" width="40" height="30" fill="#104E8B"/>
-                    <text x="400" y="180" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12">Datamottak</text>
+                        <!-- Atmosphere background -->
+                        <ellipse cx="400" cy="450" rx="350" ry="50" fill="url(#atmosphereGradient)"/>
 
-                    <defs>
-                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
-                        </marker>
-                    </defs>
-                </svg>
+                        <!-- Ground stations -->
+                        <g class="observation-source clickable" data-info="bakkestasjoner">
+                            <circle cx="150" cy="400" r="15" fill="#1E90FF" stroke="#fff" stroke-width="2"/>
+                            <rect x="145" y="405" width="10" height="20" fill="#1E90FF"/>
+                            <text x="150" y="440" text-anchor="middle" class="source-label">Bakkestasjoner</text>
+                            <circle cx="150" cy="400" r="25" fill="none" stroke="#1E90FF" stroke-width="1" opacity="0.5">
+                                <animate attributeName="r" values="25;35;25" dur="2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                        </g>
+
+                        <!-- Weather balloons -->
+                        <g class="observation-source clickable" data-info="radiosonder">
+                            <circle cx="300" cy="350" r="8" fill="#00CED1"/>
+                            <path d="M295,350 Q300,330 305,350" stroke="#00CED1" stroke-width="2" fill="none"/>
+                            <circle cx="300" cy="330" r="12" fill="#FFE4B5" stroke="#00CED1" stroke-width="2"/>
+                            <text x="300" y="460" text-anchor="middle" class="source-label">Værballonger</text>
+                            <path d="M300,350 L300,320" stroke="#00CED1" stroke-width="2" stroke-dasharray="3,3">
+                                <animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur="3s" repeatCount="indefinite"/>
+                            </path>
+                        </g>
+
+                        <!-- Weather radar -->
+                        <g class="observation-source clickable" data-info="radar">
+                            <rect x="540" y="390" width="20" height="30" fill="#4682B4"/>
+                            <polygon points="545,390 555,390 550,380" fill="#4682B4"/>
+                            <path d="M550,385 A25,25 0 0,1 575,385" stroke="#4682B4" stroke-width="3" fill="none" opacity="0.7">
+                                <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/>
+                            </path>
+                            <path d="M550,385 A35,35 0 0,1 585,385" stroke="#4682B4" stroke-width="2" fill="none" opacity="0.5">
+                                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+                            </path>
+                            <text x="550" y="440" text-anchor="middle" class="source-label">Værradar</text>
+                        </g>
+
+                        <!-- Satellites -->
+                        <g class="observation-source clickable" data-info="satellitter">
+                            <rect x="645" y="80" width="10" height="15" fill="#87CEEB"/>
+                            <rect x="635" y="85" width="30" height="5" fill="#87CEEB"/>
+                            <polygon points="630,87 640,82 640,92" fill="#FFD700"/>
+                            <polygon points="670,87 660,82 660,92" fill="#FFD700"/>
+                            <text x="650" y="110" text-anchor="middle" class="source-label">Satellitter</text>
+                            <g opacity="0.6">
+                                <path d="M650,95 L400,200 L150,300" stroke="#87CEEB" stroke-width="1" stroke-dasharray="2,2">
+                                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+                                </path>
+                            </g>
+                        </g>
+
+                        <!-- Data center -->
+                        <g class="data-center">
+                            <rect x="375" y="200" width="50" height="40" fill="#2563eb" rx="5"/>
+                            <rect x="380" y="210" width="40" height="5" fill="#60a5fa"/>
+                            <rect x="380" y="220" width="40" height="5" fill="#60a5fa"/>
+                            <rect x="380" y="230" width="40" height="5" fill="#60a5fa"/>
+                            <text x="400" y="260" text-anchor="middle" class="center-label" fill="#1e40af">Meteorologisk senter</text>
+                        </g>
+
+                        <!-- Animated data flows -->
+                        <g class="data-flows">
+                            <path d="M165,400 Q250,300 375,220" fill="none" stroke="#1E90FF" stroke-width="3" marker-end="url(#dataArrow)">
+                                <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+                            </path>
+                            <path d="M315,350 Q350,280 385,240" fill="none" stroke="#00CED1" stroke-width="3" marker-end="url(#dataArrow)">
+                                <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+                            </path>
+                            <path d="M540,400 Q480,320 415,240" fill="none" stroke="#4682B4" stroke-width="3" marker-end="url(#dataArrow)">
+                                <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+                            </path>
+                            <path d="M640,100 Q520,150 415,200" fill="none" stroke="#87CEEB" stroke-width="3" marker-end="url(#dataArrow)">
+                                <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                            </path>
+                        </g>
+
+                        <!-- Global coverage indicator -->
+                        <g class="global-indicator">
+                            <text x="400" y="50" text-anchor="middle" class="global-text">Global overvåkning 24/7</text>
+                            <text x="400" y="70" text-anchor="middle" class="sync-text">Synkronisert datainnsamling: 00, 06, 12, 18 UTC</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Observasjonstyper</h4>
+                    <ul>
+                        <li><strong>Bakkestasjoner:</strong> Temperatur, luftfuktighet, vind, trykk, nedbør</li>
+                        <li><strong>Værballonger:</strong> Atmosfæriske profiler opp til 35 km høyde</li>
+                        <li><strong>Radar:</strong> Nedbørsintensitet, vindmønstre, turbulens</li>
+                        <li><strong>Satellitter:</strong> Skydekke, temperaturprofiler, vinddata</li>
+                    </ul>
+                </div>
             </section>
 
-            <!-- Step 2 -->
+            <!-- Step 2: Data Processing -->
             <section class="step-content" data-step="2">
-                <h2>2. Databearbeiding og Assimilering</h2>
-                <p>Rådata kvalitetssjekkes og kombineres til analysekart som viser værtilstanden.</p>
-                <svg class="main-svg" viewBox="0 0 600 200" role="img" aria-label="Dataassimilering">
-                    <rect x="50" y="50" width="100" height="100" fill="#1E90FF"/>
-                    <text x="100" y="120" text-anchor="middle" fill="#fff">Observasjoner</text>
-                    <rect x="250" y="50" width="100" height="100" fill="#00CED1"/>
-                    <text x="300" y="120" text-anchor="middle" fill="#fff">Modelldata</text>
-                    <polygon points="190,100 230,80 230,120" fill="#333"/>
-                    <rect x="350" y="70" width="200" height="60" fill="#104E8B"/>
-                    <text x="450" y="110" text-anchor="middle" fill="#fff" font-weight="bold">Analysekart</text>
-                </svg>
+                <div class="step-header">
+                    <h2>2. Databearbeiding og Assimilering</h2>
+                    <p class="step-description">Rådata kvalitetssjekkes og kombineres med modelldata for å lage analysekart som viser atmosfærens nåværende tilstand.</p>
+                </div>
+
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 400" role="img" aria-label="Dataassimilering prosess">
+                        <!-- Raw observations -->
+                        <g class="raw-data">
+                            <rect x="50" y="150" width="120" height="80" fill="#1E90FF" rx="10"/>
+                            <text x="110" y="180" text-anchor="middle" class="data-label" fill="white">Råobservasjoner</text>
+                            <text x="110" y="200" text-anchor="middle" class="data-sublabel" fill="white">Millioner av målepunkter</text>
+                            
+                            <!-- Data points animation -->
+                            <g class="data-points">
+                                <circle cx="80" cy="160" r="2" fill="#60a5fa">
+                                    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+                                </circle>
+                                <circle cx="90" cy="170" r="2" fill="#60a5fa">
+                                    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.2s"/>
+                                </circle>
+                                <circle cx="130" cy="165" r="2" fill="#60a5fa">
+                                    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.4s"/>
+                                </circle>
+                            </g>
+                        </g>
+
+                        <!-- Quality control -->
+                        <g class="quality-control">
+                            <rect x="220" y="100" width="100" height="60" fill="#00CED1" rx="10"/>
+                            <text x="270" y="125" text-anchor="middle" class="process-label" fill="white">Kvalitetskontroll</text>
+                            <text x="270" y="145" text-anchor="middle" class="process-sublabel" fill="white">Forkasting av feildata</text>
+                            
+                            <rect x="220" y="200" width="100" height="60" fill="#4682B4" rx="10"/>
+                            <text x="270" y="225" text-anchor="middle" class="process-label" fill="white">Interpolering</text>
+                            <text x="270" y="245" text-anchor="middle" class="process-sublabel" fill="white">Utfylling av hull</text>
+                        </g>
+
+                        <!-- Model background -->
+                        <g class="model-background">
+                            <rect x="370" y="150" width="120" height="80" fill="#9333ea" rx="10"/>
+                            <text x="430" y="180" text-anchor="middle" class="data-label" fill="white">Modellbakgrunn</text>
+                            <text x="430" y="200" text-anchor="middle" class="data-sublabel" fill="white">Forrige prognose</text>
+                        </g>
+
+                        <!-- Data assimilation -->
+                        <g class="assimilation">
+                            <rect x="540" y="150" width="120" height="80" fill="#dc2626" rx="10"/>
+                            <text x="600" y="175" text-anchor="middle" class="data-label" fill="white">Dataassimilering</text>
+                            <text x="600" y="195" text-anchor="middle" class="data-sublabel" fill="white">Optimal blanding</text>
+                            <text x="600" y="215" text-anchor="middle" class="data-sublabel" fill="white">Kalman filter</text>
+                        </g>
+
+                        <!-- Analysis -->
+                        <g class="analysis">
+                            <rect x="700" y="130" width="80" height="120" fill="#059669" rx="10"/>
+                            <text x="740" y="175" text-anchor="middle" class="result-label" fill="white">Analyse-</text>
+                            <text x="740" y="195" text-anchor="middle" class="result-label" fill="white">kart</text>
+                            <text x="740" y="220" text-anchor="middle" class="result-sublabel" fill="white">Optimal tilstand</text>
+                            <text x="740" y="240" text-anchor="middle" class="result-sublabel" fill="white">for atmosfæren</text>
+                        </g>
+
+                        <!-- Process arrows -->
+                        <defs>
+                            <marker id="processArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+                            </marker>
+                        </defs>
+
+                        <g class="process-arrows">
+                            <path d="M170,190 L210,130" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                            <path d="M170,190 L210,230" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                            <path d="M320,130 L360,170" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                            <path d="M320,230 L360,200" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                            <path d="M490,190 L530,190" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                            <path d="M660,190 L690,190" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Dataassimilering</h4>
+                    <p>Kombinerer observasjoner med modellbakgrunn ved hjelp av statistiske metoder som 4D-Var eller Kalman-filter. Resultatet er et konsistent 3D-bilde av atmosfærens tilstand på et bestemt tidspunkt.</p>
+                </div>
             </section>
 
-            <!-- Step 3 -->
+            <!-- Step 3: Numerical Models -->
             <section class="step-content" data-step="3">
-                <h2>3. Numeriske Værmodeller</h2>
-                <p>Superdatamaskiner beregner værutviklingen basert på fysiske lover i atmosfæren.</p>
-                <ul>
-                    <li>Global modell: ECMWF (9 km oppløsning, 10 dager prognose)</li>
-                    <li>Regionalmodell: MEPS (2.5 km, Norden, 66 timer)</li>
-                    <li>Spesialisert Arktisk modell: AROME-Arctic (2.5 km, 66 timer)</li>
-                </ul>
-                <svg class="main-svg" viewBox="0 0 600 300" role="img" aria-label="Numerisk modellering">
-                    <rect x="50" y="50" width="80" height="100" fill="#4682B4" opacity="0.8"/>
-                    <rect x="150" y="70" width="80" height="100" fill="#00CED1" opacity="0.6"/>
-                    <rect x="250" y="90" width="80" height="100" fill="#87CEEB" opacity="0.4"/>
-                    <text x="70" y="170" fill="#fff" font-size="14" font-weight="bold">Analyse</text>
-                    <text x="170" y="200" fill="#000" font-size="14" font-weight="bold">Tidssteg 1</text>
-                    <text x="270" y="230" fill="#000" font-size="14" font-weight="bold">Tidssteg 2</text>
-                </svg>
+                <div class="step-header">
+                    <h2>3. Numeriske Værmodeller</h2>
+                    <p class="step-description">Superdatamaskiner beregner værutviklingen basert på fysiske lover og matematiske ligninger som beskriver atmosfæren.</p>
+                </div>
+
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 500" role="img" aria-label="Numeriske værmodeller">
+                        <!-- 3D atmosphere grid -->
+                        <g class="atmosphere-grid">
+                            <!-- Ground level -->
+                            <g class="grid-level" opacity="0.9">
+                                <rect x="100" y="350" width="600" height="100" fill="#3b82f6" opacity="0.3" rx="10"/>
+                                <text x="400" y="380" text-anchor="middle" class="level-label" fill="#1e40af">Bakkenivå (1000 hPa)</text>
+                                <g class="grid-lines">
+                                    <line x1="150" y1="350" x2="150" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                    <line x1="250" y1="350" x2="250" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                    <line x1="350" y1="350" x2="350" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                    <line x1="450" y1="350" x2="450" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                    <line x1="550" y1="350" x2="550" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                    <line x1="650" y1="350" x2="650" y2="450" stroke="#1e40af" stroke-width="1" opacity="0.5"/>
+                                </g>
+                            </g>
+
+                            <!-- Mid level -->
+                            <g class="grid-level" opacity="0.7">
+                                <rect x="120" y="250" width="560" height="80" fill="#10b981" opacity="0.3" rx="10"/>
+                                <text x="400" y="280" text-anchor="middle" class="level-label" fill="#047857">500 hPa (~5.5 km)</text>
+                            </g>
+
+                            <!-- Upper level -->
+                            <g class="grid-level" opacity="0.5">
+                                <rect x="140" y="150" width="520" height="60" fill="#f59e0b" opacity="0.3" rx="10"/>
+                                <text x="400" y="175" text-anchor="middle" class="level-label" fill="#d97706">300 hPa (~9 km)</text>
+                            </g>
+
+                            <!-- Top level -->
+                            <g class="grid-level" opacity="0.3">
+                                <rect x="160" y="80" width="480" height="40" fill="#ef4444" opacity="0.3" rx="10"/>
+                                <text x="400" y="105" text-anchor="middle" class="level-label" fill="#dc2626">100 hPa (~16 km)</text>
+                            </g>
+                        </g>
+
+                        <!-- Model information boxes -->
+                        <g class="model-info">
+                            <!-- ECMWF -->
+                            <g class="model-box clickable" data-info="ecmwf">
+                                <rect x="50" y="50" width="180" height="120" fill="#1e40af" rx="10"/>
+                                <text x="140" y="75" text-anchor="middle" class="model-title" fill="white">ECMWF</text>
+                                <text x="140" y="95" text-anchor="middle" class="model-subtitle" fill="#bfdbfe">Global modell</text>
+                                <text x="60" y="115" class="model-detail" fill="#bfdbfe">• 9 km oppløsning</text>
+                                <text x="60" y="135" class="model-detail" fill="#bfdbfe">• 10 dagers prognose</text>
+                                <text x="60" y="155" class="model-detail" fill="#bfdbfe">• 137 vertikale lag</text>
+                            </g>
+
+                            <!-- AROME -->
+                            <g class="model-box clickable" data-info="arome">
+                                <rect x="280" y="50" width="180" height="120" fill="#059669" rx="10"/>
+                                <text x="370" y="75" text-anchor="middle" class="model-title" fill="white">AROME-Arctic</text>
+                                <text x="370" y="95" text-anchor="middle" class="model-subtitle" fill="#a7f3d0">Regional modell</text>
+                                <text x="290" y="115" class="model-detail" fill="#a7f3d0">• 2.5 km oppløsning</text>
+                                <text x="290" y="135" class="model-detail" fill="#a7f3d0">• 66 timers prognose</text>
+                                <text x="290" y="155" class="model-detail" fill="#a7f3d0">• Arktiske forhold</text>
+                            </g>
+
+                            <!-- MEPS -->
+                            <g class="model-box clickable" data-info="meps">
+                                <rect x="510" y="50" width="180" height="120" fill="#dc2626" rx="10"/>
+                                <text x="600" y="75" text-anchor="middle" class="model-title" fill="white">MEPS</text>
+                                <text x="600" y="95" text-anchor="middle" class="model-subtitle" fill="#fca5a5">Ensemble modell</text>
+                                <text x="520" y="115" class="model-detail" fill="#fca5a5">• 2.5 km oppløsning</text>
+                                <text x="520" y="135" class="model-detail" fill="#fca5a5">• 66 timers prognose</text>
+                                <text x="520" y="155" class="model-detail" fill="#fca5a5">• 25 ensemble-medlemmer</text>
+                            </g>
+                        </g>
+
+                        <!-- Time progression -->
+                        <g class="time-progression">
+                            <text x="400" y="320" text-anchor="middle" class="time-label">Tidslig utvikling</text>
+                            <g class="time-steps">
+                                <circle cx="250" cy="340" r="8" fill="#3b82f6">
+                                    <animate attributeName="fill" values="#3b82f6;#60a5fa;#3b82f6" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                                <text x="250" y="365" text-anchor="middle" class="time-step">T+0</text>
+
+                                <circle cx="350" cy="340" r="8" fill="#10b981">
+                                    <animate attributeName="fill" values="#10b981;#34d399;#10b981" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                                </circle>
+                                <text x="350" y="365" text-anchor="middle" class="time-step">T+6h</text>
+
+                                <circle cx="450" cy="340" r="8" fill="#f59e0b">
+                                    <animate attributeName="fill" values="#f59e0b;#fbbf24;#f59e0b" dur="2s" repeatCount="indefinite" begin="1s"/>
+                                </circle>
+                                <text x="450" y="365" text-anchor="middle" class="time-step">T+12h</text>
+
+                                <circle cx="550" cy="340" r="8" fill="#ef4444">
+                                    <animate attributeName="fill" values="#ef4444;#f87171;#ef4444" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                                </circle>
+                                <text x="550" y="365" text-anchor="middle" class="time-step">T+24h</text>
+                            </g>
+
+                            <!-- Progress arrow -->
+                            <path d="M280,340 L520,340" stroke="#374151" stroke-width="2" marker-end="url(#processArrow)"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Fysiske prosesser i modellene</h4>
+                    <ul>
+                        <li><strong>Dynamikk:</strong> Luftbevegelser, trykk- og vindendringer</li>
+                        <li><strong>Termodynamikk:</strong> Oppvarming, avkjøling, faseoverganger</li>
+                        <li><strong>Stråling:</strong> Sol- og jordstråling, skyeffekter</li>
+                        <li><strong>Nedbør:</strong> Kondensering, fordampning, nedbørsprosesser</li>
+                    </ul>
+                </div>
             </section>
 
-            <!-- Step 4 -->
+            <!-- Step 4: Surface Analysis -->
             <section class="step-content" data-step="4">
-                <h2>4. Prognosekart - Bakkenivå</h2>
-                <p>Trykksystemer og fronter beveger seg mot klokken rundt lavtrykk på nordlige halvkule.</p>
-                <svg class="main-svg" viewBox="0 0 800 400" role="img" aria-label="Bakkekart">
-                    <circle cx="400" cy="200" r="50" stroke="#FF0000" stroke-width="3" fill="none"/>
-                    <text x="400" y="205" text-anchor="middle" fill="#FF0000" font-weight="bold" font-size="20">L</text>
-                    <circle cx="600" cy="150" r="50" stroke="#0000FF" stroke-width="3" fill="none"/>
-                    <text x="600" y="155" text-anchor="middle" fill="#0000FF" font-weight="bold" font-size="20">H</text>
+                <div class="step-header">
+                    <h2>4. Prognosekart - Bakkenivå</h2>
+                    <p class="step-description">Kart som viser trykksystemer og fronter ved jordoverflaten. På nordlige halvkule beveger luften seg mot klokken rundt lavtrykk.</p>
+                </div>
 
-                    <!-- Kaldfront -->
-                    <path d="M360,170 L360,230 L440,200 Z" fill="#0080FF"/>
-                    <g fill="#0080FF">
-                        <polygon points="360,170 370,190 360,210"/>
-                        <polygon points="375,180 385,200 375,220"/>
-                        <polygon points="390,190 400,210 390,230"/>
-                    </g>
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 500" role="img" aria-label="Bakkenivå værkart">
+                        <!-- Map background -->
+                        <rect width="800" height="500" fill="#e0f2fe"/>
+                        
+                        <!-- Simplified coastlines -->
+                        <g class="coastlines" stroke="#64748b" stroke-width="1" fill="none">
+                            <path d="M100,200 Q200,180 300,200 Q400,220 500,200 Q600,180 700,200"/>
+                            <path d="M150,350 Q250,330 350,350 Q450,370 550,350 Q650,330 750,350"/>
+                        </g>
 
-                    <!-- Varmfront -->
-                    <path d="M440,230 L440,170 L570,200 Z" fill="#FF8080"/>
-                    <g fill="#FF8080">
-                        <circle cx="460" cy="190" r="10"/>
-                        <circle cx="490" cy="200" r="10"/>
-                        <circle cx="520" cy="190" r="10"/>
-                        <circle cx="550" cy="200" r="10"/>
-                    </g>
+                        <!-- High pressure system -->
+                        <g class="high-pressure clickable" data-info="høytrykk">
+                            <circle cx="600" cy="150" r="60" fill="none" stroke="#0066cc" stroke-width="3"/>
+                            <circle cx="600" cy="150" r="40" fill="none" stroke="#0066cc" stroke-width="2"/>
+                            <circle cx="600" cy="150" r="20" fill="none" stroke="#0066cc" stroke-width="2"/>
+                            <text x="600" y="160" text-anchor="middle" class="pressure-label" fill="#0066cc" font-size="24" font-weight="bold">H</text>
+                            <text x="600" y="180" text-anchor="middle" class="pressure-value" fill="#0066cc">1025 hPa</text>
+                            
+                            <!-- Clockwise wind arrows around high pressure -->
+                            <g class="wind-arrows" stroke="#0066cc" stroke-width="2" fill="none" marker-end="url(#windArrow)">
+                                <path d="M630,120 A30,30 0 0,1 660,150">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,600,150;360,600,150" dur="8s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M660,150 A30,30 0 0,1 630,180">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,600,150;360,600,150" dur="8s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M630,180 A30,30 0 0,1 570,180">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,600,150;360,600,150" dur="8s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M570,180 A30,30 0 0,1 570,120">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,600,150;360,600,150" dur="8s" repeatCount="indefinite"/>
+                                </path>
+                            </g>
+                        </g>
 
-                    <text x="360" y="260" font-size="14" fill="#0080FF">Kaldfront (trekanter på kald side)</text>
-                    <text x="440" y="270" font-size="14" fill="#FF4040">Varmfront (halvsirkler på varm side)</text>
-                </svg>
+                        <!-- Low pressure system -->
+                        <g class="low-pressure clickable" data-info="lavtrykk">
+                            <circle cx="300" cy="300" r="80" fill="none" stroke="#cc0000" stroke-width="3"/>
+                            <circle cx="300" cy="300" r="60" fill="none" stroke="#cc0000" stroke-width="2"/>
+                            <circle cx="300" cy="300" r="40" fill="none" stroke="#cc0000" stroke-width="2"/>
+                            <circle cx="300" cy="300" r="20" fill="none" stroke="#cc0000" stroke-width="2"/>
+                            <text x="300" y="310" text-anchor="middle" class="pressure-label" fill="#cc0000" font-size="24" font-weight="bold">L</text>
+                            <text x="300" y="330" text-anchor="middle" class="pressure-value" fill="#cc0000">985 hPa</text>
+                            
+                            <!-- Counter-clockwise wind arrows around low pressure -->
+                            <g class="wind-arrows" stroke="#cc0000" stroke-width="2" fill="none" marker-end="url(#windArrowRed)">
+                                <path d="M340,270 A40,40 0 0,0 340,330">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,300,300;-360,300,300" dur="6s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M340,330 A40,40 0 0,0 260,330">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,300,300;-360,300,300" dur="6s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M260,330 A40,40 0 0,0 260,270">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,300,300;-360,300,300" dur="6s" repeatCount="indefinite"/>
+                                </path>
+                                <path d="M260,270 A40,40 0 0,0 340,270">
+                                    <animateTransform attributeName="transform" type="rotate" values="0,300,300;-360,300,300" dur="6s" repeatCount="indefinite"/>
+                                </path>
+                            </g>
+                        </g>
+
+                        <!-- Corrected Cold front (triangles on cold side, moving counter-clockwise) -->
+                        <g class="cold-front clickable" data-info="kaldfront">
+                            <path d="M220,280 Q280,260 340,280" stroke="#0080ff" stroke-width="4" fill="none"/>
+                            
+                            <!-- Triangles on the cold (left/south) side of the front -->
+                            <g fill="#0080ff">
+                                <polygon points="235,285 245,275 245,295" transform="rotate(20,240,285)"/>
+                                <polygon points="265,275 275,265 275,285" transform="rotate(15,270,275)"/>
+                                <polygon points="295,275 305,265 305,285" transform="rotate(10,300,275)"/>
+                                <polygon points="325,285 335,275 335,295" transform="rotate(5,330,285)"/>
+                            </g>
+                            <text x="280" y="250" text-anchor="middle" class="front-label" fill="#0080ff">Kaldfront</text>
+                        </g>
+
+                        <!-- Corrected Warm front (semicircles on warm side, ahead of cold front) -->
+                        <g class="warm-front clickable" data-info="varmfront">
+                            <path d="M340,280 Q400,300 460,320" stroke="#ff4040" stroke-width="4" fill="none"/>
+                            
+                            <!-- Semicircles on the warm (right/north) side of the front -->
+                            <g fill="#ff4040">
+                                <circle cx="355" cy="290" r="8" clip-path="url(#upperHalf)"/>
+                                <circle cx="380" cy="300" r="8" clip-path="url(#upperHalf)"/>
+                                <circle cx="405" cy="310" r="8" clip-path="url(#upperHalf)"/>
+                                <circle cx="430" cy="315" r="8" clip-path="url(#upperHalf)"/>
+                            </g>
+                            <text x="400" y="350" text-anchor="middle" class="front-label" fill="#ff4040">Varmfront</text>
+                        </g>
+
+                        <!-- Pressure gradient arrows -->
+                        <g class="pressure-gradient">
+                            <text x="450" y="220" text-anchor="middle" class="gradient-label" fill="#374151">Trykkgradient</text>
+                            <path d="M540,170 L460,250" stroke="#374151" stroke-width="3" marker-end="url(#pressureArrow)"/>
+                            <text x="500" y="205" text-anchor="middle" class="gradient-text" fill="#374151" font-size="12">Høy → Lav</text>
+                        </g>
+
+                        <!-- Weather symbols -->
+                        <g class="weather-symbols">
+                            <!-- Rain -->
+                            <g class="rain-symbol">
+                                <path d="M250,320 L250,335 M255,325 L255,340 M260,320 L260,335" stroke="#4682b4" stroke-width="2"/>
+                                <text x="255" y="355" text-anchor="middle" class="weather-label" font-size="10" fill="#4682b4">Regn</text>
+                            </g>
+                            
+                            <!-- Snow -->
+                            <g class="snow-symbol">
+                                <path d="M350,300 L350,310 M345,305 L355,305 M347,302 L353,308 M353,302 L347,308" stroke="#87ceeb" stroke-width="1.5"/>
+                                <text x="350" y="325" text-anchor="middle" class="weather-label" font-size="10" fill="#87ceeb">Snø</text>
+                            </g>
+
+                            <!-- Clear skies -->
+                            <g class="clear-symbol">
+                                <circle cx="620" cy="120" r="15" fill="#ffeb3b" stroke="#ff9800" stroke-width="2"/>
+                                <g stroke="#ff9800" stroke-width="2">
+                                    <line x1="600" y1="100" x2="605" y2="105"/>
+                                    <line x1="635" y1="105" x2="640" y2="100"/>
+                                    <line x1="640" y1="140" x2="635" y2="135"/>
+                                    <line x1="605" y1="135" x2="600" y2="140"/>
+                                    <line x1="620" y1="95" x2="620" y2="85"/>
+                                    <line x1="645" y1="120" x2="655" y2="120"/>
+                                    <line x1="620" y1="145" x2="620" y2="155"/>
+                                    <line x1="595" y1="120" x2="585" y2="120"/>
+                                </g>
+                                <text x="620" y="175" text-anchor="middle" class="weather-label" font-size="10" fill="#ff9800">Opphold</text>
+                            </g>
+                        </g>
+
+                        <!-- Definitions -->
+                        <defs>
+                            <marker id="windArrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                                <path d="M0,0 L0,8 L8,4 z" fill="#0066cc"/>
+                            </marker>
+                            <marker id="windArrowRed" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                                <path d="M0,0 L0,8 L8,4 z" fill="#cc0000"/>
+                            </marker>
+                            <marker id="pressureArrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                                <path d="M0,0 L0,10 L10,5 z" fill="#374151"/>
+                            </marker>
+                            <clipPath id="upperHalf">
+                                <rect x="0" y="0" width="100%" height="50%"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Frontale systemer</h4>
+                    <p><strong>Kaldfront:</strong> Trekanter peker mot den varme luftmassen. Bringer ofte kraftig nedbør og vindkast.</p>
+                    <p><strong>Varmfront:</strong> Halvsirkler peker mot den kalde luftmassen. Gir mer langvarig, lempeligere nedbør.</p>
+                    <p><strong>Rotasjonsretning:</strong> På nordlige halvkule sirkulerer luft mot klokken rundt lavtrykk, med klokken rundt høytrykk.</p>
+                </div>
             </section>
 
-            <!-- Step 5 -->
+            <!-- Step 5: Upper-level Analysis -->
             <section class="step-content" data-step="5">
-                <h2>5. Prognosekart - Høydenivå (Jetstrøm)</h2>
-                <p>Rygger (ridge) har lav jetstrømshastighet og høytrykk ved bakken. Tråg (trough) har høy jetstrømshastighet og lavtrykk.</p>
-                <svg class="main-svg" viewBox="0 0 800 300" role="img" aria-label="Jetstrøm og høydekart">
-                    <path d="M50 150 Q150 50 250 150 T450 150 T650 150" stroke="#1E90FF" stroke-width="5" fill="none"/>
-                    <text x="150" y="40" font-size="16" fill="#003366" font-weight="bold">Rygg (lav jetshastighet = høytrykk)</text>
-                    <text x="290" y="40" font-size="16" fill="#990000" font-weight="bold">Tråg (høy jetshastighet = lavtrykk)</text>
-                    <circle cx="150" cy="50" r="15" fill="#1E90FF" opacity="0.6"/>
-                    <circle cx="310" cy="50" r="15" fill="#FF5733" opacity="0.6"/>
-                </svg>
-                <p>Jetstrømmens mønster styrer værsystemene ved bakken.</p>
+                <div class="step-header">
+                    <h2>5. Prognosekart - Høydenivå (Jetstrøm)</h2>
+                    <p class="step-description">Kart i 300 hPa-nivå (~9 km høyde) viser jetstrømmen som styrer værsystemene ved bakken. Rygger gir høytrykk, tråg gir lavtrykk.</p>
+                </div>
+
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 400" role="img" aria-label="Jetstrøm og høydenivå">
+                        <!-- Background -->
+                        <rect width="800" height="400" fill="#f0f9ff"/>
+                        
+                        <!-- Geopotential height contours -->
+                        <g class="height-contours" stroke="#64748b" stroke-width="1" fill="none" opacity="0.6">
+                            <ellipse cx="200" cy="200" rx="80" ry="120" stroke-dasharray="5,5"/>
+                            <ellipse cx="200" cy="200" rx="60" ry="100" stroke-dasharray="5,5"/>
+                            <ellipse cx="200" cy="200" rx="40" ry="80" stroke-dasharray="5,5"/>
+                            <text x="200" y="100" text-anchor="middle" class="contour-label" fill="#64748b">9200 m</text>
+                            <text x="200" y="120" text-anchor="middle" class="contour-label" fill="#64748b">9240 m</text>
+                            <text x="200" y="140" text-anchor="middle" class="contour-label" fill="#64748b">9280 m</text>
+                            
+                            <ellipse cx="600" cy="200" rx="80" ry="120" stroke-dasharray="5,5"/>
+                            <ellipse cx="600" cy="200" rx="60" ry="100" stroke-dasharray="5,5"/>
+                            <ellipse cx="600" cy="200" rx="40" ry="80" stroke-dasharray="5,5"/>
+                            <text x="600" y="100" text-anchor="middle" class="contour-label" fill="#64748b">9520 m</text>
+                            <text x="600" y="120" text-anchor="middle" class="contour-label" fill="#64748b">9560 m</text>
+                            <text x="600" y="140" text-anchor="middle" class="contour-label" fill="#64748b">9600 m</text>
+                        </g>
+
+                        <!-- Jetstream pattern -->
+                        <g class="jetstream">
+                            <path d="M50,200 Q150,100 250,200 Q350,300 450,200 Q550,100 650,200 Q700,250 750,200" 
+                                  stroke="#1e40af" stroke-width="8" fill="none"/>
+                            
+                            <!-- Speed variations along jetstream -->
+                            <g class="speed-zones">
+                                <!-- High speed in trough -->
+                                <ellipse cx="350" cy="250" rx="40" ry="20" fill="#dc2626" opacity="0.7"/>
+                                <text x="350" y="285" text-anchor="middle" class="speed-label" fill="#dc2626" font-weight="bold">80 m/s</text>
+                                
+                                <!-- Lower speed in ridge -->
+                                <ellipse cx="150" cy="120" rx="30" ry="15" fill="#059669" opacity="0.7"/>
+                                <text x="150" y="105" text-anchor="middle" class="speed-label" fill="#059669" font-weight="bold">40 m/s</text>
+                                
+                                <ellipse cx="550" cy="120" rx="30" ry="15" fill="#059669" opacity="0.7"/>
+                                <text x="550" y="105" text-anchor="middle" class="speed-label" fill="#059669" font-weight="bold">45 m/s</text>
+                            </g>
+
+                            <!-- Wind direction arrows -->
+                            <g class="wind-arrows" marker-end="url(#jetArrow)">
+                                <path d="M120,160 Q130,150 140,160" stroke="#1e40af" stroke-width="3"/>
+                                <path d="M220,150 Q230,180 240,150" stroke="#1e40af" stroke-width="3"/>
+                                <path d="M320,250 Q330,280 340,250" stroke="#1e40af" stroke-width="3"/>
+                                <path d="M420,160 Q430,150 440,160" stroke="#1e40af" stroke-width="3"/>
+                                <path d="M520,150 Q530,140 540,150" stroke="#1e40af" stroke-width="3"/>
+                                <path d="M620,160 Q630,150 640,160" stroke="#1e40af" stroke-width="3"/>
+                            </g>
+                        </g>
+
+                        <!-- Ridge and trough labels with corrected Norwegian terms -->
+                        <g class="pattern-labels">
+                            <!-- Ridge (Rygg) -->
+                            <g class="ridge-label clickable" data-info="rygg">
+                                <rect x="120" y="60" width="60" height="30" fill="#10b981" rx="5" opacity="0.8"/>
+                                <text x="150" y="80" text-anchor="middle" class="pattern-text" fill="white" font-weight="bold">Rygg</text>
+                                <path d="M150,90 L150,110" stroke="#10b981" stroke-width="2" marker-end="url(#downArrow)"/>
+                                <text x="150" y="355" text-anchor="middle" class="effect-text" fill="#10b981">Høytrykk ved bakken</text>
+                                <text x="150" y="370" text-anchor="middle" class="effect-subtext" fill="#64748b">(Lav jetstrømshastighet)</text>
+                            </g>
+
+                            <g class="ridge-label clickable" data-info="rygg">
+                                <rect x="520" y="60" width="60" height="30" fill="#10b981" rx="5" opacity="0.8"/>
+                                <text x="550" y="80" text-anchor="middle" class="pattern-text" fill="white" font-weight="bold">Rygg</text>
+                                <path d="M550,90 L550,110" stroke="#10b981" stroke-width="2" marker-end="url(#downArrow)"/>
+                                <text x="550" y="355" text-anchor="middle" class="effect-text" fill="#10b981">Høytrykk ved bakken</text>
+                                <text x="550" y="370" text-anchor="middle" class="effect-subtext" fill="#64748b">(Lav jetstrømshastighet)</text>
+                            </g>
+
+                            <!-- Trough (Tråg) -->
+                            <g class="trough-label clickable" data-info="tråg">
+                                <rect x="320" y="320" width="60" height="30" fill="#dc2626" rx="5" opacity="0.8"/>
+                                <text x="350" y="340" text-anchor="middle" class="pattern-text" fill="white" font-weight="bold">Tråg</text>
+                                <path d="M350,320 L350,300" stroke="#dc2626" stroke-width="2" marker-end="url(#upArrow)"/>
+                                <text x="350" y="35" text-anchor="middle" class="effect-text" fill="#dc2626">Lavtrykk ved bakken</text>
+                                <text x="350" y="50" text-anchor="middle" class="effect-subtext" fill="#64748b">(Høy jetstrømshastighet)</text>
+                            </g>
+                        </g>
+
+                        <!-- Surface weather connection -->
+                        <g class="surface-connection">
+                            <text x="400" y="385" text-anchor="middle" class="connection-title" fill="#374151" font-weight="bold">
+                                Jetstrømmen styrer værsystemer ved bakken
+                            </text>
+                        </g>
+
+                        <!-- Definitions -->
+                        <defs>
+                            <marker id="jetArrow" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+                                <path d="M0,0 L0,6 L6,3 z" fill="#1e40af"/>
+                            </marker>
+                            <marker id="downArrow" markerWidth="8" markerHeight="8" refX="4" refY="8" orient="auto">
+                                <path d="M0,0 L8,0 L4,8 z" fill="#10b981"/>
+                            </marker>
+                            <marker id="upArrow" markerWidth="8" markerHeight="8" refX="4" refY="0" orient="auto">
+                                <path d="M0,8 L8,8 L4,0 z" fill="#dc2626"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Jetstrøm og værsystemer</h4>
+                    <p><strong>Rygg (Ridge):</strong> Hvor jetstrømmen bøyer nordover. Lav hastighet gir høytrykk ved bakken og pent vær.</p>
+                    <p><strong>Tråg (Trough):</strong> Hvor jetstrømmen bøyer sørover. Høy hastighet gir lavtrykk ved bakken og ustabilt vær.</p>
+                    <p><strong>Geopotensiell høyde:</strong> Høyden der lufttrykket er 300 hPa. Høye verdier = høytrykk, lave verdier = lavtrykk.</p>
+                </div>
             </section>
 
-            <!-- Step 6 -->
+            <!-- Step 6: Interpretation -->
             <section class="step-content" data-step="6">
-                <h2>6. Tolkning og Formidling</h2>
-                <p>Meteorologer tolker prognosene og lager værmeldinger for publikum og spesialbransjer.</p>
-                <ul>
-                    <li>Ekstremvarsler for flom, uvær og annet (spesialtjenester)</li>
-                    <li>Kraftindustrien bruker værdata for produksjonsplanlegging, spesielt vind- og vannkraft</li>
-                    <li>Lokale modifikasjoner og usikkerheter tas i betraktning</li>
-                </ul>
-                <p>Daglige værmeldinger bygger på denne prosessen.</p>
+                <div class="step-header">
+                    <h2>6. Tolkning og Formidling</h2>
+                    <p class="step-description">Meteorologer tolker prognosene og formidler værvarsel til publikum og spesialiserte brukere.</p>
+                </div>
+
+                <div class="visualization-container">
+                    <svg class="main-svg" viewBox="0 0 800 500" role="img" aria-label="Værvarsel formidling">
+                        <!-- Meteorologist -->
+                        <g class="meteorologist">
+                            <circle cx="150" cy="150" r="30" fill="#fbbf24"/>
+                            <rect x="135" y="180" width="30" height="50" fill="#3b82f6"/>
+                            <text x="150" y="250" text-anchor="middle" class="role-label" fill="#374151" font-weight="bold">Meteorolog</text>
+                        </g>
+
+                        <!-- Analysis charts -->
+                        <g class="analysis-charts">
+                            <rect x="50" y="50" width="80" height="60" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="90" y="85" text-anchor="middle" class="chart-label" fill="#374151">Modelldata</text>
+                            
+                            <rect x="150" y="50" width="80" height="60" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="190" y="85" text-anchor="middle" class="chart-label" fill="#374151">Satelittbilder</text>
+
+                            <rect x="250" y="50" width="80" height="60" fill="#e5e7eb" stroke="#374151" stroke-width="2"/>
+                            <text x="290" y="85" text-anchor="middle" class="chart-label" fill="#374151">Radardata</text>
+                        </g>
+
+                        <!-- Decision process -->
+                        <g class="decision-process">
+                            <rect x="380" y="100" width="120" height="80" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="10"/>
+                            <text x="440" y="130" text-anchor="middle" class="process-title" fill="#92400e" font-weight="bold">Tolkning</text>
+                            <text x="440" y="150" text-anchor="middle" class="process-detail" fill="#92400e">• Usikkerhetsanalyse</text>
+                            <text x="440" y="165" text-anchor="middle" class="process-detail" fill="#92400e">• Lokale forhold</text>
+                        </g>
+
+                        <!-- Output channels -->
+                        <g class="output-channels">
+                            <!-- Public weather -->
+                            <g class="public-weather clickable" data-info="publikum">
+                                <rect x="600" y="50" width="120" height="60" fill="#ddd6fe" stroke="#7c3aed" stroke-width="2" rx="5"/>
+                                <text x="660" y="75" text-anchor="middle" class="output-title" fill="#5b21b6" font-weight="bold">Værmelding</text>
+                                <text x="660" y="95" text-anchor="middle" class="output-detail" fill="#5b21b6">TV, radio, nett</text>
+                            </g>
+
+                            <!-- Aviation -->
+                            <g class="aviation-weather clickable" data-info="luftfart">
+                                <rect x="600" y="130" width="120" height="60" fill="#fecaca" stroke="#dc2626" stroke-width="2" rx="5"/>
+                                <text x="660" y="155" text-anchor="middle" class="output-title" fill="#991b1b" font-weight="bold">Luftfart</text>
+                                <text x="660" y="175" text-anchor="middle" class="output-detail" fill="#991b1b">TAF, METAR</text>
+                            </g>
+
+                            <!-- Marine -->
+                            <g class="marine-weather clickable" data-info="sjøfart">
+                                <rect x="600" y="210" width="120" height="60" fill="#bfdbfe" stroke="#2563eb" stroke-width="2" rx="5"/>
+                                <text x="660" y="235" text-anchor="middle" class="output-title" fill="#1d4ed8" font-weight="bold">Sjøfart</text>
+                                <text x="660" y="255" text-anchor="middle" class="output-detail" fill="#1d4ed8">Stormvarsel</text>
+                            </g>
+
+                            <!-- Agriculture -->
+                            <g class="agriculture-weather clickable" data-info="landbruk">
+                                <rect x="600" y="290" width="120" height="60" fill="#bbf7d0" stroke="#059669" stroke-width="2" rx="5"/>
+                                <text x="660" y="315" text-anchor="middle" class="output-title" fill="#047857" font-weight="bold">Landbruk</text>
+                                <text x="660" y="335" text-anchor="middle" class="output-detail" fill="#047857">Vekstsesongsvarsel</text>
+                            </g>
+
+                            <!-- Power industry -->
+                            <g class="power-industry clickable" data-info="kraftindustri">
+                                <rect x="600" y="370" width="120" height="60" fill="#fed7aa" stroke="#ea580c" stroke-width="2" rx="5"/>
+                                <text x="660" y="395" text-anchor="middle" class="output-title" fill="#c2410c" font-weight="bold">Kraftindustri</text>
+                                <text x="660" y="415" text-anchor="middle" class="output-detail" fill="#c2410c">Vind/vannkraft</text>
+                            </g>
+
+                            <!-- Extreme weather warnings -->
+                            <g class="extreme-warnings clickable" data-info="ekstremvarsler">
+                                <rect x="400" y="370" width="120" height="60" fill="#fee2e2" stroke="#dc2626" stroke-width="3" rx="5"/>
+                                <text x="460" y="395" text-anchor="middle" class="output-title" fill="#991b1b" font-weight="bold">Ekstremvarsler</text>
+                                <text x="460" y="415" text-anchor="middle" class="output-detail" fill="#991b1b">Farevarsel</text>
+                                
+                                <!-- Warning icon -->
+                                <polygon points="440,350 460,350 470,365 450,365" fill="#dc2626"/>
+                                <text x="455" y="361" text-anchor="middle" fill="white" font-weight="bold">!</text>
+                            </g>
+                        </g>
+
+                        <!-- Process arrows -->
+                        <g class="process-arrows" marker-end="url(#processArrow)">
+                            <path d="M250,140 L370,140" stroke="#374151" stroke-width="2"/>
+                            <path d="M500,140 L590,80" stroke="#374151" stroke-width="2"/>
+                            <path d="M500,140 L590,160" stroke="#374151" stroke-width="2"/>
+                            <path d="M500,140 L590,240" stroke="#374151" stroke-width="2"/>
+                            <path d="M500,140 L590,320" stroke="#374151" stroke-width="2"/>
+                            <path d="M500,140 L590,400" stroke="#374151" stroke-width="2"/>
+                            <path d="M460,200 L460,360" stroke="#374151" stroke-width="2"/>
+                        </g>
+
+                        <!-- Uncertainty indication -->
+                        <g class="uncertainty">
+                            <rect x="50" y="350" width="300" height="100" fill="#fef9e7" stroke="#f59e0b" stroke-width="2" rx="10"/>
+                            <text x="200" y="375" text-anchor="middle" class="uncertainty-title" fill="#92400e" font-weight="bold">Usikkerhet i prognoser</text>
+                            <text x="200" y="395" text-anchor="middle" class="uncertainty-detail" fill="#92400e">1 dag: ~95% nøyaktighet</text>
+                            <text x="200" y="415" text-anchor="middle" class="uncertainty-detail" fill="#92400e">5 dager: ~70% nøyaktighet</text>
+                            <text x="200" y="435" text-anchor="middle" class="uncertainty-detail" fill="#92400e">10 dager: ~50% nøyaktighet</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Fra prognose til værvarsel</h4>
+                    <p><strong>Kvalitetssikring:</strong> Meteorologer sammenligner modeller og vurderer usikkerhet.</p>
+                    <p><strong>Lokale tilpasninger:</strong> Topografi og lokale klimaeffekter tas med i vurderingen.</p>
+                    <p><strong>Spesialtjenester:</strong> Ekstremvarsler, luftfarts- og sjøfartsprognoser, landbruk og kraftindustri får skreddersydde varsler.</p>
+                    <p><strong>Kontinuerlig oppdatering:</strong> Nye observasjoner og modellkjøringer gir jevnlige oppdateringer.</p>
+                </div>
             </section>
 
+            <!-- Navigation -->
             <div class="navigation-controls">
-                <button id="prevBtn" aria-label="Forrige trinn">Forrige</button>
-                <button id="nextBtn" aria-label="Neste trinn">Neste</button>
+                <button id="prevBtn" class="nav-button" aria-label="Forrige trinn">
+                    <span class="button-icon">←</span> Forrige
+                </button>
+                <div class="step-indicator">
+                    <span class="current-step">1</span> av <span class="total-steps">6</span>
+                </div>
+                <button id="nextBtn" class="nav-button" aria-label="Neste trinn">
+                    Neste <span class="button-icon">→</span>
+                </button>
             </div>
         </main>
     </div>
 
-    <div id="infoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
-        <div class="modal-content" role="document">
-            <button id="closeModal" aria-label="Lukk informasjon">×</button>
-            <h3 id="modalTitle">Mer informasjon</h3>
-            <div id="modalBody"></div>
+    <!-- Modal for detailed information -->
+    <div id="infoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Mer informasjon</h3>
+                <button id="closeModal" aria-label="Lukk informasjon" class="close-button">×</button>
+            </div>
+            <div id="modalBody" class="modal-body"></div>
         </div>
     </div>
 
