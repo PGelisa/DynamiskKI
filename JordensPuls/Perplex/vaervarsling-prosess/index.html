@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderne Værvarsling - Interaktiv Læring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Moderne Værvarsling</h1>
+            <p class="subtitle">Fra observasjon til ferdig varsel</p>
+        </header>
+
+        <!-- Timeline Navigation -->
+        <nav class="timeline-nav">
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div class="timeline-progress"></div>
+                <div class="timeline-step active" data-phase="1">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-label">
+                        <h3>Datainnsamling</h3>
+                        <p>Observasjoner fra sensorer</p>
+                    </div>
+                </div>
+                <div class="timeline-step" data-phase="2">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-label">
+                        <h3>Modellkjøring</h3>
+                        <p>Analyse og prognoser</p>
+                    </div>
+                </div>
+                <div class="timeline-step" data-phase="3">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-label">
+                        <h3>Formidling</h3>
+                        <p>Tolkning og varsler</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Phase 1: Data Collection -->
+            <section class="phase-content active" id="phase-1">
+                <div class="phase-header">
+                    <h2>Fase 1: Datainnsamling</h2>
+                    <p>Observasjoner samles inn fra ulike kilder i sanntid</p>
+                </div>
+
+                <div class="visualization-area">
+                    <div class="data-sources">
+                        <div class="source-item" data-info="weather-stations">
+                            <div class="source-icon weather-station"></div>
+                            <h4>Værstasjoner</h4>
+                            <p>Over 500 stasjoner i Norge</p>
+                            <div class="data-flow"></div>
+                        </div>
+                        
+                        <div class="source-item" data-info="radiosondes">
+                            <div class="source-icon radiosonde"></div>
+                            <h4>Radiosondeballonger</h4>
+                            <p>Stiger til 30-35 km høyde</p>
+                            <div class="data-flow"></div>
+                        </div>
+                        
+                        <div class="source-item" data-info="radar">
+                            <div class="source-icon radar"></div>
+                            <h4>Værradar</h4>
+                            <p>Doppler-teknologi</p>
+                            <div class="data-flow"></div>
+                        </div>
+                        
+                        <div class="source-item" data-info="satellites">
+                            <div class="source-icon satellite"></div>
+                            <h4>Satellitter</h4>
+                            <p>EUMETSAT Meteosat</p>
+                            <div class="data-flow"></div>
+                        </div>
+                    </div>
+
+                    <div class="data-center">
+                        <div class="data-center-icon"></div>
+                        <h4>Datasenter</h4>
+                        <p>Sanntidsinnsamling</p>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn--secondary" id="pause-animation">⏸️ Pause</button>
+                    <button class="btn btn--primary" id="next-phase">Neste fase →</button>
+                </div>
+            </section>
+
+            <!-- Phase 2: Model Processing -->
+            <section class="phase-content" id="phase-2">
+                <div class="phase-header">
+                    <h2>Fase 2: Modellkjøring og Analyse</h2>
+                    <p>Numeriske værmodeller prosesserer observasjonene</p>
+                </div>
+
+                <div class="model-visualization">
+                    <div class="model-process">
+                        <div class="process-step">
+                            <h4>Dataassimilering</h4>
+                            <p>Kvalitetskontroll og kombinering med modelldata</p>
+                            <div class="process-animation data-assim"></div>
+                        </div>
+                        
+                        <div class="process-step">
+                            <h4>Modellkjøring</h4>
+                            <p>ECMWF (9km) og AROME-Arctic (2.5km)</p>
+                            <div class="process-animation model-run"></div>
+                        </div>
+                        
+                        <div class="process-step">
+                            <h4>Kartprodukter</h4>
+                            <p>Bakkekart og høydekart</p>
+                            <div class="process-animation map-gen"></div>
+                        </div>
+                    </div>
+
+                    <div class="map-display">
+                        <div class="map-container">
+                            <div class="map-tabs">
+                                <button class="map-tab active" data-map="surface">Bakkekart</button>
+                                <button class="map-tab" data-map="upper">300 hPa</button>
+                            </div>
+                            
+                            <div class="map-content">
+                                <div class="map surface-map active">
+                                    <div class="pressure-system high" style="top: 30%; left: 20%;">H<span class="pressure-value">1025</span></div>
+                                    <div class="pressure-system low" style="top: 60%; left: 70%;">L<span class="pressure-value">985</span></div>
+                                    <div class="front warm-front"></div>
+                                    <div class="front cold-front"></div>
+                                    <div class="isobars"></div>
+                                </div>
+                                
+                                <div class="map upper-map">
+                                    <div class="jet-stream"></div>
+                                    <div class="wind-speed-indicator">120 knop</div>
+                                    <div class="geopotential-lines"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn--outline" id="prev-phase-2">← Forrige</button>
+                    <button class="btn btn--primary" id="next-phase-2">Neste fase →</button>
+                </div>
+            </section>
+
+            <!-- Phase 3: Interpretation & Communication -->
+            <section class="phase-content" id="phase-3">
+                <div class="phase-header">
+                    <h2>Fase 3: Tolkning og Formidling</h2>
+                    <p>Meteorologer tolker dataene og lager værmeldinger</p>
+                </div>
+
+                <div class="interpretation-flow">
+                    <div class="meteorologist-work">
+                        <h4>Meteorologisk analyse</h4>
+                        <div class="analysis-steps">
+                            <div class="analysis-item">Sammenligner modeller</div>
+                            <div class="analysis-item">Vurderer usikkerhet</div>
+                            <div class="analysis-item">Tilpasser lokalt</div>
+                        </div>
+                    </div>
+
+                    <div class="communication-channels">
+                        <h4>Formidling</h4>
+                        <div class="channel-item" data-info="yr-no">
+                            <div class="channel-icon yr-icon"></div>
+                            <h5>Yr.no</h5>
+                            <p>Publikum</p>
+                        </div>
+                        <div class="channel-item" data-info="aviation">
+                            <div class="channel-icon aviation-icon"></div>
+                            <h5>Luftfart</h5>
+                            <p>Spesialiserte varsler</p>
+                        </div>
+                        <div class="channel-item" data-info="maritime">
+                            <div class="channel-icon maritime-icon"></div>
+                            <h5>Sjøfart</h5>
+                            <p>Marine prognoser</p>
+                        </div>
+                        <div class="channel-item" data-info="warnings">
+                            <div class="channel-icon warning-icon"></div>
+                            <h5>Farevarsler</h5>
+                            <p>Ekstremvær</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feedback-loop">
+                    <h4>Kontinuerlig oppdatering</h4>
+                    <p>Nye observasjoner oppdaterer modellene hvert 6. time</p>
+                    <div class="update-cycle"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn--outline" id="prev-phase-3">← Forrige</button>
+                    <button class="btn btn--secondary" id="restart-journey">🔄 Start på nytt</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Info Modal -->
+        <div class="modal hidden" id="info-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Detaljer</h3>
+                    <button class="modal-close" id="close-modal">✕</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div class="modal-overlay hidden" id="modal-overlay"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
