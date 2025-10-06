@@ -1,0 +1,237 @@
+/* Grunnleggende stil */
+body, html {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9fafb;
+    color: #1e293b;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100%;
+}
+
+.header {
+    grid-column: 1 / 3;
+    background-color: #0c4a6e;
+    color: white;
+    padding: 1rem 2rem;
+}
+
+.subtitle {
+    font-weight: 300;
+    margin-top: 0.5rem;
+}
+
+.progress-container {
+    grid-column: 1 / 3;
+    height: 8px;
+    background-color: #e0e0e0;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #0284c7);
+    transition: width 0.3s ease;
+}
+
+.nav-sidebar {
+    background-color: #f1f5f9;
+    padding: 1rem 1rem 1rem 1rem;
+    overflow-y: auto;
+    border-right: 1px solid #cbd5e1;
+}
+
+.nav-header h3 {
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+    color: #334155;
+}
+
+.nav-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-step {
+    padding: 0.5rem 0.5rem 0.5rem 12px;
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+}
+
+.nav-step:hover {
+    background-color: #e0f2fe;
+    color: #2563eb;
+}
+
+.nav-step.active {
+    border-left: 4px solid #2563eb;
+    font-weight: 700;
+    color: #1e40af;
+    background-color: #e0f2fe;
+}
+
+.step-number {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-content {
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: white;
+}
+
+.step-content {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.main-svg {
+    width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    user-select: none;
+}
+
+.info-panel {
+    background-color: #bae6fd;
+    border-left: 6px solid #2563eb;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+    color: #0c4a6e;
+    font-weight: 600;
+}
+
+.navigation-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+}
+
+button:hover, button:focus {
+    background-color: #1e40af;
+    outline: none;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+}
+
+#closeModal {
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
+    background: none;
+    font-size: 1.8rem;
+    border: none;
+    cursor: pointer;
+    color: #555;
+}
+
+#closeModal:hover, #closeModal:focus {
+    color: #222;
+}
+
+/* Clickable elements style */
+.clickable {
+    cursor: pointer;
+    transition: fill 0.3s ease;
+}
+
+.clickable:hover {
+    fill-opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+
+    .nav-sidebar {
+        border-right: none;
+        border-bottom: 1px solid #cbd5e1;
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .nav-steps {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .nav-step {
+        flex-shrink: 0;
+        padding: 0.3rem 1rem;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .nav-step.active {
+        border-bottom: 3px solid #2563eb;
+        background-color: transparent;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
