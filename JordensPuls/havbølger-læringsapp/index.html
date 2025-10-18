@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Havbølger - Læringsapp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <header class="app-header">
+                <h1>🌊 Havbølger &amp; Naturkrefter</h1>
+                <p class="subtitle">Lær om stormflo, stormbølger, meteotsunamier og tsunamier</p>
+            </header>
+
+            <main class="topic-grid">
+                <div class="topic-card" data-topic="stormflo">
+                    <div class="icon">🌊</div>
+                    <h2>Stormflo</h2>
+                    <p>Stormflo oppstår når værforhold skaper unormalt høy vannstand langs kysten</p>
+                </div>
+
+                <div class="topic-card" data-topic="stormbølger">
+                    <div class="icon">🌀</div>
+                    <h2>Stormbølger</h2>
+                    <p>Bølger skapt av kraftig vind som treffer kysten under stormflo</p>
+                </div>
+
+                <div class="topic-card" data-topic="meteotsunami">
+                    <div class="icon">⛈️</div>
+                    <h2>Meteotsunamier</h2>
+                    <p>Tsunami-lignende bølger forårsaket av værmessige prosesser</p>
+                </div>
+
+                <div class="topic-card" data-topic="tsunami">
+                    <div class="icon">🌊</div>
+                    <h2>Tsunamier</h2>
+                    <p>Gigantiske havbølger forårsaket av plutselige forskyvninger av vannmasser</p>
+                </div>
+            </main>
+
+            <nav class="main-nav">
+                <button class="btn btn--primary" id="comparison-btn">📊 Sammenligning</button>
+                <button class="btn btn--secondary" id="quiz-btn">🧠 Quiz</button>
+            </nav>
+        </div>
+
+        <!-- Topic Pages -->
+        <div id="topic-page" class="page">
+            <header class="page-header">
+                <button class="btn btn--outline back-btn">← Tilbake</button>
+                <div class="topic-header">
+                    <div class="topic-icon"></div>
+                    <h1 class="topic-title"></h1>
+                </div>
+            </header>
+
+            <main class="topic-content">
+                <div class="content-section">
+                    <p class="topic-description"></p>
+                </div>
+
+                <div class="content-section">
+                    <h3>🔑 Nøkkelfakta</h3>
+                    <ul class="key-facts"></ul>
+                </div>
+
+                <div class="content-section">
+                    <h3>⚙️ Prosesser</h3>
+                    <p class="processes"></p>
+                </div>
+
+                <div class="content-section">
+                    <h3>📍 Eksempler</h3>
+                    <ul class="examples"></ul>
+                </div>
+
+                <div class="content-section">
+                    <h3>⚠️ Farer</h3>
+                    <p class="hazards"></p>
+                </div>
+            </main>
+
+            <nav class="topic-nav">
+                <div class="nav-topics">
+                    <button class="btn btn--sm" data-topic="stormflo">🌊 Stormflo</button>
+                    <button class="btn btn--sm" data-topic="stormbølger">🌀 Stormbølger</button>
+                    <button class="btn btn--sm" data-topic="meteotsunami">⛈️ Meteotsunamier</button>
+                    <button class="btn btn--sm" data-topic="tsunami">🌊 Tsunamier</button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Comparison Page -->
+        <div id="comparison-page" class="page">
+            <header class="page-header">
+                <button class="btn btn--outline back-btn">← Tilbake</button>
+                <h1>📊 Sammenligning av fenomener</h1>
+            </header>
+
+            <main class="comparison-content">
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Fenomen</th>
+                                <th>Årsak</th>
+                                <th>Hastighet</th>
+                                <th>Typisk høyde</th>
+                                <th>Varighet</th>
+                                <th>Varsling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="phenomenon-cell">🌊 <strong>Stormflo</strong></td>
+                                <td>Lavtrykk og vind</td>
+                                <td>Langsom oppbygging</td>
+                                <td>1-6 meter (ekstreme 8-13 m)</td>
+                                <td>Timer til dager</td>
+                                <td class="status--success">God varsling mulig</td>
+                            </tr>
+                            <tr>
+                                <td class="phenomenon-cell">🌀 <strong>Stormbølger</strong></td>
+                                <td>Vind på havoverflaten</td>
+                                <td>Avhengig av vind</td>
+                                <td>2-14 meter</td>
+                                <td>Så lenge stormen varer</td>
+                                <td class="status--success">God varsling mulig</td>
+                            </tr>
+                            <tr>
+                                <td class="phenomenon-cell">⛈️ <strong>Meteotsunami</strong></td>
+                                <td>Raske lufttrykksendringer</td>
+                                <td>50-100 km/t</td>
+                                <td>0,5-2 meter (ekstremt 6 m)</td>
+                                <td>Minutter til timer</td>
+                                <td class="status--warning">Vanskelig å varsle</td>
+                            </tr>
+                            <tr>
+                                <td class="phenomenon-cell">🌊 <strong>Tsunami</strong></td>
+                                <td>Jordskjelv, ras, vulkan</td>
+                                <td>700 km/t på dypt hav</td>
+                                <td>0,5 m på dypt hav, 12+ m ved kyst</td>
+                                <td>Flere bølger over timer</td>
+                                <td class="status--info">God varsling på avstand</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="norway-info">
+                    <h3>🇳🇴 Overvåking og varsling i Norge</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Kartverket</h4>
+                            <p>Måler vannstand kontinuerlig langs kysten og har utviklet aktsomhetssoner for stormflo.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Meteorologisk institutt</h4>
+                            <p>Varsler stormflo flere dager i forveien basert på værprognoser.</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>NVE</h4>
+                            <p>Overvåker ustabile fjellpartier som kan forårsake tsunamier ved ras.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz-page" class="page">
+            <header class="page-header">
+                <button class="btn btn--outline back-btn">← Tilbake</button>
+                <h1>🧠 Quiz</h1>
+            </header>
+
+            <main class="quiz-content">
+                <div id="quiz-start" class="quiz-start">
+                    <h2>Test din kunnskap!</h2>
+                    <p>Svar på 10 spørsmål om stormflo, stormbølger, meteotsunamier og tsunamier.</p>
+                    <button class="btn btn--primary btn--lg" id="start-quiz-btn">Start Quiz</button>
+                </div>
+
+                <div id="quiz-question" class="quiz-question hidden">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="question-counter"></div>
+                    <h2 class="question-text"></h2>
+                    <div class="options"></div>
+                    <div class="feedback hidden">
+                        <div class="feedback-text"></div>
+                        <div class="explanation"></div>
+                        <button class="btn btn--primary next-btn">Neste spørsmål</button>
+                    </div>
+                </div>
+
+                <div id="quiz-results" class="quiz-results hidden">
+                    <h2>🎉 Quiz fullført!</h2>
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <span class="score-text"></span>
+                        </div>
+                    </div>
+                    <div class="score-message"></div>
+                    <div class="result-actions">
+                        <button class="btn btn--primary" id="retake-quiz-btn">Ta quiz på nytt</button>
+                        <button class="btn btn--secondary" id="back-home-btn">Tilbake til hovedmeny</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
