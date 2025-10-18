@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atmosfæriske Temperaturgradienter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #cbd5e1;
+            shape-rendering: crispEdges;
+        }
+        .axis text {
+            font-size: 12px;
+            fill: #64748b;
+        }
+        .grid line {
+            stroke: #e2e8f0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-swatch {
+            width: 16px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        /* Custom slider styles */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            background: #e2e8f0;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        input[type=range]::-moz-range-track {
+            background: #e2e8f0;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -4px;
+            background-color: #3b82f6;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 9999px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        input[type=range]::-moz-range-thumb {
+            background-color: #3b82f6;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 9999px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex items-center justify-center min-h-screen p-4 md:p-8">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 w-full max-w-4xl">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Atmosfæriske temperaturgradienter</h1>
+            <p class="text-slate-500 mt-1">Sammenligning av miljøgradient med adiabatiske gradienter</p>
+        </div>
+        
+        <!-- Graph container -->
+        <div id="graph-container" class="relative"></div>
+
+        <!-- Legend -->
+        <div id="legend" class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6 text-sm text-slate-600">
+             <div class="legend-item">
+                <div class="legend-swatch" style="background-color: #f87171;"></div>
+                <span>Tørradiabatisk (-1°C/100m)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch" style="background-color: #60a5fa;"></div>
+                <span>Fuktigadiabatisk (-0.6°C/100m)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch" style="background-color: #34d399; height: 5px;"></div>
+                <span>Miljøgradient (Variabel)</span>
+            </div>
+        </div>
+
+        <!-- Sliders -->
+        <div class="mt-8 pt-6 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="flex flex-col">
+                <label for="dalr-slider" class="text-sm font-medium text-slate-700 mb-2">Juster Tørradiabatisk start: <span id="dalr-value" class="font-bold text-slate-900">15.0°C</span></label>
+                <input type="range" id="dalr-slider" min="-10" max="30" value="15" step="0.5" class="w-full">
+            </div>
+            <div class="flex flex-col">
+                <label for="salr-slider" class="text-sm font-medium text-slate-700 mb-2">Juster Fuktigadiabatisk start: <span id="salr-value" class="font-bold text-slate-900">15.0°C</span></label>
+                <input type="range" id="salr-slider" min="-10" max="30" value="15" step="0.5" class="w-full">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dalrSlider = document.getElementById('dalr-slider');
+        const salrSlider = document.getElementById('salr-slider');
+        const dalrValueSpan = document.getElementById('dalr-value');
+        const salrValueSpan = document.getElementById('salr-value');
+
+        function drawGraph() {
+            // Clear previous graph
+            d3.select("#graph-container").selectAll("*").remove();
+
+            // 1. Data Generation
+            const surfaceTemp = 15; // For ELR
+            const dalrStartTemp = parseFloat(dalrSlider.value);
+            const salrStartTemp = parseFloat(salrSlider.value);
+            
+            dalrValueSpan.textContent = `${dalrStartTemp.toFixed(1)}°C`;
+            salrValueSpan.textContent = `${salrStartTemp.toFixed(1)}°C`;
+
+            const maxHeight = 4000;
+            const step = 100;
+
+            const dalrData = []; // Dry Adiabatic Lapse Rate
+            const salrData = []; // Saturated Adiabatic Lapse Rate
+            const elrData = [];  // Environmental Lapse Rate
+
+            for (let h = 0; h <= maxHeight; h += step) {
+                // DALR: Uses slider value
+                dalrData.push({ altitude: h, temp: dalrStartTemp - (h / 100) * 1.0 });
+
+                // SALR: Uses slider value
+                salrData.push({ altitude: h, temp: salrStartTemp - (h / 100) * 0.6 });
+                
+                // ELR: Piecewise, fixed based on surface condition
+                let temp;
+                if (h <= 1000) {
+                    temp = surfaceTemp - (h / 100) * 1.2;
+                } else if (h <= 2000) {
+                    const tempAt1000 = surfaceTemp - 12;
+                    temp = tempAt1000 - ((h - 1000) / 100) * 0.8;
+                } else if (h <= 3000) {
+                    const tempAt1000 = surfaceTemp - 12;
+                    const tempAt2000 = tempAt1000 - 8;
+                    temp = tempAt2000 - ((h - 2000) / 100) * 0.2;
+                } else { // Inversion
+                    const tempAt1000 = surfaceTemp - 12;
+                    const tempAt2000 = tempAt1000 - 8;
+                    const tempAt3000 = tempAt2000 - 2;
+                    temp = tempAt3000 + ((h - 3000) / 100) * 0.5;
+                }
+                elrData.push({ altitude: h, temp: temp });
+            }
+            
+            // 2. D3 Setup
+            const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+            const container = document.getElementById('graph-container');
+            const width = container.clientWidth - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
+
+            const svg = d3.select("#graph-container")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // 3. Scales
+            const tempExtent = d3.extent([...dalrData, ...salrData, ...elrData], d => d.temp);
+            
+            const xScale = d3.scaleLinear()
+                .domain([d3.min(tempExtent)-2, d3.max(tempExtent)+2])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, maxHeight])
+                .range([height, 0]);
+
+            // 4. Axes
+            const xAxis = d3.axisBottom(xScale).tickFormat(d => `${d}°C`);
+            const yAxis = d3.axisLeft(yScale).tickFormat(d => `${d} m`);
+
+            svg.append("g").attr("class", "axis").attr("transform", `translate(0,${height})`).call(xAxis);
+            svg.append("g").attr("class", "axis").call(yAxis);
+
+            // Axis Labels
+            svg.append("text").attr("text-anchor", "middle").attr("x", width / 2).attr("y", height + margin.bottom - 10).style("fill", "#334155").text("Temperatur (°C)");
+            svg.append("text").attr("text-anchor", "middle").attr("transform", "rotate(-90)").attr("y", -margin.left + 15).attr("x", -height / 2).style("fill", "#334155").text("Høyde (m)");
+
+            // Grid lines
+            svg.append("g").attr("class", "grid").call(d3.axisLeft(yScale).tickSize(-width).tickFormat(""));
+            svg.append("g").attr("class", "grid").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale).tickSize(-height).tickFormat(""));
+
+            // 5. Stability Zones (background shading only)
+            const stabilityZones = [{ y1: 0, y2: 1000 },{ y1: 1000, y2: 2000 },{ y1: 2000, y2: 3000 },{ y1: 3000, y2: 4000 }];
+            svg.selectAll(".stability-zone").data(stabilityZones).enter().append("rect").attr("x", 0).attr("y", d => yScale(d.y2)).attr("width", width).attr("height", d => yScale(d.y1) - yScale(d.y2)).attr("fill", (d, i) => i % 2 === 0 ? "#f8fafc" : "#f1f5f9").attr("opacity", 0.7);
+
+            // 6. Line generator and drawing
+            const line = d3.line().x(d => xScale(d.temp)).y(d => yScale(d.altitude));
+            svg.append("path").datum(dalrData).attr("fill", "none").attr("stroke", "#f87171").attr("stroke-width", 2.5).attr("d", line);
+            svg.append("path").datum(salrData).attr("fill", "none").attr("stroke", "#60a5fa").attr("stroke-width", 2.5).attr("d", line);
+            svg.append("path").datum(elrData).attr("fill", "none").attr("stroke", "#34d399").attr("stroke-width", 4).attr("d", line);
+                
+            // 7. Tooltip
+            const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+            const focus = svg.append("g").style("display", "none");
+            focus.append("line").attr("class", "focus-line y-line").attr("stroke", "#94a3b8").attr("stroke-width", 1).attr("stroke-dasharray", "3,3");
+            const bisect = d3.bisector(d => d.altitude).left;
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .on("mouseover", () => { focus.style("display", null); tooltip.style("opacity", 1); })
+                .on("mouseout", () => { focus.style("display", "none"); tooltip.style("opacity", 0); })
+                .on("mousemove", mousemove);
+
+            function mousemove(event) {
+                const [mx, my] = d3.pointer(event);
+                const altitude = yScale.invert(my);
+                const i = bisect(elrData, altitude, 1);
+                const d0 = elrData[i - 1];
+                const d1 = elrData[i];
+                if (!d0 || !d1) return;
+                const d = altitude - d0.altitude > d1.altitude - altitude ? d1 : d0;
+                const dataIndex = elrData.indexOf(d);
+                if (dataIndex === -1) return;
+
+                const dalr_temp = dalrData[dataIndex].temp;
+                const salr_temp = salrData[dataIndex].temp;
+                const elr_temp = elrData[dataIndex].temp;
+
+                focus.select(".y-line").attr("x1", 0).attr("y1", yScale(d.altitude)).attr("x2", width).attr("y2", yScale(d.altitude));
+                
+                tooltip.style("opacity", 1)
+                    .style("left", (event.pageX + 20) + "px")
+                    .style("top", (event.pageY - 20) + "px")
+                    .html(`
+                        <strong>Høyde:</strong> ${d.altitude.toFixed(0)} m <br/>
+                        <strong>Miljø-temp:</strong> ${elr_temp.toFixed(1)}°C <br/>
+                        <span style="color: #f87171"><strong>Tørr-ad.:</strong> ${dalr_temp.toFixed(1)}°C</span> <br/>
+                        <span style="color: #60a5fa"><strong>Fuktig-ad.:</strong> ${salr_temp.toFixed(1)}°C</span>
+                    `);
+            }
+        }
+
+        // Event listeners for sliders
+        dalrSlider.addEventListener('input', drawGraph);
+        salrSlider.addEventListener('input', drawGraph);
+
+        // Initial draw
+        drawGraph();
+    </script>
+
+</body>
+</html>
+
