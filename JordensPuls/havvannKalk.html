@@ -330,7 +330,7 @@
                 </div>
                 <div class="form-group">
                     <label for="t">In-situ Temperatur (t)
-                        <span class="tooltip" data-tooltip="Faktisk målt temperatur">?</span>
+                        <span class="tooltip" data-tooltip="Faktisk målt temperatur i °C">?</span>
                     </label>
                     <input type="number" id="t" min="-2" max="40" step="0.1" value="10" placeholder="°C">
                     <span class="error" id="tError"></span>
@@ -390,10 +390,11 @@
         <div class="container">
             <div class="section info-section">
                 <button class="info-toggle" onclick="toggleInfo()">
-                    <span>📚 Om TEOS-10 &amp; Denne Kalkulatoren</span>
+                    <span>📚 Om TEOS-10 &amp; denne kalkulatoren</span>
                     <span id="infoArrow">▼</span>
                 </button>
                 <div class="info-content" id="infoContent">
+                    <p>Kalkulatoren er satt opp av Elisabeth Engum, til bruk i undervisning i videregående skole. </p>
                     <h3>Om TEOS-10</h3>
                     <p>TEOS-10 (Thermodynamic Equation of Seawater 2010) er den internasjonale standarden for beregning av havvannets termodynamiske egenskaper. Denne kalkulatoren bruker den beregningsmessig effektive 75-ledd polynomapproksimaseringen utviklet av Roquet et al. (2015).</p>
                     
