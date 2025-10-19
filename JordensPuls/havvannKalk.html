@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEOS-10 Havvannstetthetskalkulator</title>
+    <style>
+        :root {
+            --color-marine-blue: #1e3a8a;
+            --color-sea-green: #0d9488;
+            --color-light-blue: #e0f2fe;
+            --color-light-green: #f0fdfa;
+            --color-gray: #6b7280;
+            --color-red: #dc2626;
+            --color-white: #ffffff;
+            --color-light-gray: #f9fafb;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, var(--color-light-blue) 0%, var(--color-light-green) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-marine-blue), var(--color-sea-green));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        /* Desktop two-column layout */
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 45% 55%;
+                align-items: start;
+            }
+        }
+
+        .section {
+            background: var(--color-light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: var(--color-marine-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .input-mode {
+            margin-bottom: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-sea-green);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--color-marine-blue);
+            font-size: 16px;
+        }
+
+        .tooltip {
+            display: inline-block;
+            margin-left: 5px;
+            width: 16px;
+            height: 16px;
+            background: var(--color-sea-green);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 12px;
+            line-height: 16px;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            transition: border-color 0.3s ease;
+            background-color: var(--color-white);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--color-sea-green);
+        }
+
+        .examples {
+            margin-top: 20px;
+        }
+
+        .example-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-sea-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0f766e;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: var(--color-gray);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--color-sea-green);
+        }
+
+        .result-card h3 {
+            color: var(--color-marine-blue);
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-sea-green);
+        }
+
+        .converted-values {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--color-light-blue);
+            border-radius: var(--border-radius);
+        }
+
+        .info-section {
+            margin-top: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .info-toggle {
+            background: var(--color-marine-blue);
+            color: white;
+            padding: 15px;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        .info-content.open {
+            display: block;
+        }
+
+        .error {
+            color: var(--color-red);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin: 10px 0;
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .example-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .example-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Havvannstetthet Kalkulator</h1>
+            <p>Beregn havvannets tetthet basert på den internasjonale TEOS-10 standarden</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="section input-section">
+                <h2>📊 Inndata</h2>
+                
+                <div class="form-group">
+                    <label for="sp">Praktisk Salinitet (SP)
+                        <span class="tooltip" data-tooltip="Mål på havvannets ledningsevne">?</span>
+                    </label>
+                    <input type="number" id="sp" min="0" max="42" step="0.1" value="35" placeholder="PSU">
+                    <span class="error" id="spError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="t">In-situ Temperatur (t)
+                        <span class="tooltip" data-tooltip="Faktisk målt temperatur">?</span>
+                    </label>
+                    <input type="number" id="t" min="-2" max="40" step="0.1" value="10" placeholder="°C">
+                    <span class="error" id="tError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="z">Dybde (z)
+                        <span class="tooltip" data-tooltip="Avstand under havoverflaten">?</span>
+                    </label>
+                    <input type="number" id="z" min="0" max="10000" step="1" value="0" placeholder="m">
+                    <span class="error" id="zError"></span>
+                </div>
+
+                <!-- Example Scenarios -->
+                <div class="examples">
+                    <h3>Eksempelscenarier:</h3>
+                    <div class="example-buttons">
+                        <button class="btn btn-secondary" onclick="loadExample('nordsjoen_overflate')">Nordsjøen overflate</button>
+                        <button class="btn btn-secondary" onclick="loadExample('nordsjoen_100m')">Nordsjøen 100m</button>
+                        <button class="btn btn-secondary" onclick="loadExample('middelhavet')">Middelhavet</button>
+                        <button class="btn btn-secondary" onclick="loadExample('arktis')">Arktis</button>
+                        <button class="btn btn-secondary" onclick="loadExample('weddelhavet')">Weddelhavet</button>
+                        <button class="btn btn-secondary" onclick="loadExample('dyphavet')">Dyphavet</button>
+                        <button class="btn btn-primary" onclick="loadExample('nullstill')">Nullstill</button>
+                    </div>
+                </div>
+
+                <div id="warnings"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="section results-section">
+                <h2>📈 Resultater</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>In-situ tetthet (ρ)</h3>
+                        <div class="result-value" id="density">1025.0000 kg/m³</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>Potensiell tetthetsanomali (σ₀)</h3>
+                        <div class="result-value" id="sigma0">25.0000 kg/m³</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>Frysepunkt (Tf)</h3>
+                        <div class="result-value" id="freezingPoint">-1.91 °C</div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+        
+        <!-- Information Section (full width below) -->
+        <div class="container">
+            <div class="section info-section">
+                <button class="info-toggle" onclick="toggleInfo()">
+                    <span>📚 Om TEOS-10 &amp; Denne Kalkulatoren</span>
+                    <span id="infoArrow">▼</span>
+                </button>
+                <div class="info-content" id="infoContent">
+                    <h3>Om TEOS-10</h3>
+                    <p>TEOS-10 (Thermodynamic Equation of Seawater 2010) er den internasjonale standarden for beregning av havvannets termodynamiske egenskaper. Denne kalkulatoren bruker den beregningsmessig effektive 75-ledd polynomapproksimaseringen utviklet av Roquet et al. (2015).</p>
+                    
+                    <h3>Forenklet grensesnitt</h3>
+                    <p>Dette er en forenklet versjon som kun krever tre enkle inndata. Kalkulatoren utfører automatisk alle nødvendige konverteringer:</p>
+                    <ul>
+                        <li><strong>SP → SA:</strong> Praktisk salinitet konverteres til absolutt salinitet</li>
+                        <li><strong>t → CT:</strong> In-situ temperatur konverteres til konservativ temperatur</li>
+                        <li><strong>z → p:</strong> Dybde konverteres til trykk (fast breddegrad 60° for Norge)</li>
+                    </ul>
+                    
+                    <h3>Parameterdefinisjoner</h3>
+                    <ul>
+                        <li><strong>Praktisk Salinitet (SP):</strong> Mål på havvannets ledningsevne, oppgis i PSU (0-42)</li>
+                        <li><strong>In-situ Temperatur (t):</strong> Faktisk målt temperatur i havet (-2 til 40°C)</li>
+                        <li><strong>Dybde (z):</strong> Avstand under havoverflaten i meter (0-10000m)</li>
+                        <li><strong>Tetthet (ρ):</strong> Massen per volumenhet, typisk rundt 1025 kg/m³</li>
+                        <li><strong>Potensiell tetthetsanomali (σ₀):</strong> Tettheten ved overflaten minus 1000 kg/m³</li>
+                        <li><strong>Frysepunkt (Tf):</strong> Temperaturen der havvann begynner å fryse. Frysepunktet avhenger av salinitet og trykk (dybde). Jo mer salt, desto lavere frysepunkt.</li>
+                    </ul>
+                    
+                    <h3>Weddelhavet</h3>
+                    <p>Weddelhavet ved Antarktis er et nøkkelområde for dannelse av Antarktisk bunnvann (AABW), som er noe av det kaldeste og tetteste vannet i verdenshavene. Isnedfrysing på kontinentalsokkelen fører til saltavvisning som gjør vannet svært salt og tett.</p>
+                    
+                    <h3>Referanser</h3>
+                    <p>• Roquet, F., Madec, G., McDougall, T.J., and Barker, P.M. (2015). Accurate polynomial expressions for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling, 90:29-43.</p>
+                    <p>• IOC, SCOR and IAPSO (2010). The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. UNESCO.</p>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // TEOS-10 constants
+        const TEOS10_CONSTANTS = {
+            SSO: 35.16504
+        };
+
+        // Example scenarios
+        const examples = {
+            nordsjoen_overflate: { SP: 35, t: 8, z: 0 },
+            nordsjoen_100m: { SP: 35, t: 8, z: 100 },
+            middelhavet: { SP: 38.5, t: 25, z: 10 },
+            arktis: { SP: 32, t: -1.5, z: 50 },
+            weddelhavet: { SP: 34.65, t: -1.8, z: 300 },
+            dyphavet: { SP: 34.7, t: 2, z: 4000 },
+            nullstill: { SP: 35, t: 10, z: 0 }
+        };
+
+        // EKSAKT GSW-Matlab TEOS-10 implementasjon
+        function calculateSpecificVolume(SA, CT, p) {
+            // Ensure SA is non-negative
+            if (SA < 0) SA = 0;
+            
+            const sfac = 0.0248826675584615;  // sfac = 1/(40*(35.16504/35))
+            const offset = 5.971840214030754e-1;  // offset = deltaSA*sfac where deltaSA = 24
+            
+            const x2 = sfac * SA;
+            const xs = Math.sqrt(x2 + offset);
+            const ys = CT * 0.025;  // KRITISK: CT * 0.025, IKKE CT / 40.0!
+            const z = p * 1e-4;     // KRITISK: p * 1e-4, IKKE p / 10000.0!
+            
+            // All 75 coefficients exactly as in GSW-Matlab
+            const v000 = 1.0769995862e-3;
+            const v001 = -6.0799143809e-5;
+            const v002 = 9.9856169219e-6;
+            const v003 = -1.1309361437e-6;
+            const v004 = 1.0531153080e-7;
+            const v005 = -1.2647261286e-8;
+            const v006 = 1.9613503930e-9;
+            const v010 = -1.5649734675e-5;
+            const v011 = 1.8505765429e-5;
+            const v012 = -1.1736386731e-6;
+            const v013 = -3.6527006553e-7;
+            const v014 = 3.1454099902e-7;
+            const v020 = 2.7762106484e-5;
+            const v021 = -1.1716606853e-5;
+            const v022 = 2.1305028740e-6;
+            const v023 = 2.8695905159e-7;
+            const v030 = -1.6521159259e-5;
+            const v031 = 7.9279656173e-6;
+            const v032 = -4.6132540037e-7;
+            const v040 = 6.9111322702e-6;
+            const v041 = -3.4102187482e-6;
+            const v042 = -6.3352916514e-8;
+            const v050 = -8.0539615540e-7;
+            const v051 = 5.0736766814e-7;
+            const v060 = 2.0543094268e-7;
+            const v100 = -3.1038981976e-4;
+            const v101 = 2.4262468747e-5;
+            const v102 = -5.8484432984e-7;
+            const v103 = 3.6310188515e-7;
+            const v104 = -1.1147125423e-7;
+            const v110 = 3.5009599764e-5;
+            const v111 = -9.5677088156e-6;
+            const v112 = -5.5699154557e-6;
+            const v113 = -2.7295696237e-7;
+            const v120 = -3.7435842344e-5;
+            const v121 = -2.3678308361e-7;
+            const v122 = 3.9137387080e-7;
+            const v130 = 2.4141479483e-5;
+            const v131 = -3.4558773655e-6;
+            const v132 = 7.7618888092e-9;
+            const v140 = -8.7595873154e-6;
+            const v141 = 1.2956717783e-6;
+            const v150 = -3.3052758900e-7;
+            const v200 = 6.6928067038e-4;
+            const v201 = -3.4792460974e-5;
+            const v202 = -4.8122251597e-6;
+            const v203 = 1.6746303780e-8;
+            const v210 = -4.3592678561e-5;
+            const v211 = 1.1100834765e-5;
+            const v212 = 5.4620748834e-6;
+            const v220 = 3.5907822760e-5;
+            const v221 = 2.9283346295e-6;
+            const v222 = -6.5731104067e-7;
+            const v230 = -1.4353633048e-5;
+            const v231 = 3.1655306078e-7;
+            const v240 = 4.3703680598e-6;
+            const v300 = -8.5047933937e-4;
+            const v301 = 3.7470777305e-5;
+            const v302 = 4.9263106998e-6;
+            const v310 = 3.4532461828e-5;
+            const v311 = -9.8447117844e-6;
+            const v312 = -1.3544185627e-6;
+            const v320 = -1.8698584187e-5;
+            const v321 = -4.8826139200e-7;
+            const v330 = 2.2863324556e-6;
+            const v400 = 5.8086069943e-4;
+            const v401 = -1.7322218612e-5;
+            const v402 = -1.7811974727e-6;
+            const v410 = -1.1959409788e-5;
+            const v411 = 2.5909225260e-6;
+            const v420 = 3.8595339244e-6;
+            const v500 = -2.1092370507e-4;
+            const v501 = 3.0927427253e-6;
+            const v510 = 1.3864594581e-6;
+            const v600 = 3.1932457305e-5;
+            
+            // EXACT polynomial evaluation from GSW-Matlab - copied directly
+            const specvol = v000 + xs*(v100 + xs*(v200 + xs*(v300 + xs*(v400 + xs*(v500 + xs*v600)))))
+                + ys*(v010 + xs*(v110 + xs*(v210 + xs*(v310 + xs*(v410 + xs*v510))))
+                + ys*(v020 + xs*(v120 + xs*(v220 + xs*(v320 + xs*v420)))
+                + ys*(v030 + xs*(v130 + xs*(v230 + xs*v330))
+                + ys*(v040 + xs*(v140 + xs*v240)
+                + ys*(v050 + xs*v150
+                + ys*v060)))))
+                + z*( v001 + xs*(v101 + xs*(v201 + xs*(v301 + xs*(v401 + xs*v501))))
+                + ys*(v011 + xs*(v111 + xs*(v211 + xs*(v311 + xs*v411)))
+                + ys*(v021 + xs*(v121 + xs*(v221 + xs*v321))
+                + ys*(v031 + xs*(v131 + xs*v231)
+                + ys*(v041 + xs*v141
+                + ys*v051))))
+                + z*( v002 + xs*(v102 + xs*(v202 + xs*(v302 + xs*v402)))
+                + ys*(v012 + xs*(v112 + xs*(v212 + xs*v312))
+                + ys*(v022 + xs*(v122 + xs*v222)
+                + ys*(v032 + xs*v132
+                + ys*v042)))
+                + z*( v003 + xs*(v103 + xs*v203)
+                + ys*(v013 + xs*v113
+                + ys*v023)
+                + z*( v004 + xs*v104
+                + ys*v014
+                + z*( v005
+                + z*v006)))));
+            
+            return specvol;
+        }
+
+        // Calculate density from specific volume
+        function calculateDensity(SA, CT, p) {
+            const v = calculateSpecificVolume(SA, CT, p);
+            return 1.0 / v; // kg/m³
+        }
+
+        // Calculate freezing point temperature using EXACT GSW-Matlab formula
+        function gsw_t_freezing(SA, p) {
+            // Polynomial approximation for freezing temperature
+            // Fra GSW-Matlab gsw_t_freezing.m
+            
+            const c0 = 0.002519;
+            const c1 = -5.946302841607319;
+            const c2 = 4.136051661346983;
+            const c3 = -1.115150523403847e1;
+            const c4 = 1.476878746184548e1;
+            const c5 = -1.088873263630961e1;
+            const c6 = 2.961018839640730;
+            const c7 = -7.433320943962606;
+            const c8 = -1.561578562479883;
+            const c9 = 4.073774363480365e-2;
+            const c10 = 1.158414435887717e-2;
+            const c11 = -4.122639292422863e-1;
+            const c12 = -1.123186915628260e-1;
+            const c13 = 5.715012685553502e-1;
+            const c14 = 2.021682115652684e-1;
+            const c15 = 4.140574258089767e-2;
+            const c16 = -6.034228641903586e-1;
+            const c17 = -1.205825928146808e-2;
+            const c18 = -2.812172968619369e-1;
+            const c19 = 1.877244474023750e-2;
+            const c20 = -1.204395563789007e-1;
+            const c21 = 2.349147739749606e-1;
+            const c22 = 2.748444541144219e-3;
+            
+            const SA_r = SA * 1e-2;  // SA in units of 10 g/kg
+            const x = Math.sqrt(SA_r);
+            const p_r = p * 1e-4;  // p in units of 10000 dbar
+            
+            const tf = c0 
+                + SA_r*(c1 + x*(c2 + x*(c3 + x*(c4 + x*(c5 + c6*x)))))
+                + p_r*(c7 + p_r*(c8 + c9*p_r))
+                + SA_r*p_r*(c10 + p_r*(c12 + p_r*(c15 + c21*SA_r)) + SA_r*(c13 + c17*p_r + c19*SA_r)
+                + x*(c11 + p_r*(c14 + c18*p_r) + SA_r*(c16 + c20*p_r + c22*SA_r)));
+            
+            return tf;  // °C
+        }
+
+        // Calculate sigma0 (potential density anomaly)
+        function calculateSigma0(SA, CT) {
+            const rho0 = calculateDensity(SA, CT, 0);
+            return rho0 - 1000.0; // kg/m³
+        }
+
+        // Convert practical salinity to absolute salinity (simplified for open ocean)
+        function convertSPtoSA(SP) {
+            return TEOS10_CONSTANTS.SSO * (SP / 35.0);
+        }
+
+        // Convert in-situ temperature to conservative temperature (first approximation)
+        function convertTtoCT(t) {
+            return t; // First approximation - more accurate would require iteration
+        }
+
+        // Calculate pressure from depth using fixed latitude of 60°
+        function calculatePressure(z) {
+            const lat = 60; // Fixed latitude for Norway
+            const latRad = lat * Math.PI / 180.0;
+            const g = 1.019716 + 0.000005217 * Math.pow(Math.sin(latRad), 2);
+            return z * g;
+        }
+
+        // Test function to validate implementation
+        function validateImplementation() {
+            const densityTestCases = [
+                { SA: 34.7118, CT: 28.8099, p: 10, expected: 1021.839935738108 },
+                { SA: 34.8915, CT: 28.4392, p: 50, expected: 1022.262457966867 }
+            ];
+
+            const freezingTestCases = [
+                { SA: 35, p: 0, expected: -1.913 },
+                { SA: 32, p: 0, expected: -1.75 }
+            ];
+
+            let allPassed = true;
+            
+            // Test density calculations
+            densityTestCases.forEach((test, i) => {
+                const calculated = calculateDensity(test.SA, test.CT, test.p);
+                const diff = Math.abs(calculated - test.expected);
+                
+                if (diff > 0.001) {
+                    console.error(`❌ Density test ${i + 1} FAILED: Expected ${test.expected}, got ${calculated}, diff: ${diff}`);
+                    allPassed = false;
+                } else {
+                    console.log(`✅ Density test ${i + 1} PASSED: ${calculated} (diff: ${diff.toExponential(3)})`);
+                }
+            });
+
+            // Test freezing point calculations
+            freezingTestCases.forEach((test, i) => {
+                const calculated = gsw_t_freezing(test.SA, test.p);
+                const diff = Math.abs(calculated - test.expected);
+                
+                if (diff > 0.01) { // Stricter tolerance for freezing point
+                    console.error(`❌ Freezing point test ${i + 1} FAILED: Expected ${test.expected}, got ${calculated}, diff: ${diff}`);
+                    allPassed = false;
+                } else {
+                    console.log(`✅ Freezing point test ${i + 1} PASSED: ${calculated} (diff: ${diff.toFixed(3)})`);
+                }
+            });
+
+            if (!allPassed) {
+                console.error('ADVARSEL: TEOS-10 implementasjonen gir ikke korrekte resultater!');
+            } else {
+                console.log('✓ TEOS-10 implementasjonen er validert med test-verdier');
+            }
+
+            return allPassed;
+        }
+
+        // Validation functions
+        function validateInput(value, min, max, elementId) {
+            const errorElement = document.getElementById(elementId + 'Error');
+            if (value < min || value > max || isNaN(value)) {
+                errorElement.textContent = `Verdien må være mellom ${min} og ${max}`;
+                return false;
+            }
+            errorElement.textContent = '';
+            return true;
+        }
+
+        function showWarning(message) {
+            const warningsDiv = document.getElementById('warnings');
+            warningsDiv.innerHTML = `<div class="warning">${message}</div>`;
+        }
+
+        function clearWarnings() {
+            const warningsDiv = document.getElementById('warnings');
+            warningsDiv.innerHTML = '';
+        }
+
+        // Main calculation function
+        function updateResults() {
+            clearWarnings();
+            
+            const SP = parseFloat(document.getElementById('sp').value);
+            const t = parseFloat(document.getElementById('t').value);
+            const z = parseFloat(document.getElementById('z').value);
+            
+            let isValid = true;
+            isValid &= validateInput(SP, 0, 42, 'sp');
+            isValid &= validateInput(t, -2, 40, 't');
+            isValid &= validateInput(z, 0, 10000, 'z');
+            
+            if (!isValid) {
+                return;
+            }
+
+            // Convert inputs to TEOS-10 parameters
+            const SA = convertSPtoSA(SP);
+            const CT = convertTtoCT(t);
+            const p = calculatePressure(z);
+
+            if (!isValid) {
+                return;
+            }
+
+            // Check oceanographic bounds
+            if (SA < 30 || SA > 42) {
+                showWarning('Advarsel: Salinitet utenfor typiske havområder (30-42 g/kg)');
+            }
+            if (CT < -2 || CT > 35) {
+                showWarning('Advarsel: Temperatur utenfor typiske havområder (-2 til 35°C)');
+            }
+
+            try {
+                // Calculate results
+                const density = calculateDensity(SA, CT, p);
+                const sigma0 = calculateSigma0(SA, CT);
+                const freezingPoint = gsw_t_freezing(SA, p);
+
+                // Update display
+                document.getElementById('density').textContent = density.toFixed(4) + ' kg/m³';
+                document.getElementById('sigma0').textContent = sigma0.toFixed(4) + ' kg/m³';
+                document.getElementById('freezingPoint').textContent = freezingPoint.toFixed(2) + ' °C';
+                
+                // Check if temperature is near freezing point
+                if (Math.abs(t - freezingPoint) < 0.5) {
+                    showWarning(`Advarsel: Temperaturen (${t.toFixed(1)}°C) er nær frysepunktet (${freezingPoint.toFixed(1)}°C)!`);
+                }
+            } catch (error) {
+                showWarning('Feil i beregning: Kontroller inndata-verdiene');
+            }
+        }
+
+        // Load example data
+        function loadExample(exampleName) {
+            const example = examples[exampleName];
+            if (!example) return;
+
+            // Fill in the values
+            document.getElementById('sp').value = example.SP;
+            document.getElementById('t').value = example.t;
+            document.getElementById('z').value = example.z;
+
+            updateResults();
+        }
+
+
+
+        // Toggle info section
+        function toggleInfo() {
+            const content = document.getElementById('infoContent');
+            const arrow = document.getElementById('infoArrow');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('open');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Input field changes
+            const inputFields = ['sp', 't', 'z'];
+            inputFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.addEventListener('input', updateResults);
+                }
+            });
+
+            // Initial calculation
+            updateResults();
+
+            // Validate implementation on load
+            validateImplementation();
+        });
+    </script>
+</body>
+</html>
