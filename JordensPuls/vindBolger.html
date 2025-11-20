@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hvordan Vind Skaper Bølger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f9ff; }
+        canvas { border-bottom: 4px solid #0ea5e9; background: linear-gradient(to bottom, #e0f2fe 0%, #bae6fd 40%, #0284c7 40%, #0369a1 100%); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .control-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <header class="text-center mb-6 max-w-2xl">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">Fra Vind til Bølger</h1>
+        <p class="text-slate-600">En interaktiv visualisering av energioverføring fra atmosfære til hav.</p>
+    </header>
+
+    <main class="w-full max-w-4xl flex flex-col gap-6">
+        
+        <!-- Canvas Container -->
+        <div class="relative w-full aspect-[16/9] bg-white rounded-xl overflow-hidden shadow-lg border border-slate-200">
+            <canvas id="waveCanvas" class="w-full h-full"></canvas>
+            
+            <!-- Overlay Labels -->
+            <div id="label-friction" class="absolute top-[25%] left-[20%] bg-white/90 backdrop-blur px-3 py-1 rounded shadow text-sm font-bold text-slate-700 hidden md:block">
+                ⬇ Friksjon & Skjærkraft
+            </div>
+            <div id="label-pressure" class="absolute top-[35%] left-[50%] bg-white/90 backdrop-blur px-3 py-1 rounded shadow text-sm font-bold text-slate-700 hidden md:block">
+                ⟳ Trykkforskjell
+            </div>
+        </div>
+
+        <!-- Controls and Explanation -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Controls -->
+            <div class="control-panel md:col-span-1 flex flex-col justify-center gap-4">
+                <div>
+                    <label for="windSpeed" class="block text-sm font-bold text-slate-700 mb-1">Vindstyrke</label>
+                    <input type="range" id="windSpeed" min="0" max="100" value="20" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    <div class="flex justify-between text-xs text-slate-500 mt-1">
+                        <span>Stille</span>
+                        <span>Storm</span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 border border-blue-100">
+                    <strong>Status:</strong> <span id="statusText">Krusninger (Kapillærbølger)</span>
+                </div>
+
+                <div class="text-xs text-slate-500 mt-2">
+                    <p><strong>Viser:</strong></p>
+                    <ul class="list-disc ml-4 mt-1 space-y-1">
+                        <li>Blå linjer: Vindstrøm</li>
+                        <li>Hvite sirkler: Vannpartikler</li>
+                        <li>Oransje piler: Energioverføring</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Explanation Cards -->
+            <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 w-6 h-6 flex items-center justify-center rounded-full text-xs">1</span>
+                        Startfasen: Friksjon
+                    </h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Når vinden blåser over en flat overflate, skaper friksjon små krusninger. Dette kalles <em>kapillærbølger</em>. Overflatespenningen prøver å glatte dem ut igjen.
+                    </p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 w-6 h-6 flex items-center justify-center rounded-full text-xs">2</span>
+                        Vekstfasen: Trykk
+                    </h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Når bølgene blir større, "fanger" de vinden. Lufttrykket er høyere på baksiden av bølgen og lavere på forsiden. Dette dytter bølgen fremover og oppover.
+                    </p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 sm:col-span-2">
+                    <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 w-6 h-6 flex items-center justify-center rounded-full text-xs">3</span>
+                        Orbital Bevegelse
+                    </h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Se på de hvite prikkene i vannet. Vannet flytter seg ikke langt, det roterer i sirkler (orbitaler). Diameteren på sirkelen avtar med dybden. Det er energien som beveger seg, ikke selve vannmassen.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        const windSlider = document.getElementById('windSpeed');
+        const statusText = document.getElementById('statusText');
+
+        // Physics State
+        let time = 0;
+        let windValue = 20; // 0 to 100
+        let waveHeight = 5;
+        let waveSpeed = 0.02;
+        let waterLevel = 0; // Will be set on resize
+
+        // Particles for orbital motion visualization
+        const particles = [];
+        const numParticles = 8;
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            waterLevel = canvas.height * 0.45;
+            initParticles();
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            const spacing = canvas.width / numParticles;
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    xBase: (i * spacing) + (spacing / 2),
+                    yBase: waterLevel + 40, // Just below surface
+                    depth: 1
+                });
+                // Add deeper particle
+                particles.push({
+                    xBase: (i * spacing) + (spacing / 2),
+                    yBase: waterLevel + 120, // Deeper
+                    depth: 0.4 // Smaller orbit
+                });
+            }
+        }
+
+        // Update physics variables based on slider
+        function updateParams() {
+            windValue = parseInt(windSlider.value);
+            
+            // Non-linear scaling for realistic feel
+            // Low wind = very small waves (capillary)
+            // High wind = large waves (gravity)
+            if (windValue < 20) {
+                waveHeight = 2 + (windValue * 0.2); 
+                waveSpeed = 0.02 + (windValue * 0.0005);
+                statusText.innerText = "Krusninger (Kapillærbølger)";
+            } else if (windValue < 60) {
+                waveHeight = 10 + ((windValue - 20) * 1.5);
+                waveSpeed = 0.04 + ((windValue - 20) * 0.001);
+                statusText.innerText = "Voksende Bølger (Gravitasjonsbølger)";
+            } else {
+                waveHeight = 70 + ((windValue - 60) * 2.5);
+                waveSpeed = 0.08 + ((windValue - 60) * 0.002);
+                statusText.innerText = "Store Havbølger & Brytning";
+            }
+        }
+
+        function drawWindLines() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 2;
+            
+            const lineCount = Math.floor(windValue / 5);
+            const speed = windValue * 0.2;
+
+            for(let i=0; i<lineCount; i++) {
+                // Simple pseudo-random lines moving across top
+                let x = (time * speed * (1 + i*0.1) + i * 100) % (canvas.width + 200) - 100;
+                let y = (waterLevel - 50) - (i * 15) + Math.sin(time + i)*10;
+                
+                if (y < 0) y = Math.random() * 100;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 50 + (windValue), y);
+                ctx.stroke();
+
+                // Arrowhead for wind interaction (if wind is strong)
+                if (windValue > 30 && i % 3 === 0 && x > 0 && x < canvas.width) {
+                    // Draw downward force arrow occasionally hitting a wave trough?
+                    // Let's just keep it simple wind streaks
+                }
+            }
+        }
+
+        function getWaveY(x) {
+            // Combine multiple sine waves for realistic look
+            // Main wave
+            let y = Math.sin(x * 0.01 + time * waveSpeed) * waveHeight;
+            // Secondary detail wave (simulating capillary waves riding on top)
+            if (windValue > 0) {
+                y += Math.sin(x * 0.03 + time * waveSpeed * 1.5) * (waveHeight * 0.2);
+            }
+            // Third noise layer
+            y += Math.sin(x * 0.005 - time * waveSpeed * 0.5) * (waveHeight * 0.5);
+            
+            return waterLevel + y;
+        }
+
+        function drawWater() {
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.lineTo(0, waterLevel);
+
+            for (let x = 0; x <= canvas.width; x += 5) {
+                ctx.lineTo(x, getWaveY(x));
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+
+            // Gradient fill for water
+            const gradient = ctx.createLinearGradient(0, waterLevel - 50, 0, canvas.height);
+            gradient.addColorStop(0, '#bae6fd'); // Light top
+            gradient.addColorStop(0.2, '#38bdf8'); 
+            gradient.addColorStop(1, '#0369a1'); // Dark deep
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Surface Line
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawOrbitalParticles() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            
+            particles.forEach(p => {
+                // Calculate local wave phase for this x position
+                // We approximate the x position moving slightly to track the wave peak visual
+                
+                // Orbital motion math:
+                // x = x0 + r * cos(wt)
+                // y = y0 + r * sin(wt)
+                // Radius scales with waveHeight and decays with depth
+                
+                const orbitRadius = waveHeight * p.depth * 0.8;
+                
+                // Visualize the orbit circle path (faint)
+                if (windValue > 10) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                    ctx.lineWidth = 1;
+                    ctx.arc(p.xBase, p.yBase, orbitRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // The particle position
+                // Phase needs to match the wave passing by at xBase
+                const phase = p.xBase * 0.01 + time * waveSpeed; // Simplified phase matching main wave
+                
+                // Clockwise rotation for waves moving right
+                const px = p.xBase + orbitRadius * Math.sin(phase); 
+                const py = p.yBase - orbitRadius * Math.cos(phase);
+
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw "Energy Transfer" arrows on surface if wind is high
+                if (p.depth === 1 && windValue > 40) {
+                    // Only show near peaks
+                    const surfY = getWaveY(p.xBase);
+                    if (surfY < waterLevel - (waveHeight * 0.5)) {
+                         // Draw small arrow pushing wave
+                        ctx.fillStyle = '#fb923c'; // Orange
+                        ctx.beginPath();
+                        ctx.moveTo(px, surfY - 20);
+                        ctx.lineTo(px + 10, surfY - 10);
+                        ctx.lineTo(px - 10, surfY - 10);
+                        ctx.fill();
+                    }
+                }
+            });
+        }
+
+        function draw() {
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updateParams();
+            
+            // Draw Sky/Air
+            drawWindLines();
+
+            // Draw Water
+            drawWater();
+
+            // Draw Physics Indicators
+            drawOrbitalParticles();
+
+            time += 1;
+            requestAnimationFrame(draw);
+        }
+
+        // Init
+        window.addEventListener('resize', resize);
+        windSlider.addEventListener('input', updateParams);
+        
+        resize();
+        draw();
+
+    </script>
+</body>
+</html>
