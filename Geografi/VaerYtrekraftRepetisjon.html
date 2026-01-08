@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repetisjon Geografi Vg1: Vær og Klima</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .question-card {
+            display: none;
+        }
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <div class="max-w-3xl mx-auto py-10 px-4">
+        <header id="quiz-header" class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-blue-800">Geografi Vg1: Repetisjon</h1>
+            <p class="text-gray-600 mt-2">Vind, nedbør, ekstremvær og klimasoner</p>
+            
+            <div class="flex justify-center gap-4 mt-4">
+                <div class="bg-white shadow-sm border rounded-lg px-6 py-2">
+                    <span class="text-sm text-gray-500 block">Spørsmål</span>
+                    <span class="text-lg font-bold"><span id="current-q-num">1</span> / <span id="total-questions-header">15</span></span>
+                </div>
+                <div class="bg-white shadow-sm border rounded-lg px-6 py-2">
+                    <span class="text-sm text-gray-500 block">Poeng</span>
+                    <span class="text-lg font-bold text-green-600" id="score">0</span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-6">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <div id="quiz-container">
+            <!-- Oppgavene genereres av JavaScript -->
+        </div>
+
+        <div id="result-footer" class="hidden mt-4 p-8 bg-white rounded-2xl shadow-xl border-2 border-blue-100">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Quiz Fullført!</h2>
+                <div id="score-circle" class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-blue-50 border-4 border-blue-500 text-3xl font-bold text-blue-800 my-6">
+                    0%
+                </div>
+                <p id="final-stats" class="text-xl text-blue-600 font-medium mb-8"></p>
+            </div>
+
+            <div class="border-t pt-6 text-left">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Din faglige oppsummering:</h3>
+                <div id="summary-categories" class="space-y-4">
+                    <!-- Kategorioppsummering her -->
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition font-semibold shadow-lg">Start på nytt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "Hva er hovedårsaken til at det blåser solgangsbris inn mot land om ettermiddagen?",
+                category: "Vindsystemer",
+                options: [
+                    "Havet blir varmere enn landet, så lufta stiger over vannet.",
+                    "Sola varmer opp bakken raskere enn havet. Varm luft over land stiger, og kjølig luft fra havet blåser inn.",
+                    "Månen trekker vannet og lufta inn mot land.",
+                    "Det er alltid høytrykk over land på sommeren."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Helt riktig! Fordi landjorda har lavere varmekapasitet enn vann, varmes den raskt opp, lufta stiger (lavtrykk), og havet 'fyller på' med luft.",
+                    wrong: "Feil. Husk: Land varmes raskest opp -> luft stiger -> lavtrykk. Luft fra det kjøligere havet blåser da inn mot land."
+                }
+            },
+            {
+                q: "Hva skjer med 'landbrisen' om natta?",
+                category: "Vindsystemer",
+                options: [
+                    "Det slutter å blåse helt.",
+                    "Vinden snur og blåser fra havet mot land.",
+                    "Landet avkjøles raskere enn havet. Luften over havet stiger, og det blåser fra land mot havet.",
+                    "Vinden blåser langs kysten i stedet."
+                ],
+                correct: 2,
+                feedback: {
+                    right: "Riktig! Om natta holder vannet på varmen lenger enn bakken. Derfor stiger lufta over havet, og vinden blåser utover.",
+                    wrong: "Feil. Om natta er havet varmest. Lufta stiger over havet, og det blåser ut fra land."
+                }
+            },
+            {
+                q: "Hva kalles de stabile vindene som blåser fra de subtropiske høytrykkene inn mot lavtrykkssonen ved ekvator?",
+                category: "Vindsystemer",
+                options: [
+                    "Vestavinder",
+                    "Polarvinder",
+                    "Passatvinder",
+                    "Monsunvinder"
+                ],
+                correct: 2,
+                feedback: {
+                    right: "Riktig! Passatvindene er svært stabile og blåser mot ekvator fra nordøst (nordlige halvkule) og sørøst (sørlige halvkule).",
+                    wrong: "Feil. Det er passatvindene som blåser mot ekvator. Vestavindene blåser fra de subtropiske høytrykkene mot polene."
+                }
+            },
+            {
+                q: "Hvorfor bøyes vinden av mot høyre på den nordlige halvkule?",
+                category: "Vindsystemer",
+                options: [
+                    "På grunn av magnetfeltet til jorda.",
+                    "På grunn av Corioliseffekten (jordrotasjonen).",
+                    "Fordi fjellkjeder tvinger vinden mot høyre.",
+                    "Det er en tilfeldighet basert på havstrømmer."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Stemmer! Jordrotasjonen gjør at vind (og store havstrømmer) bøyes av til høyre i nord og venstre i sør.",
+                    wrong: "Feil. Dette fenomenet kalles Corioliseffekten og skyldes at jorda roterer."
+                }
+            },
+            {
+                q: "Konvektiv nedbør oppstår ofte som 'ettermiddagsbyger'. Hvorfor det?",
+                category: "Nedbørstyper",
+                options: [
+                    "Fordi sola har brukt hele dagen på å varme opp bakken så lufta kan stige.",
+                    "Fordi havet er kaldest om ettermiddagen.",
+                    "Fordi det tar tid for fjellene å flytte på seg.",
+                    "Fordi plantene slipper ut mest fuktighet da."
+                ],
+                correct: 0,
+                feedback: {
+                    right: "Riktig! Når sola står høyt og varmer opp bakken, varmes lufta over opp, stiger raskt, avkjøles og kondenserer til nedbør.",
+                    wrong: "Feil. Konveksjon krever varme fra bakken. Denne varmen er som regel på sitt sterkeste etter noen timer med solstråling."
+                }
+            },
+            {
+                q: "Hva er typisk for orografisk nedbør?",
+                category: "Nedbørstyper",
+                options: [
+                    "To luftmasser som kolliderer.",
+                    "Fuktig luft som blir presset oppover av en fjellkjede.",
+                    "Lyn og torden over flate sletter.",
+                    "Snø som faller i polare strøk."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! Når fuktig havluft møter fjell, presses den opp, avkjøles og må slippe fuktigheten som regn.",
+                    wrong: "Feil. Orografisk betyr 'fjell'. Nedbøren skyldes at luft presses opp over terreng."
+                }
+            },
+            {
+                q: "Hva kalles den sonen ved ekvator der luftmassene fra nord og sør møtes og stiger til værs?",
+                category: "Vindsystemer",
+                options: [
+                    "Polarfronten",
+                    "Den intertropiske konvergenssonen (ITCZ)",
+                    "Subtropisk høytrykksbelte",
+                    "Heste-breddene"
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Korrekt! I ITCZ-sonen stiger lufta kraftig, noe som skaper enorme mengder konvektiv nedbør og lavtrykk.",
+                    wrong: "Feil. Dette er ITCZ (InterTropical Convergence Zone). Polarfronten ligger mye lenger nord."
+                }
+            },
+            {
+                q: "Når en kaldfront tar igjen en varmfront og løfter all den varme lufta opp fra bakken, kaller vi det...",
+                category: "Nedbørstyper",
+                options: [
+                    "En tropisk orkan",
+                    "En okklusjon",
+                    "En antisyklon",
+                    "En inversjon"
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! En okkludert front fører ofte til kraftig og langvarig nedbør.",
+                    wrong: "Feil. Det kalles en okklusjon (okkludert front)."
+                }
+            },
+            {
+                q: "Hva er hovedforskjellen mellom en varmfront og en kaldfront når det gjelder nedbør?",
+                category: "Nedbørstyper",
+                options: [
+                    "Varmfronten gir alltid hagl, kaldfronten gir tåke.",
+                    "Varmfronten har brattere stigning og gir kraftigere byger.",
+                    "Kaldfronten er brattest og gir ofte kraftige, kortvarige byger, mens varmfronten gir mer langvarig 'gråværsregn'.",
+                    "Det er ingen forskjell."
+                ],
+                correct: 2,
+                feedback: {
+                    right: "Stemmer! Kaldfronten presser seg under den varme lufta som en plog, noe som gir rask stigning og bygevær.",
+                    wrong: "Feil. Kaldfronten er brattere og 'raskere', noe som gir mer intense byger."
+                }
+            },
+            {
+                q: "Forskere mener en varmere atmosfære kan inneholde ca. 7-10 % mer luftfuktighet per grad oppvarming. Hva fører dette sannsynligvis til?",
+                category: "Ekstremvær",
+                options: [
+                    "Det vil slutte å regne helt fordi skyene blir for tunge.",
+                    "Kraftigere ekstremnedbør og mer intense regnskyll, fordi det er mer vann tilgjengelig i lufta.",
+                    "Lufta vil føles tørrere fordi varmen fordamper alt vannet ut i verdensrommet.",
+                    "Vindene vil stoppe helt opp på grunn av den tunge lufta."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! Mer fuktighet i atmosfæren fungerer som 'drivstoff' for regnvær. Når det først regner, kommer det mer vann på kortere tid, noe som øker faren for flom.",
+                    wrong: "Feil. Varm luft kan holde på mer vanndamp. Når denne lufta avkjøles, vil det føre til mer intens nedbør enn i en kaldere atmosfære."
+                }
+            },
+            {
+                q: "Hvorfor blir det ofte ekstremt mye regn på Vestlandet i Norge?",
+                category: "Nedbørstyper",
+                options: [
+                    "Fordi det er så mange lavtrykk som ligger i ro over Bergen.",
+                    "Kombinasjonen av frontnedbør fra Atlanterhavet og orografisk nedbør når lufta treffer fjellene.",
+                    "Fordi havet er unormalt varmt der.",
+                    "Det er utelukkende på grunn av konvektiv nedbør."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! Vestlandet får 'dobbelt opp' når frontene fra vest blir tvunget opp over fjellene (orografisk forsterkning).",
+                    wrong: "Feil. Tenk på geografien: Vinder fra havet (frontnedbør) møter høye fjell (orografisk nedbør)."
+                }
+            },
+            {
+                q: "Hvilken klimasone finner vi mellom de tropiske regnskogene og de tørre ørkenene?",
+                category: "Klimasoner",
+                options: [
+                    "Polarsonen",
+                    "Savanne (subtropisk sone med regntid)",
+                    "Temperert sone",
+                    "Tundra"
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! Savannen har en tydelig regntid og tørketid, styrt av solas gang (ITCZ-bevegelsen).",
+                    wrong: "Feil. Savannen ligger i overgangen mellom det evig våte tropiske klimaet og de tørre høytrykksområdene."
+                }
+            },
+            {
+                q: "Hva kjennetegner det subtropiske høytrykksbeltet?",
+                category: "Klimasoner",
+                options: [
+                    "Mye regn og tåke hele året.",
+                    "Synkende luftmasser, lite skyer og svært tørt klima (her ligger mange av verdens ørkener).",
+                    "Kraftige vinder og mye snø.",
+                    "Stabile temperaturer på nøyaktig 20 grader."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Riktig! Der lufta synker ned, blir den varmet opp og kan holde på mer fuktighet. Derfor blir det tørt og solfylt.",
+                    wrong: "Feil. Ved de subtropiske høytrykkene synker lufta. Synkende luft = høytrykk = lite skyer = tørt."
+                }
+            },
+            {
+                q: "Hvorfor er det ingen trær i polarsonen (tundra)?",
+                category: "Klimasoner",
+                options: [
+                    "Det er for mye vann i bakken.",
+                    "Det er for mye vind.",
+                    "Gjennomsnittstemperaturen for den varmeste måneden er under 10 grader.",
+                    "Sola skinner aldri der."
+                ],
+                correct: 2,
+                feedback: {
+                    right: "Riktig! 10-graders isotermen for varmeste måned regnes ofte som skoggrensen mot nord.",
+                    wrong: "Feil. Det er sommertemperaturen som er for lav til at trær kan vokse. Permafrost spiller også en rolle."
+                }
+            },
+            {
+                q: "Hva skjer med lufttrykket når luft varmes opp og stiger?",
+                category: "Vindsystemer",
+                options: [
+                    "Det blir høyere trykk ved bakken.",
+                    "Det blir lavere trykk ved bakken (lavtrykk).",
+                    "Trykket forblir uendret.",
+                    "Lufttrykket blir negativt."
+                ],
+                correct: 1,
+                feedback: {
+                    right: "Stemmer! Når lufta stiger, blir det 'færre' luftmolekyler igjen nede ved bakken, altså et lavtrykk.",
+                    wrong: "Feil. Stigende luft etterlater seg et underskudd av luft ved bakken, som vi kaller et lavtrykk."
+                }
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userResponses = []; // Lagrer om svar var korrekt per spørsmål
+
+        const container = document.getElementById('quiz-container');
+        const scoreDisplay = document.getElementById('score');
+        const currentQNumDisplay = document.getElementById('current-q-num');
+        const progressBar = document.getElementById('progress-bar');
+        const totalQuestionsHeader = document.getElementById('total-questions-header');
+
+        totalQuestionsHeader.innerText = questions.length;
+
+        function initQuiz() {
+            questions.forEach((question, qIdx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = `question-card bg-white p-8 rounded-2xl shadow-xl border border-gray-100 ${qIdx === 0 ? 'active' : ''}`;
+                qDiv.id = `q-${qIdx}`;
+
+                let optionsHtml = question.options.map((opt, oIdx) => `
+                    <button 
+                        onclick="checkAnswer(${qIdx}, ${oIdx})" 
+                        id="btn-${qIdx}-${oIdx}"
+                        class="option-btn w-full text-left p-5 mb-4 border-2 border-gray-100 rounded-xl hover:border-blue-300 hover:bg-blue-50 focus:outline-none text-lg font-medium"
+                    >
+                        ${opt}
+                    </button>
+                `).join('');
+
+                qDiv.innerHTML = `
+                    <span class="text-blue-500 font-bold uppercase tracking-wider text-sm mb-2 block">${question.category}</span>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-8 leading-tight">${question.q}</h3>
+                    <div class="options-container">${optionsHtml}</div>
+                    <div id="feedback-${qIdx}" class="hidden mt-6 p-6 rounded-xl font-medium animate-bounce-short"></div>
+                    <div id="nav-${qIdx}" class="hidden mt-8 flex justify-end">
+                        <button onclick="nextQuestion()" class="bg-blue-600 text-white px-10 py-3 rounded-full hover:bg-blue-700 transition-all shadow-lg font-bold">
+                            ${qIdx === questions.length - 1 ? 'Se resultat' : 'Neste spørsmål →'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+            updateProgress();
+        }
+
+        function checkAnswer(qIdx, selectedIdx) {
+            const question = questions[qIdx];
+            const feedbackDiv = document.getElementById(`feedback-${qIdx}`);
+            const navDiv = document.getElementById(`nav-${qIdx}`);
+            const options = container.querySelectorAll(`#q-${qIdx} .option-btn`);
+            
+            options.forEach(btn => btn.disabled = true);
+
+            const isCorrect = selectedIdx === question.correct;
+            userResponses.push({ category: question.category, correct: isCorrect });
+
+            const selectedBtn = document.getElementById(`btn-${qIdx}-${selectedIdx}`);
+            const correctBtn = document.getElementById(`btn-${qIdx}-${question.correct}`);
+
+            if (isCorrect) {
+                score++;
+                selectedBtn.classList.add('correct');
+                feedbackDiv.innerHTML = `<span class="text-2xl mr-2">✅</span> ${question.feedback.right}`;
+                feedbackDiv.classList.add('bg-green-50', 'text-green-800', 'border-l-4', 'border-green-500');
+            } else {
+                selectedBtn.classList.add('wrong');
+                correctBtn.classList.add('correct');
+                feedbackDiv.innerHTML = `<span class="text-2xl mr-2">❌</span> ${question.feedback.wrong}`;
+                feedbackDiv.classList.add('bg-red-50', 'text-red-800', 'border-l-4', 'border-red-500');
+            }
+
+            feedbackDiv.classList.remove('hidden');
+            navDiv.classList.remove('hidden');
+            scoreDisplay.innerText = score;
+        }
+
+        function nextQuestion() {
+            const currentCard = document.getElementById(`q-${currentQuestion}`);
+            currentCard.classList.remove('active');
+            
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                const nextCard = document.getElementById(`q-${currentQuestion}`);
+                nextCard.classList.add('active');
+                currentQNumDisplay.innerText = currentQuestion + 1;
+                updateProgress();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showFinalResult() {
+            progressBar.style.width = `100%`;
+            container.classList.add('hidden');
+            document.getElementById('quiz-header').classList.add('hidden');
+
+            const footer = document.getElementById('result-footer');
+            const stats = document.getElementById('final-stats');
+            const circle = document.getElementById('score-circle');
+            const summaryDiv = document.getElementById('summary-categories');
+            
+            footer.classList.remove('hidden');
+            
+            const percent = Math.round((score / questions.length) * 100);
+            circle.innerText = `${percent}%`;
+
+            // Analyser resultater per kategori
+            const categories = [...new Set(questions.map(q => q.category))];
+            const catSummary = categories.map(cat => {
+                const responses = userResponses.filter(r => r.category === cat);
+                const correct = responses.filter(r => r.correct).length;
+                const total = responses.length;
+                return { cat, correct, total, percent: Math.round((correct/total)*100) };
+            });
+
+            summaryDiv.innerHTML = '';
+            catSummary.forEach(item => {
+                const isGood = item.percent >= 70;
+                const colorClass = isGood ? 'text-green-700 bg-green-50 border-green-200' : 'text-amber-700 bg-amber-50 border-amber-200';
+                const icon = isGood ? '⭐' : '📖';
+                const advice = isGood ? 'Veldig bra! Du har god kontroll på dette temaet.' : 'Her bør du lese litt mer i læreboka eller se på notatene dine på nytt.';
+
+                summaryDiv.innerHTML += `
+                    <div class="p-4 rounded-lg border ${colorClass}">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold">${icon} ${item.cat}</span>
+                            <span class="text-sm font-semibold">${item.correct} / ${item.total} riktige</span>
+                        </div>
+                        <p class="text-sm opacity-90">${advice}</p>
+                    </div>
+                `;
+            });
+
+            let message = "";
+            if (percent === 100) message = "Perfekt! Du er helt klar for prøve!";
+            else if (percent >= 80) message = "Utmerket! Du har svært god kontroll.";
+            else if (percent >= 50) message = "Bra jobba, men du har noen faglige hull å fylle.";
+            else message = "Her må det jobbes mer. Se på oppsummeringen under for veiledning.";
+
+            stats.innerHTML = message;
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = initQuiz;
+    </script>
+
+    <style>
+        .animate-bounce-short {
+            animation: bounceShort 0.5s ease-out;
+        }
+        @keyframes bounceShort {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</body>
+</html>
