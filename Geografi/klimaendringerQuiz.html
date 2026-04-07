@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klimaendringer Quiz - Vg1 Geografi</title>
+    
+    <!-- Laster inn Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Laster inn React og ReactDOM direkte i nettleseren -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Laster inn Babel for å oversette JSX til vanlig Javascript i nettleseren -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Litt ekstra animasjon */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div id="root"></div>
+
+    <!-- Hovedkoden for Quizen (React via Babel) -->
+    <script type="text/babel">
+        const { useState } = React;
+
+        const CheckIcon = () => (
+          <svg className="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+          </svg>
+        );
+
+        const XIcon = () => (
+          <svg className="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        );
+
+        const questions = [
+          {
+            question: "Hva er hovedforskjellen på vær og klima?",
+            options: [
+              "Vær beskriver temperaturen, mens klima beskriver mengden nedbør i et område.",
+              "Vær er kortsiktige endringer i atmosfæren, mens klima er det gjennomsnittlige været over en lengre periode (ofte 30 år).",
+              "Klima måles utelukkende om sommeren, mens været måles hele året for å få et gjennomsnitt.",
+              "Vær påvirker bare det globale nivået, mens klima refererer til det lokale mikroklimaet."
+            ],
+            correct: 1,
+            rationale: "Vær er det vi opplever fra dag til dag (eller time til time), mens klima er de lange trendene og gjennomsnittet over minst 30 år.",
+            topic: "Forskjellen på vær og klima",
+            searchTip: "\"Forskjell på vær og klima\" (f.eks. hos Meteorologisk institutt eller SNL)"
+          },
+          {
+            question: "For å vite noe om klimaet før vi fikk moderne måleinstrumenter, bruker forskere \"proxydata\". Hvilket av disse er eksempler på proxydata?",
+            options: [
+              "Satellittbilder av atmosfæriske gasser.",
+              "Avanserte klimamodeller på datamaskiner.",
+              "Iskjerner fra Antarktis, årringer i trær og innsjøsedimenter.",
+              "Værvarsler og historiske nedtegnelser fra de siste ti årene."
+            ],
+            correct: 2,
+            rationale: "Proxydata er fysiske spor i naturen som fungerer som et historisk arkiv for hvordan klimaet var for hundrevis eller tusenvis av år siden.",
+            topic: "Paleoklima og proxydata",
+            searchTip: "\"Proxydata klima\" eller \"Iskjerner Antarktis klimaforskning\""
+          },
+          {
+            question: "I klimaforskningen snakkes det ofte om SSP (Shared Socioeconomic Pathways). Hva brukes disse til?",
+            options: [
+              "Til å beskrive ulike mulige framtidsutviklinger for samfunnet og fremtidige klimagassutslipp.",
+              "Til å måle nøyaktig hvor mye karbondioksid det er i atmosfæren i dag.",
+              "Til å regne ut hvor mange isbreer som har smeltet i Arktis hittil.",
+              "Til å avgjøre hvilke land som skal betale mest i klimaskatt."
+            ],
+            correct: 0,
+            rationale: "SSP (Shared Socioeconomic Pathways) er scenarier som viser hvordan fremtiden kan bli basert på samfunnsvalgene vi tar i dag, fra bærekraft (SSP1) til fossil fremtid (SSP5).",
+            topic: "Klimascenarier og samfunnsutvikling (SSP)",
+            searchTip: "\"SSP scenarier klimapanel\" eller \"Shared Socioeconomic Pathways FNs klimapanel\""
+          },
+          {
+            question: "Ifølge FNs klimapanel, hva er en av konsekvensene av global oppvarming når det gjelder ekstremvær?",
+            options: [
+              "Ekstremværet blir mildere, men varer lengre.",
+              "Klimaendringene vil gjøre at ekstremvær bare forekommer i fattige land.",
+              "Det vil bli slutt på hetebølger, men mye mer snø om vinteren.",
+              "Intensiteten og hyppigheten til de fleste typer ekstremvær (som styrtregn og hetebølger) vil øke."
+            ],
+            correct: 3,
+            rationale: "Et varmere klima fører til mer energi og fuktighet i atmosfæren, noe som gir oftere og kraftigere ekstremhendelser over nesten hele kloden.",
+            topic: "Ekstremvær som følge av global oppvarming",
+            searchTip: "\"Ekstremvær og global oppvarming\" eller \"Klimaendringer konsekvenser Norge\""
+          },
+          {
+            question: "Klimaendringene påvirker verdenshavene kraftig. Hvilken av disse påstandene er riktig?",
+            options: [
+              "Havet blir kaldere fordi smelting av store isbreer kjøler ned vannet over hele kloden.",
+              "Havet blir surere, varmere og får et lavere innhold av oksygen.",
+              "Havnivået synker langsomt fordi mye av vannet fordamper raskere i et varmere klima.",
+              "Korallrevene trives bedre når havtemperaturen stiger raskt."
+            ],
+            correct: 1,
+            rationale: "Opptak av enorme mengder CO2 gjør havet surere, selve klimaet varmer opp vannmassene, og varmt vann klarer ikke å holde på like mye oksygen som kaldt vann.",
+            topic: "Havets rolle og havforsuring",
+            searchTip: "\"Havforsuring årsaker\" eller \"Klimaendringer marine økosystemer\""
+          },
+          {
+            question: "Hvorfor er situasjonen i Arktis (nordområdene) spesielt bekymringsfull når man snakker om klimaendringer?",
+            options: [
+              "Fordi oppvarmingen skjer mer enn dobbelt så raskt der som det globale gjennomsnittet.",
+              "Fordi havet rundt Nordpolen vil fordampe helt innen de neste hundre årene.",
+              "Fordi det vil bli for mye is om vinteren som stopper all skipsfart.",
+              "Fordi tining av permafrost vil fryse til igjen og skape farlige isbreer."
+            ],
+            correct: 0,
+            rationale: "Dette fenomenet kalles polar forsterkning. Blant annet gjør tap av hvit havis (som reflekterer solen) at det mørke havet absorberer enda mer varme.",
+            topic: "Arktis og polar forsterkning",
+            searchTip: "\"Polar forsterkning\" eller \"Albedoeffekten og issmelting i Arktis\""
+          },
+          {
+            question: "Mange plante- og dyrearter trues av klimaendringene. Hva er en typisk måte mange arter prøver å tilpasse seg et varmere klima på?",
+            options: [
+              "De slutter å reprodusere seg helt til temperaturen synker til normalen igjen.",
+              "De flytter seg systematisk nærmere ekvator for å finne mer skygge.",
+              "De forflytter seg mot polene eller høyere opp i terrenget (fjellet) for å finne kjøligere habitater.",
+              "De tilpasser seg umiddelbart genetisk til varmen i løpet av én generasjon."
+            ],
+            correct: 2,
+            rationale: "For å finne igjen de temperaturene de opprinnelig er tilpasset, trekker omtrent halvparten av alle studerte arter seg enten mot polene eller opp i høyden.",
+            topic: "Naturmangfoldets tilpasningsevne",
+            searchTip: "\"Klimaendringer konsekvenser for arter\" eller \"Høydegrenser for planter klima\""
+          },
+          {
+            question: "Sektoren kalt AFOLU (Jord, skog og annen arealbruk) er veldig viktig. Hvilken spesiell egenskap har denne sektoren i klimakampen?",
+            options: [
+              "Det er den eneste sektoren som FNs klimapanel mener vi helt kan legge ned uten konsekvenser.",
+              "Sektoren er den eneste som utelukkende handler om produksjon av vind- og solkraft.",
+              "Den produserer ikke lenger klimagasser, så man trenger ikke gjøre klimatiltak her.",
+              "Sektoren kan både bidra med store utslippskutt og fysisk fjerne CO2 fra atmosfæren."
+            ],
+            correct: 3,
+            rationale: "Avskoging og landbruk gir store utslipp, men planting av skog og god forvaltning av naturen binder aktivt karbon (CO2) fra luften. Den har en viktig dobbelrolle.",
+            topic: "Arealbruk, jord og skog (AFOLU)",
+            searchTip: "\"Arealbruk som klimatiltak\" eller \"Karbonlagring i skog og jord\""
+          },
+          {
+            question: "I klimapolitikken skiller man gjerne mellom utslippskutt og klimatilpasning. Hvilket av disse tiltakene er et klassisk eksempel på klimatilpasning?",
+            options: [
+              "Å gjenåpne bekker og restaurere flomsletter for å beskytte bygninger mot mer ekstremnedbør.",
+              "Å skifte ut kullkraftverk med vindmøller for å produsere fornybar energi.",
+              "Å kjøpe en elektrisk bil i stedet for en bensinbil.",
+              "Å innføre en høyere avgift på flyreiser for å redusere folks reisevaner."
+            ],
+            correct: 0,
+            rationale: "Tilpasning handler om å forberede samfunnet fysisk på endringene (f.eks. mer overvann), mens de tre andre alternativene handler om å kutte selve årsaken (klimagassene).",
+            topic: "Klimatilpasning vs. Utslippskutt",
+            searchTip: "\"Hva er klimatilpasning Miljødirektoratet\" eller \"Forskjell på klimatilpasning og utslippskutt\""
+          },
+          {
+            question: "Hva innebærer begrepet \"klimarobust utvikling\" ifølge FNs klimapanel?",
+            options: [
+              "En utvikling der man aksepterer klimaendringene og kun fokuserer på kortsiktig økonomisk profitt.",
+              "Å bygge massive murer rundt alle byer og fullstendig avvikle alt globalt landbruk.",
+              "Å iverksette tiltak for utslippskutt og tilpasning samtidig som man fremmer bærekraftig utvikling for alle.",
+              "En utvikling som kun handler om å senke utslippene teknologisk, uten å bry seg om fattigdom."
+            ],
+            correct: 2,
+            rationale: "Det er en helhetlig prosess som integrerer tre ting samtidig: utslippsreduksjon, klimatilpasning og FNs bærekraftsmål (som fattigdomsbekjempelse).",
+            topic: "Klimarobust utvikling",
+            searchTip: "\"Klimarobust utvikling (KRU) definisjon FNs klimapanel\""
+          },
+          {
+            question: "Hva kjennetegner \"vippepunkter\" (tipping points) i klimasystemet, som for eksempel smeltingen av innlandsisen på Grønland?",
+            options: [
+              "At endringene skjer i et jevnt og fullt forutsigbart tempo helt proporsjonalt med utslippene.",
+              "Geografiske steder der den globale oppvarmingen stoppes av naturlige barrierer.",
+              "Terskelverdier som, hvis de passeres, kan utløse brå og ofte irreversible endringer selv om temperaturen senere skulle synke.",
+              "Tidspunkter på året (ofte midt på sommeren) der ekstremværet når sitt absolutte maksimum."
+            ],
+            correct: 2,
+            rationale: "Et vippepunkt er en kritisk grense der systemet kan vippe over i en ny, langvarig tilstand. Har isen først begynt å kollapse i stor skala, kan prosessen være umulig å stoppe i rimelig tid selv om vi kutter utslippene.",
+            topic: "Vippepunkter i klimasystemet",
+            searchTip: "\"Vippepunkter klima Bjerknessenteret\" eller \"Tipping points global oppvarming\""
+          },
+          {
+            question: "Klimapanelet peker på at AFOLU-sektoren (jord-, skog- og arealbruk) kan bli \"netto negativ\" innen år 2036. Hva betyr dette i praksis?",
+            options: [
+              "At sektoren vil gå med massivt økonomisk tap og kreve omfattende statlige subsidier for å overleve.",
+              "At sektoren totalt sett fjerner mer CO2 fra atmosfæren enn den slipper ut, hjulpet av atferdsendringer og bioenergi med karbonfangst.",
+              "At alt landbruk slutter å produsere klimagasser helt på grunn av et globalt forbud mot drøvtyggere.",
+              "At all kommersiell skog er hugget ned, noe som gir en negativ effekt på det biologiske mangfoldet."
+            ],
+            correct: 1,
+            rationale: "Å være netto negativ betyr at opptaket av drivhusgasser i sektoren blir større enn utslippene fra sektoren, noe som bidrar til å kjøle ned kloden totalt sett.",
+            topic: "Negative utslipp og karbonlagring",
+            searchTip: "\"Negative utslipp klima\" eller \"Bioenergi med karbonfangst og lagring (BECCS)\""
+          },
+          {
+            question: "Hvorfor advarer FNs klimapanel om at klimarisikoen vil bli mye mer kompleks i fremtiden?",
+            options: [
+              "Fordi klimamodellene produserer for mange tall til at vanlige datamaskiner klarer å analysere dem.",
+              "Fordi overgangen til fornybar energi skaper kjemiske reaksjoner i atmosfæren vi ikke forstår.",
+              "Fordi klimaendringene kun vil ramme velstående land med høyteknologisk og kompleks infrastruktur.",
+              "Fordi flere ødeleggende ekstremhendelser kan inntreffe samtidig, og utløse farlige kjedereaksjoner på tvers av sektorer og landegrenser."
+            ],
+            correct: 3,
+            rationale: "Kompleks risiko oppstår når for eksempel en hetebølge og tørke treffer et landbruksområde samtidig, noe som fører til avlingssvikt, som igjen fører til matmangel og økonomisk krise i andre deler av verden.",
+            topic: "Sammensatt klimarisiko",
+            searchTip: "\"Fysisk klimarisiko\" eller \"Kjedereaksjoner i klimaendringer\""
+          }
+        ];
+
+        function App() {
+          const [currentQuestion, setCurrentQuestion] = useState(0);
+          const [userAnswers, setUserAnswers] = useState(Array(questions.length).fill(null));
+          const [showScore, setShowScore] = useState(false);
+          const [selectedOption, setSelectedOption] = useState(null);
+          const [isAnswered, setIsAnswered] = useState(false);
+
+          const score = userAnswers.filter(answer => answer === true).length;
+
+          const handleAnswerOptionClick = (index) => {
+            if (isAnswered) return;
+            
+            setSelectedOption(index);
+            setIsAnswered(true);
+            
+            const newAnswers = [...userAnswers];
+            newAnswers[currentQuestion] = index === questions[currentQuestion].correct;
+            setUserAnswers(newAnswers);
+          };
+
+          const handleNextQuestion = () => {
+            const nextQuestion = currentQuestion + 1;
+            if (nextQuestion < questions.length) {
+              setCurrentQuestion(nextQuestion);
+              setIsAnswered(false);
+              setSelectedOption(null);
+            } else {
+              setShowScore(true);
+            }
+          };
+
+          const restartQuiz = () => {
+            setCurrentQuestion(0);
+            setUserAnswers(Array(questions.length).fill(null));
+            setShowScore(false);
+            setIsAnswered(false);
+            setSelectedOption(null);
+          };
+
+          const scorePercentage = Math.round((score / questions.length) * 100);
+          let feedbackMessage = "";
+          if (scorePercentage >= 90) feedbackMessage = "Fremragende! Du har solid kunnskap om klimaendringer.";
+          else if (scorePercentage >= 70) feedbackMessage = "Veldig bra jobbet! Du har god oversikt over temaet.";
+          else if (scorePercentage >= 50) feedbackMessage = "Godkjent, men her er det rom for litt mer repetisjon!";
+          else feedbackMessage = "Her var det litt utfordrende. Gå gjerne gjennom presentasjonen og søketipsene på nytt.";
+
+          const strengths = questions.filter((q, i) => userAnswers[i] === true).map(q => q.topic);
+          const weaknesses = questions.filter((q, i) => userAnswers[i] === false).map(q => q.topic);
+          const searchTips = questions.filter((q, i) => userAnswers[i] === false).map(q => q.searchTip);
+          
+          const uniqueStrengths = [...new Set(strengths)];
+          const uniqueWeaknesses = [...new Set(weaknesses)];
+          const uniqueSearchTips = [...new Set(searchTips)];
+
+          return (
+            <div className="flex items-center justify-center p-4 md:p-8 w-full">
+              <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col">
+                <div className="bg-blue-700 p-6 text-white text-center">
+                  <h1 className="text-2xl md:text-3xl font-bold">Klimaendringer Quiz - Vg1 Geografi</h1>
+                  <p className="mt-2 text-blue-100">Test din kunnskap om klima, ekstremvær og tiltak</p>
+                </div>
+
+                <div className="p-6 md:p-8 flex-grow">
+                  {showScore ? (
+                    <div className="text-center py-4 animate-fade-in-up">
+                      <h2 className="text-3xl font-bold mb-4">Resultat</h2>
+                      <div className="text-6xl font-extrabold text-blue-600 mb-6">
+                        {score} / {questions.length}
+                      </div>
+                      <p className="text-xl mb-8 font-medium text-slate-600">{feedbackMessage}</p>
+                      
+                      <div className="text-left mt-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
+                        <h3 className="text-xl font-bold mb-5 border-b pb-2">Din faglige profil</h3>
+                        
+                        {uniqueStrengths.length > 0 && (
+                          <div className="mb-6">
+                            <h4 className="font-semibold text-green-700 flex items-center mb-2">
+                              <CheckIcon /> <span className="ml-2">Dette mestrer du bra:</span>
+                            </h4>
+                            <ul className="list-disc pl-10 mt-1 text-slate-700">
+                              {uniqueStrengths.map((topic, i) => <li key={`strength-${i}`}>{topic}</li>)}
+                            </ul>
+                          </div>
+                        )}
+
+                        {uniqueWeaknesses.length > 0 && (
+                          <div className="mb-6">
+                            <h4 className="font-semibold text-orange-600 flex items-center mb-2">
+                              <XIcon /> <span className="ml-2">Dette bør du se nærmere på:</span>
+                            </h4>
+                            <ul className="list-disc pl-10 mt-1 text-slate-700">
+                              {uniqueWeaknesses.map((topic, i) => <li key={`weak-${i}`}>{topic}</li>)}
+                            </ul>
+                          </div>
+                        )}
+
+                        {uniqueSearchTips.length > 0 && (
+                          <div className="bg-blue-100 p-5 rounded-lg border border-blue-200 mt-6 shadow-sm">
+                            <h4 className="font-bold text-blue-900 mb-3 flex items-center">
+                              <span className="text-xl mr-2">🔍</span> Søketips for videre læring:
+                            </h4>
+                            <ul className="list-disc pl-6 text-blue-800 text-sm space-y-2">
+                               {uniqueSearchTips.map((tip, i) => <li key={`tip-${i}`}>{tip}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      <button 
+                        onClick={restartQuiz}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-200 shadow-md"
+                      >
+                        Prøv på nytt
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="animate-fade-in-up">
+                      <div className="mb-6">
+                        <div className="flex justify-between text-sm font-medium text-slate-500 mb-2">
+                          <span>Oppgave {currentQuestion + 1} av {questions.length}</span>
+                          <span>{Math.round(((currentQuestion) / questions.length) * 100)}% fullført</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div 
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                            style={{ width: `${((currentQuestion) / questions.length) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-6 leading-snug">
+                        {questions[currentQuestion].question}
+                      </h2>
+
+                      <div className="space-y-3 mb-8">
+                        {questions[currentQuestion].options.map((option, index) => {
+                          let buttonStyle = "border-slate-200 hover:bg-slate-50 hover:border-blue-300 bg-white text-slate-700 cursor-pointer";
+                          let icon = null;
+
+                          if (isAnswered) {
+                            if (index === questions[currentQuestion].correct) {
+                              buttonStyle = "border-green-500 bg-green-50 text-green-900 shadow-sm cursor-default";
+                              icon = <CheckIcon />;
+                            } else if (index === selectedOption) {
+                              buttonStyle = "border-red-500 bg-red-50 text-red-900 shadow-sm cursor-default";
+                              icon = <XIcon />;
+                            } else {
+                              buttonStyle = "border-slate-200 bg-white text-slate-400 opacity-60 cursor-default";
+                            }
+                          }
+
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => handleAnswerOptionClick(index)}
+                              disabled={isAnswered}
+                              className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-between ${buttonStyle}`}
+                            >
+                              <span className="text-base md:text-lg pr-4">{option}</span>
+                              {icon}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {isAnswered && (
+                        <div className="animate-fade-in-up">
+                          <div className={`p-4 rounded-xl mb-6 ${selectedOption === questions[currentQuestion].correct ? 'bg-green-100 text-green-800' : 'bg-blue-50 text-blue-900'}`}>
+                            <p className="font-semibold mb-1">
+                              {selectedOption === questions[currentQuestion].correct ? "Riktig!" : "Fasit:"}
+                            </p>
+                            <p>{questions[currentQuestion].rationale}</p>
+                          </div>
+                          <div className="flex justify-end">
+                            <button
+                              onClick={handleNextQuestion}
+                              className="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl transition-colors duration-200 shadow-md flex items-center"
+                            >
+                              {currentQuestion === questions.length - 1 ? "Se resultat og oppsummering" : "Neste oppgave"}
+                              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Starter React appen
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
