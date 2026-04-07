@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bærekraftig Problemløsning - Arbeidsark</title>
+    <!-- Henter inn Tailwind CSS for designet -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Litt ekstra styling for animasjoner */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-100 py-8 px-4 sm:px-6 lg:px-8 font-sans text-slate-800 min-h-screen">
+
+    <div class="max-w-4xl mx-auto space-y-10">
+        
+        <!-- Header -->
+        <div class="bg-emerald-800 text-white rounded-3xl shadow-lg p-10 text-center relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6 backdrop-blur-sm">
+                    <svg class="w-8 h-8 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h1 class="text-4xl font-extrabold mb-4 tracking-tight">Bærekraftig Problemløsning</h1>
+                <p class="text-emerald-100 max-w-2xl mx-auto text-lg leading-relaxed">
+                    Kan du finne historiske «løsninger» som ble et klimaproblem? Mange oppfinnelser virket geniale da de ble laget, men skapte uforutsette problemer for fremtiden. 
+                </p>
+            </div>
+        </div>
+
+        <!-- DEL 1 -->
+        <section class="space-y-6">
+            <div class="flex items-center space-x-3 border-b-2 border-emerald-200 pb-2">
+                <div class="bg-emerald-100 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">DEL 1 – Tre gitte eksempler</h2>
+            </div>
+            <p class="text-slate-600">Analyser disse tre historiske eksemplene. Fyll inn hva du mener man burde gjort annerledes med den kunnskapen vi har i dag.</p>
+            
+            <div class="grid gap-6">
+                <!-- Eksempel 1 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-3xl">⛽</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">Fossilt brensel (kull, olje, gass)</h3>
+                            <span class="text-sm text-slate-500 font-medium">ca. 1750–i dag</span>
+                        </div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hva var problemet da?</h4>
+                            <p class="text-sm text-slate-700">Behov for energi til industri, transport og oppvarming.</p>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                            <h4 class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">Hva er problemet nå?</h4>
+                            <p class="text-sm text-red-900">Forbrenning slipper ut CO₂ og andre klimagasser – hovedårsak til global oppvarming.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-emerald-700">Hva kunne man gjort annerledes?</label>
+                        <textarea id="p1_1_alt" placeholder="Din analyse..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white resize-y" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Eksempel 2 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-3xl">❄️</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">KFK-gasser (kjøleskap, spray)</h3>
+                            <span class="text-sm text-slate-500 font-medium">ca. 1930–1987</span>
+                        </div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hva var problemet da?</h4>
+                            <p class="text-sm text-slate-700">Trygt kjølemiddel – ikke brannfarlig, lite reaktivt.</p>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                            <h4 class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">Hva er problemet nå?</h4>
+                            <p class="text-sm text-red-900">Brøt ned ozonlaget i stratosfæren. Ble forbudt via Montreal-protokollen.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-emerald-700">Hva kunne man gjort annerledes?</label>
+                        <textarea id="p1_2_alt" placeholder="Din analyse..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white resize-y" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Eksempel 3 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-3xl">🌳</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">Storskala avskoging & intensivt landbruk</h3>
+                            <span class="text-sm text-slate-500 font-medium">ca. 1800–i dag</span>
+                        </div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hva var problemet da?</h4>
+                            <p class="text-sm text-slate-700">Sikre matproduksjon til en voksende befolkning, og bygging av infrastruktur.</p>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                            <h4 class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">Hva er problemet nå?</h4>
+                            <p class="text-sm text-red-900">Tap av CO₂-lagre, tap av biodiversitet, økt erosjon – bidrar til klimaendringer.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-emerald-700">Hva kunne man gjort annerledes?</label>
+                        <textarea id="p1_3_alt" placeholder="Din analyse..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white resize-y" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DEL 2 -->
+        <section class="space-y-6 pt-8">
+            <div class="flex items-center space-x-3 border-b-2 border-emerald-200 pb-2">
+                <div class="bg-emerald-100 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">DEL 2 – Finn tre egne eksempler!</h2>
+            </div>
+            <p class="text-slate-600">Finn tre historiske "løsninger" som du mener senere ble et klima- eller miljøproblem.</p>
+            
+            <div class="grid gap-8">
+                <!-- Eget eksempel 1, 2, 3 genereres i HTML -->
+                <script>
+                    for(let i=1; i<=3; i++) {
+                        document.write(`
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 ml-4">Ditt eksempel #${i}</h3>
+                            <div class="space-y-4 ml-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Hva var løsningen / oppfinnelsen?</label>
+                                    <input type="text" id="p2_${i}_sol" placeholder="F.eks: Engangsplast..." class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Hva var problemet da?</label>
+                                        <textarea id="p2_${i}_past" placeholder="Hvorfor var dette en god idé den gangen?" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 resize-y" rows="2"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Hva er problemet nå?</label>
+                                        <textarea id="p2_${i}_curr" placeholder="Hvilke konsekvenser ser vi i dag?" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 resize-y" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-emerald-700 mb-1">Hva kunne man gjort annerledes?</label>
+                                    <textarea id="p2_${i}_alt" placeholder="Din refleksjon..." class="w-full px-4 py-2 rounded-lg border border-emerald-300 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 resize-y" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </section>
+
+        <!-- DEL 3 -->
+        <section class="space-y-6 pt-8">
+            <div class="flex items-center space-x-3 border-b-2 border-emerald-200 pb-2">
+                <div class="bg-emerald-100 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">DEL 3 – Refleksjon</h2>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 space-y-8">
+                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 text-yellow-800 text-sm flex items-start space-x-3">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <p><strong>Tips:</strong> Bruk gjerne internett, lærebok eller KI til å finne eksempler og hjelp – men begrunn alltid svarene med din egen forståelse.</p>
+                    </div>
+
+                    <!-- Spørsmål -->
+                    <div class="space-y-3">
+                        <label class="block text-lg font-medium text-slate-800 leading-relaxed"><span class="text-emerald-600 font-bold mr-2">1.</span> Hva har de tre løsningene i Del 1 til felles? Hva slags type tenkning manglet da løsningene ble laget?</label>
+                        <textarea id="p3_1" placeholder="↳ Ditt svar her..." rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-slate-50 focus:bg-white resize-y"></textarea>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="block text-lg font-medium text-slate-800 leading-relaxed"><span class="text-emerald-600 font-bold mr-2">2.</span> Hva mener du med «bærekraftig løsning»? Skriv din egen definisjon med egne ord.</label>
+                        <textarea id="p3_2" placeholder="↳ Ditt svar her..." rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-slate-50 focus:bg-white resize-y"></textarea>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="block text-lg font-medium text-slate-800 leading-relaxed"><span class="text-emerald-600 font-bold mr-2">3.</span> Hvilke kriterier bør en løsning oppfylle for å ikke bli et fremtidig klimaproblem?</label>
+                        <textarea id="p3_3" placeholder="↳ Ditt svar her..." rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-slate-50 focus:bg-white resize-y"></textarea>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="block text-lg font-medium text-slate-800 leading-relaxed"><span class="text-emerald-600 font-bold mr-2">4.</span> Finner du noen løsninger i dag som kanskje blir et klima- eller miljøproblem i fremtiden? Begrunn svaret.</label>
+                        <textarea id="p3_4" placeholder="↳ Ditt svar her..." rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-slate-50 focus:bg-white resize-y"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Action Area -->
+                <div class="bg-slate-50 p-8 border-t border-slate-200">
+                    <button onclick="handleCopyForAI()" class="w-full flex items-center justify-center space-x-3 bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-5 rounded-2xl font-bold text-lg transition-all transform hover:scale-[1.01] shadow-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <span>Kopier arbeidet mitt for KI-tilbakemelding!</span>
+                    </button>
+                    
+                    <div id="errorMessage" class="hidden mt-4 flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl border border-red-100">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p id="errorText"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Suksessmelding (skjult som standard) -->
+        <div id="successMessage" class="hidden bg-emerald-900 text-emerald-50 rounded-3xl p-8 shadow-2xl fade-in mt-12 mb-16 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-8 opacity-10">
+                <svg class="w-48 h-48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div class="relative z-10">
+                <div class="flex items-center space-x-4 mb-6 border-b border-emerald-800 pb-6">
+                    <div class="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">Kopiert!</h2>
+                        <p class="text-emerald-300 font-medium text-lg mt-1">Arbeidet ditt er nå klart for læreren (KI).</p>
+                    </div>
+                </div>
+                
+                <div class="bg-emerald-800/50 rounded-xl p-6 border border-emerald-700">
+                    <h3 class="font-bold text-xl mb-3 text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        Hva gjør du nå?
+                    </h3>
+                    <ol class="list-decimal list-inside space-y-3 text-emerald-100 text-lg">
+                        <li>Åpne KI-tjenesten skolen din bruker (f.eks. SkoleGPT, ChatGPT eller lignende).</li>
+                        <li>Klikk i skrivefeltet og velg <strong>Lim inn</strong> (eller trykk Ctrl+V / Cmd+V).</li>
+                        <li>Send meldingen og se hva slags tilbakemelding du får på innsatsen din!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript-logikken ligger her -->
+    <script>
+        function handleCopyForAI() {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const successDiv = document.getElementById('successMessage');
+            
+            // Hent alle svar
+            const answers = {
+                'p1_1_alt': document.getElementById('p1_1_alt').value,
+                'p1_2_alt': document.getElementById('p1_2_alt').value,
+                'p1_3_alt': document.getElementById('p1_3_alt').value,
+                'p3_1': document.getElementById('p3_1').value,
+                'p3_2': document.getElementById('p3_2').value,
+                'p3_3': document.getElementById('p3_3').value,
+                'p3_4': document.getElementById('p3_4').value,
+            };
+
+            for(let i=1; i<=3; i++) {
+                answers[`p2_${i}_sol`] = document.getElementById(`p2_${i}_sol`).value;
+                answers[`p2_${i}_past`] = document.getElementById(`p2_${i}_past`).value;
+                answers[`p2_${i}_curr`] = document.getElementById(`p2_${i}_curr`).value;
+                answers[`p2_${i}_alt`] = document.getElementById(`p2_${i}_alt`).value;
+            }
+
+            // Sjekk om eleven har svart på minst 3 ting
+            let answeredCount = 0;
+            for (const key in answers) {
+                if (answers[key] && answers[key].trim() !== '') {
+                    answeredCount++;
+                }
+            }
+
+            if (answeredCount < 3) {
+                errorText.innerText = 'Du må fylle ut litt mer av arbeidsarket (minst 3 felt) før du kan be om tilbakemelding!';
+                errorDiv.classList.remove('hidden');
+                successDiv.classList.add('hidden');
+                return;
+            }
+
+            errorDiv.classList.add('hidden');
+
+            // Bygg opp teksten (prompten)
+            let promptText = 'Du er en pedagogisk, støttende og faglig dyktig geofaglærer for Vg3-elever i videregående skole. Jeg er en Vg3-elev som nettopp har fylt ut et arbeidsark om "Bærekraftig problemløsning". Lag et motiverende og lærerikt sammendrag (ca. 3-4 avsnitt) av arbeidet mitt. Trekk frem gode poenger jeg har kommet med, spesielt de egne eksemplene og refleksjonene mine. Gi meg et lite tips til videre tenkning på slutten. Skriv direkte til meg (bruk "du").\n\nHer er besvarelsen min:\n\n';
+            
+            // Del 1
+            promptText += '--- DEL 1: Mine alternative løsninger på historiske problemer ---\n';
+            const del1Titler = ['Fossilt brensel (kull, olje, gass)', 'KFK-gasser (kjøleskap, spray)', 'Storskala avskoging & intensivt landbruk'];
+            for(let i=1; i<=3; i++) {
+                promptText += `Problem: ${del1Titler[i-1]}\nMitt forslag til hva som kunne vært gjort annerledes: ${answers[`p1_${i}_alt`] || '[Ikke besvart]'}\n\n`;
+            }
+
+            // Del 2
+            promptText += '--- DEL 2: Mine egne eksempler på historiske "løsninger" som ble problemer ---\n';
+            for(let i=1; i<=3; i++) {
+                const sol = answers[`p2_${i}_sol`];
+                if (sol && sol.trim() !== '') {
+                    promptText += `Eksempel ${i}: ${sol}\n`;
+                    promptText += `- Problemet da: ${answers[`p2_${i}_past`] || '[Ikke besvart]'}\n`;
+                    promptText += `- Problemet nå: ${answers[`p2_${i}_curr`] || '[Ikke besvart]'}\n`;
+                    promptText += `- Hva kunne vært gjort annerledes: ${answers[`p2_${i}_alt`] || '[Ikke besvart]'}\n\n`;
+                }
+            }
+
+            // Del 3
+            promptText += '--- DEL 3: Refleksjonsspørsmål ---\n';
+            const del3Sporsmal = [
+                'Hva har de tre løsningene i Del 1 til felles? Hva slags type tenkning manglet da løsningene ble laget?',
+                'Hva mener du med «bærekraftig løsning»? Skriv din egen definisjon med egne ord.',
+                'Hvilke kriterier bør en løsning oppfylle for å ikke bli et fremtidig klimaproblem?',
+                'Finner du noen løsninger i dag som kanskje blir et klima- eller miljøproblem i fremtiden? Begrunn svaret.'
+            ];
+            for(let i=1; i<=4; i++) {
+                promptText += `Spørsmål: ${del3Sporsmal[i-1]}\nSvar: ${answers[`p3_${i}`] || '[Ikke besvart]'}\n\n`;
+            }
+
+            // Kopier til utklippstavle
+            const textArea = document.createElement("textarea");
+            textArea.value = promptText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                successDiv.classList.remove('hidden');
+                
+                // Rull ned til suksessmeldingen
+                successDiv.scrollIntoView({ behavior: 'smooth' });
+                
+                // Skjul suksessmeldingen etter en stund
+                setTimeout(() => {
+                    successDiv.classList.add('hidden');
+                }, 15000); // Skjules etter 15 sekunder
+            } catch (err) {
+                console.error('Feil ved kopiering', err);
+                errorText.innerText = 'Kunne ikke kopiere teksten automatisk. Sjekk nettleserinnstillingene dine.';
+                errorDiv.classList.remove('hidden');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
