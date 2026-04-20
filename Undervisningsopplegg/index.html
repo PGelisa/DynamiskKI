@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undervisningsopplegg – laget med KI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clr-bg: #f4f1eb;
+      --clr-frame: #2c3e2d;
+      --clr-frame-light: #3d5a3f;
+      --clr-accent: #a67c52;
+      --clr-accent-light: #c9a87c;
+      --clr-text: #2b2b2b;
+      --clr-text-muted: #6b6b6b;
+      --clr-white: #fffdf8;
+      --clr-link: #1a5c3a;
+      --clr-link-hover: #a67c52;
+      --clr-border: #d4cfc6;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* === OUTER FRAME === */
+    .frame {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    /* === HEADER / TOP FRAME === */
+    .frame-header {
+      background: var(--clr-frame);
+      color: var(--clr-white);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(166,124,82,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 30%, rgba(61,90,63,0.3) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .frame-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .frame-header .subtitle {
+      font-size: 1.05rem;
+      font-weight: 300;
+      opacity: 0.85;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(166,124,82,0.25);
+      border: 1px solid rgba(166,124,82,0.4);
+      border-radius: 100px;
+      padding: 0.3rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.2rem;
+      position: relative;
+    }
+
+    .badge svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--clr-accent-light);
+    }
+
+    /* === SIDE PANELS (frame effect) === */
+    .frame-body {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .frame-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar {
+      background: var(--clr-frame);
+      color: var(--clr-white);
+      padding: 2.5rem 1.8rem;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .sidebar h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--clr-accent-light);
+    }
+
+    .sidebar p {
+      opacity: 0.88;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar .info-block {
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid var(--clr-accent);
+      padding: 1rem 1.2rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.5rem 0;
+    }
+
+    .sidebar .info-block h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--clr-accent-light);
+    }
+
+    .sidebar .info-block p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 0;
+    }
+
+    .sidebar-right .transparency-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar-right .transparency-list li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.88rem;
+      opacity: 0.85;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .sidebar-right .transparency-list li::before {
+      content: '→';
+      color: var(--clr-accent-light);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* === MAIN CONTENT AREA === */
+    .main-content {
+      background: var(--clr-white);
+      padding: 3rem 3.5rem;
+      min-height: 500px;
+    }
+
+    .main-content h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--clr-frame);
+      margin-bottom: 0.5rem;
+    }
+
+    .main-content .intro {
+      color: var(--clr-text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+    }
+
+    /* === LINK CARDS === */
+    .link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--clr-bg);
+      border: 1px solid var(--clr-border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--clr-text);
+      transition: all 0.25s ease;
+    }
+
+    .link-card:hover {
+      border-color: var(--clr-accent);
+      box-shadow: 0 4px 16px rgba(166,124,82,0.12);
+      transform: translateY(-2px);
+    }
+
+    .link-card .icon {
+      width: 44px;
+      height: 44px;
+      background: var(--clr-frame);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .link-card .icon svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--clr-accent-light);
+    }
+
+    .link-card .card-text h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--clr-link);
+      margin-bottom: 0.15rem;
+    }
+
+    .link-card:hover .card-text h3 {
+      color: var(--clr-link-hover);
+    }
+
+    .link-card .card-text p {
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+      margin: 0;
+    }
+
+    .link-card .arrow {
+      margin-left: auto;
+      color: var(--clr-border);
+      transition: color 0.25s ease, transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .link-card:hover .arrow {
+      color: var(--clr-accent);
+      transform: translateX(4px);
+    }
+
+    /* Placeholder styling */
+    .placeholder-note {
+      margin-top: 2.5rem;
+      padding: 1.2rem 1.5rem;
+      background: linear-gradient(135deg, rgba(166,124,82,0.06), rgba(44,62,45,0.04));
+      border: 1px dashed var(--clr-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+    }
+
+    .placeholder-note code {
+      background: rgba(0,0,0,0.06);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* === FOOTER / BOTTOM FRAME === */
+    .frame-footer {
+      background: var(--clr-frame);
+      color: var(--clr-white);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      opacity: 0.7;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+      .sidebar { padding: 2rem 1.5rem; }
+      .main-content { padding: 2rem 1.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      .frame-header { padding: 2rem 1.2rem 1.8rem; }
+      .main-content { padding: 1.5rem 1.2rem; }
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .link-card {
+      animation: fadeInUp 0.5s ease both;
+    }
+    .link-card:nth-child(1) { animation-delay: 0.1s; }
+    .link-card:nth-child(2) { animation-delay: 0.2s; }
+    .link-card:nth-child(3) { animation-delay: 0.3s; }
+    .link-card:nth-child(4) { animation-delay: 0.4s; }
+    .link-card:nth-child(5) { animation-delay: 0.5s; }
+    .link-card:nth-child(6) { animation-delay: 0.6s; }
+  </style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- TOP FRAME -->
+  <header class="frame-header">
+    <span class="badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a2 2 0 1 1 0 4h-1.17A7 7 0 0 1 14 23h-4a7 7 0 0 1-6.83-5H2a2 2 0 1 1 0-4h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 12 2zm-2 9a5 5 0 0 0-5 5 5 5 0 0 0 5 5h4a5 5 0 0 0 5-5 5 5 0 0 0-5-5h-4zm-1 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>
+      KI-assisterte ressurser
+    </span>
+    <h1>Undervisningsopplegg</h1>
+    <p class="subtitle">En samling undervisningsopplegg utviklet med støtte fra kunstig intelligens – kvalitetssikret av faglærer</p>
+  </header>
+
+  <!-- BODY: SIDEBAR + MAIN + SIDEBAR -->
+  <div class="frame-body">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar sidebar-left">
+      <h2>Om disse ressursene</h2>
+      <p>Undervisningsoppleggene som er samlet her, er utviklet med bruk av kunstig intelligens (KI) som verktøy i utformingsprosessen.</p>
+      <p>KI har blitt brukt til å generere utkast, strukturere innhold, formulere oppgaver og utarbeide faglige tekster. Alt innhold er deretter gjennomgått, tilpasset og kvalitetssikret av faglærer.</p>
+
+      <div class="info-block">
+        <h3>Hva betyr dette?</h3>
+        <p>Oppleggene er ikke rene KI-produkter, men resultat av et samarbeid mellom meg som faglærer og ulike KI-verktøy. Faglig vurdering og didaktisk tilpasning er gjort av mennesker.</p>
+      </div>
+
+      <div class="info-block">
+        <h3>Hvilket KI-verktøy?</h3>
+        <p>Hovedsakelig Gemini (Google) og Claude (Anthropic) er brukt som KI-assistent i utviklingen av materialet.</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <h2>Undervisningsopplegg</h2>
+      <p class="intro">Klikk på et opplegg for å åpne det i Google Docs. Oppleggene er sortert etter tema.</p>
+
+      <div class="link-list">
+
+        <!-- ============================================
+             LEGG TIL DINE LENKER HER
+             Kopier en link-card-blokk og endre:
+             - href="..." → Google Docs-lenke
+             - <h3>Tittel</h3> → Navn på opplegget
+             - <p>Beskrivelse</p> → Kort beskrivelse
+             ============================================ -->
+
+        <a href="https://docs.google.com/document/d/1x4jcEaY6q-2hmDcf_LCEdH2KP00Muq6GOKnbrVy68pg/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
+          <div class="icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+          </div>
+          <div class="card-text">
+            <h3>Geofag 2: Gruppeprosjekt om forhistorisk klima</h3>
+            <p>Elevene jobber i grupper. De skal finne og laste ned forskningsdata fra åpne databaser på nett. De skal få hjelp fra generativ KI til å forstå hvilke data de har hentet, og hva dataene forteller (proxydata). De bruker KI som støtte til å lage Python-koder for å visualisere dataene de laster ned. Elevene skal også lage animert infografikk som forklarer metoden de har fordypet seg i.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a href="https://docs.google.com/document/d/1pZYjwkJc35oyz1wt9lXUL4vWsLSIFaD_h-H4oFccNqk/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
+          <div class="icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+          </div>
+          <div class="card-text">
+            <h3>Geografi: Trening på forskjellen mellom beskrive, forklare og drøfte</h3>
+            <p>Undervisningsopplegget er en treningsøvelse for elevene i å se forskjell på hva som gjør en tekst beskrivende, forklarende og drøftende.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a href="https://docs.google.com/document/d/1F4mtgQvlGCQdZfx5gLFqvUW_hhCUkOf5kFCcp3nyU_s/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
+          <div class="icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+          </div>
+          <div class="card-text">
+            <h3>Geografi: Å skrive for å lære</h3>
+            <p>Kort beskrivelse av undervisningsopplegget</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+      </div>
+
+      <!-- Instruksjoner for redigering -->
+      <div class="placeholder-note">
+        <strong>For å legge til flere lenker:</strong> Kopier en <code>&lt;a class="link-card"&gt;...&lt;/a&gt;</code>-blokk inne i <code>&lt;div class="link-list"&gt;</code>. Bytt ut <code>href</code> med Google Docs-lenken, og oppdater tittel og beskrivelse.
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar sidebar-right">
+      <h2>Åpenhet om KI-bruk</h2>
+      <p>Det er viktig å være åpen om at kunstig intelligens er brukt i utvikling av undervisningsmateriell. Her er noen prinsipper som er fulgt:</p>
+
+      <ul class="transparency-list">
+        <li>KI er brukt som hjelpeverktøy, ikke som erstatning for fagkompetanse</li>
+        <li>Alt innhold er kontrollert opp mot læreplanen og kompetansemålene</li>
+        <li>Faglige feil og unøyaktigheter fra KI er rettet opp</li>
+        <li>Oppgaveformuleringer er tilpasset elevgruppen og nivået</li>
+        <li>Kilder og faglig grunnlag er verifisert av faglærer</li>
+        <li>Oppleggene er testet og justert basert på erfaring i klasserommet</li>
+      </ul>
+
+      <div class="info-block">
+        <h3>Tilbakemelding?</h3>
+        <p>Har du kommentarer eller forslag til forbedringer, ta gjerne kontakt.</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- BOTTOM FRAME -->
+  <footer class="frame-footer">
+    <p>&copy; 2026 · Undervisningsressurser utviklet med KI-støtte · Kvalitetssikret av faglærer</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
