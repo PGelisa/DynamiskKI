@@ -1,119 +1,468 @@
 <!DOCTYPE html>
-<html lang="no" class="h-full bg-gray-50">
+<html lang="no" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prosjektsider</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dynamisk KI – Prosjektsider</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+            --clr-bg: #f0ece2;
+            --clr-surface: #fffdf8;
+            --clr-ink: #1e1e1e;
+            --clr-muted: #7a756b;
+            --clr-accent: #2d6a4f;
+            --clr-accent-light: #d8f3dc;
+            --clr-folder: #d4a03c;
+            --clr-border: #e0dbd0;
+            --clr-hover: #f5f1e8;
+            --radius: 12px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: var(--clr-bg);
+            color: var(--clr-ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ---- HERO / HEADER ---- */
+        .hero {
+            width: 100%;
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(45,106,79,.12), transparent),
+                var(--clr-bg);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30Z' fill='none' stroke='%232d6a4f' stroke-width='.4' opacity='.15'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+            opacity: .5;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 640px;
+            margin: 0 auto;
+            animation: fadeUp .8s ease both;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--clr-accent-light);
+            color: var(--clr-accent);
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            padding: .35rem .9rem;
+            border-radius: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 {
+            font-family: 'DM Serif Display', Georgia, serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.15;
+            color: var(--clr-ink);
+            margin-bottom: .6rem;
+        }
+
+        .hero h1 span {
+            color: var(--clr-accent);
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--clr-muted);
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ---- BREADCRUMB ---- */
+        .breadcrumb-bar {
+            width: 100%;
+            max-width: 720px;
+            padding: 0 1.5rem;
+            margin-top: .5rem;
+            animation: fadeUp .8s .15s ease both;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .85rem;
+            color: var(--clr-muted);
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: var(--clr-accent);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .breadcrumb .sep { opacity: .4; }
+
+        /* ---- CARD / MAIN LIST ---- */
+        .card {
+            width: 100%;
+            max-width: 720px;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius);
+            margin: 1rem 1.5rem 2rem;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,.05);
+            animation: fadeUp .8s .25s ease both;
+        }
+
+        #file-list {
+            list-style: none;
+        }
+
+        #file-list li {
+            border-bottom: 1px solid var(--clr-border);
+        }
+
+        #file-list li:last-child { border-bottom: none; }
+
+        #file-list a {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: .9rem 1.25rem;
+            text-decoration: none;
+            color: var(--clr-ink);
+            transition: background .15s, padding-left .2s;
+        }
+
+        #file-list a:hover {
+            background: var(--clr-hover);
+            padding-left: 1.45rem;
+        }
+
+        .icon-wrap {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .icon-wrap.folder {
+            background: #fdf4e0;
+        }
+
+        .icon-wrap.file {
+            background: var(--clr-accent-light);
+        }
+
+        .icon-wrap.up {
+            background: #eee;
+        }
+
+        .icon-wrap svg { width: 18px; height: 18px; }
+
+        .item-label {
+            font-weight: 500;
+            font-size: .95rem;
+        }
+
+        .item-chevron {
+            margin-left: auto;
+            color: var(--clr-muted);
+            opacity: .3;
+            transition: opacity .2s;
+        }
+
+        #file-list a:hover .item-chevron { opacity: .7; }
+
+        .item-chevron svg { width: 16px; height: 16px; }
+
+        /* ---- EMPTY STATE ---- */
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: var(--clr-muted);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: .75rem;
+        }
+
+        /* ---- ERROR STATE ---- */
+        .error-state {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: #9b2c2c;
+            background: #fff5f5;
+        }
+
+        .error-state p { margin: .3rem 0; }
+
+        /* ---- LOADING SKELETON ---- */
+        .skeleton-row {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: .9rem 1.25rem;
+            border-bottom: 1px solid var(--clr-border);
+        }
+
+        .skeleton-row:last-child { border-bottom: none; }
+
+        .skel-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(110deg, #eee 30%, #f5f5f5 50%, #eee 70%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        .skel-line {
+            height: 14px;
+            border-radius: 6px;
+            background: linear-gradient(110deg, #eee 30%, #f5f5f5 50%, #eee 70%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        .skel-line.w1 { width: 55%; }
+        .skel-line.w2 { width: 40%; }
+        .skel-line.w3 { width: 65%; }
+
+        /* ---- FOOTER ---- */
+        footer {
+            text-align: center;
+            font-size: .78rem;
+            color: var(--clr-muted);
+            padding: 0 1.5rem 2.5rem;
+            opacity: .7;
+            animation: fadeUp .8s .4s ease both;
+        }
+
+        footer a {
+            color: var(--clr-accent);
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+
+        /* ---- ANIMATIONS ---- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 480px) {
+            .hero { padding: 2rem 1rem 1.5rem; }
+            .card { margin: .75rem 1rem 1.5rem; }
+        }
     </style>
 </head>
-<body class="h-full flex items-center justify-center bg-gray-100 p-4">
+<body>
 
-    <div class="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
-        <header class="text-center mb-6 border-b pb-4">
-            <h1 id="page-title" class="text-3xl font-bold text-gray-800">Laster inn...</h1>
-            <p id="page-description" class="text-md text-gray-500 mt-2">Søker etter filer og mapper.</p>
-        </header>
-
-        <main>
-            <!-- Liste med filer og mapper vil bli satt inn her -->
-            <ul id="file-list" class="space-y-2">
-                <!-- Innhold genereres av JavaScript -->
-            </ul>
-
-            <!-- Vises hvis ingen elementer blir funnet -->
-            <div id="no-files-message" class="hidden text-center text-gray-500 mt-6 bg-gray-50 p-6 rounded-lg">
-                <p>Fant ingen HTML-filer eller undermapper her.</p>
-            </div>
-        </main>
-        
-        <footer class="text-center text-xs text-gray-400 mt-8 pt-4 border-t">
-            <p>Listen genereres automatisk via GitHub API.</p>
-        </footer>
+    <!-- ===== HERO ===== -->
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">KI-prosjekt · Amalie Skram vgs</div>
+            <h1>Dynamisk <span>KI</span></h1>
+            <p>Animasjoner, infografikk og interaktive ressurser laget med kunstig intelligens – fritt tilgjengelig for undervisning.</p>
+        </div>
     </div>
+
+    <!-- ===== BREADCRUMB ===== -->
+    <nav class="breadcrumb-bar">
+        <div class="breadcrumb" id="breadcrumb"></div>
+    </nav>
+
+    <!-- ===== MAIN FILE LIST ===== -->
+    <div class="card">
+        <ul id="file-list">
+            <!-- Loading skeletons shown initially -->
+            <li class="skeleton-row"><div class="skel-circle"></div><div class="skel-line w1"></div></li>
+            <li class="skeleton-row"><div class="skel-circle"></div><div class="skel-line w3"></div></li>
+            <li class="skeleton-row"><div class="skel-circle"></div><div class="skel-line w2"></div></li>
+            <li class="skeleton-row"><div class="skel-circle"></div><div class="skel-line w1"></div></li>
+        </ul>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <p>Innholdet hentes automatisk fra <a href="https://github.com/PGelisa/DynamiskKI" target="_blank" rel="noopener">GitHub</a>.</p>
+    </footer>
 
     <script>
         // --- KONFIGURASJON ---
-        const GITHUB_USERNAME = "PGelisa"; // Bytt ut med ditt GitHub-brukernavn
-        const GITHUB_REPO_NAME = "DynamiskKI"; // Bytt ut med navnet på ditt repository
-        // Valgfri: Spesifiser en startmappe. La stå som "" for å starte i roten av prosjektet.
-        const ROOT_FOLDER_PATH = ""; 
-        const PAGE_TITLE = "Mine KI-prosjekter"; // Tittelen som skal vises på siden
+        const GITHUB_USERNAME = "PGelisa";
+        const GITHUB_REPO_NAME = "DynamiskKI";
+        const ROOT_FOLDER_PATH = "";
         // --- SLUTT PÅ KONFIGURASJON ---
 
-        // Funksjon for å hente og vise filene
-        async function fetchAndDisplayFiles() {
-            const fileListContainer = document.getElementById('file-list');
-            const pageTitleElement = document.getElementById('page-title');
-            const pageDescriptionElement = document.getElementById('page-description');
-            
-            // Finner nåværende mappe fra URL-parameteren '?path='
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentPath = urlParams.get('path') || ROOT_FOLDER_PATH;
+        // SVG-ikoner (inline for å unngå eksterne avhengigheter)
+        const ICONS = {
+            folder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#d4a03c"><path d="M2 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Z"/></svg>`,
+            file: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2d6a4f"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm-1 2 5 5h-5V4ZM6 20V4h5v7h7v9H6Z"/></svg>`,
+            up: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#7a756b"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>`,
+            chevron: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>`,
+            home: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+        };
 
-            pageTitleElement.textContent = PAGE_TITLE;
-            pageDescriptionElement.textContent = `Innhold i: /${currentPath}`;
-            
+        function getCurrentPath() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('path') || ROOT_FOLDER_PATH;
+        }
+
+        function buildBreadcrumb(currentPath) {
+            const bc = document.getElementById('breadcrumb');
+            bc.innerHTML = '';
+
+            // Hjem-lenke
+            const homeLink = document.createElement('a');
+            homeLink.href = '?';
+            homeLink.innerHTML = ICONS.home;
+            homeLink.title = 'Hjem';
+            bc.appendChild(homeLink);
+
+            if (!currentPath) return;
+
+            const parts = currentPath.split('/');
+            let accumulated = '';
+
+            parts.forEach((part, i) => {
+                accumulated += (i > 0 ? '/' : '') + part;
+
+                const sep = document.createElement('span');
+                sep.className = 'sep';
+                sep.textContent = '/';
+                bc.appendChild(sep);
+
+                if (i === parts.length - 1) {
+                    const span = document.createElement('span');
+                    span.textContent = part;
+                    span.style.fontWeight = '600';
+                    span.style.color = 'var(--clr-ink)';
+                    bc.appendChild(span);
+                } else {
+                    const a = document.createElement('a');
+                    a.href = `?path=${accumulated}`;
+                    a.textContent = part;
+                    bc.appendChild(a);
+                }
+            });
+        }
+
+        function createListItem(iconType, label, href) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = href;
+
+            a.innerHTML = `
+                <span class="icon-wrap ${iconType}">${ICONS[iconType]}</span>
+                <span class="item-label">${label}</span>
+                <span class="item-chevron">${ICONS.chevron}</span>
+            `;
+
+            li.appendChild(a);
+            return li;
+        }
+
+        async function fetchAndDisplayFiles() {
+            const fileList = document.getElementById('file-list');
+            const currentPath = getCurrentPath();
+
+            buildBreadcrumb(currentPath);
+
             const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO_NAME}/contents/${currentPath}`;
 
             try {
                 const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`Nettverksfeil: ${response.statusText}`);
+                if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
                 const items = await response.json();
 
-                fileListContainer.innerHTML = ''; // Tøm listen
+                fileList.innerHTML = '';
 
-                // Legg til "Gå opp"-lenke hvis vi er i en undermappe
-                if (currentPath !== ROOT_FOLDER_PATH) {
+                // "Gå opp"-lenke
+                if (currentPath && currentPath !== ROOT_FOLDER_PATH) {
                     const parentPath = currentPath.substring(0, currentPath.lastIndexOf('/')) || '';
-                    const upLink = document.createElement('li');
-                    upLink.innerHTML = `
-                        <a href="?path=${parentPath}" class="flex items-center p-2 text-blue-600 hover:underline hover:bg-gray-100 rounded-md">
-                            <svg class="w-5 h-5 mr-3 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15l5-5 5 5"/></svg>
-                            .. (Gå opp)
-                        </a>`;
-                    fileListContainer.appendChild(upLink);
+                    const paramStr = parentPath ? `?path=${parentPath}` : '?';
+                    fileList.appendChild(createListItem('up', '.. (Gå opp)', paramStr));
                 }
 
-                // Sorter mapper først, deretter filer
-                const directories = items.filter(item => item.type === 'dir').sort((a, b) => a.name.localeCompare(b.name));
-                const htmlFiles = items.filter(item => item.type === 'file' && item.name.endsWith('.html') && item.name.toLowerCase() !== 'index.html').sort((a, b) => a.name.localeCompare(b.name));
+                const directories = items
+                    .filter(item => item.type === 'dir')
+                    .sort((a, b) => a.name.localeCompare(b.name, 'nb'));
 
-                if (directories.length === 0 && htmlFiles.length === 0) {
-                    document.getElementById('no-files-message').classList.remove('hidden');
-                }
+                const htmlFiles = items
+                    .filter(item => item.type === 'file' && item.name.endsWith('.html') && item.name.toLowerCase() !== 'index.html')
+                    .sort((a, b) => a.name.localeCompare(b.name, 'nb'));
 
-                // Vis mapper
                 directories.forEach(dir => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <a href="?path=${dir.path}" class="flex items-center p-2 text-blue-700 font-medium hover:underline hover:bg-gray-100 rounded-md">
-                            <svg class="w-5 h-5 mr-3 flex-shrink-0 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></svg>
-                            ${dir.name}
-                        </a>`;
-                    fileListContainer.appendChild(listItem);
+                    fileList.appendChild(createListItem('folder', dir.name, `?path=${dir.path}`));
                 });
 
-                // Vis HTML-filer
                 htmlFiles.forEach(file => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <a href="${file.path}" class="flex items-center p-2 text-gray-800 hover:underline hover:bg-gray-100 rounded-md">
-                            <svg class="w-5 h-5 mr-3 flex-shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>
-                            ${file.name}
-                        </a>`;
-                    fileListContainer.appendChild(listItem);
+                    const displayName = file.name.replace(/\.html$/i, '');
+                    fileList.appendChild(createListItem('file', displayName, file.path));
+                });
+
+                if (directories.length === 0 && htmlFiles.length === 0) {
+                    fileList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📂</div>
+                            <p>Fant ingen HTML-filer eller undermapper her.</p>
+                        </div>`;
+                }
+
+                // Stagger-animasjon på elementene
+                fileList.querySelectorAll('li').forEach((li, i) => {
+                    li.style.opacity = '0';
+                    li.style.transform = 'translateY(8px)';
+                    li.style.transition = 'opacity .35s ease, transform .35s ease';
+                    li.style.transitionDelay = `${i * .06}s`;
+                    requestAnimationFrame(() => {
+                        li.style.opacity = '1';
+                        li.style.transform = 'translateY(0)';
+                    });
                 });
 
             } catch (error) {
-                fileListContainer.innerHTML = `<div class="text-center text-red-600 bg-red-50 p-4 rounded-lg">
-                    <p>Kunne ikke laste innhold.</p>
-                    <p class="text-sm mt-1">Feil: ${error.message}</p>
-                    <p class="text-sm mt-2">Sjekk konfigurasjonen i scriptet.</p>
-                </div>`;
+                fileList.innerHTML = `
+                    <div class="error-state">
+                        <p><strong>Kunne ikke laste innhold</strong></p>
+                        <p style="font-size:.9rem">${error.message}</p>
+                        <p style="font-size:.85rem;margin-top:.5rem;opacity:.7">Sjekk at repositoryet er offentlig og at brukernavnet/reponavnet stemmer.</p>
+                    </div>`;
             }
         }
 
@@ -121,4 +470,3 @@
     </script>
 </body>
 </html>
-
