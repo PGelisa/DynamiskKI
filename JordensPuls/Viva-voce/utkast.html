@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viva voce — Geofag 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0B1420;
+    --night-2:#101E30;
+    --card:#F1ECE0;
+    --card-2:#E9E2D2;
+    --ink:#1B1F2B;
+    --muted:#7C8798;
+    --tropo:#E8935B;
+    --strato:#4FB6C8;
+    --ocean:#2E7D8C;
+    --line:#2A3A4E;
+    --glow: rgba(232,147,90,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;scroll-behavior:smooth;}
+  body{
+    background:var(--night);
+    color:var(--card);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:5rem 1.5rem 4rem;
+    overflow:hidden;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, var(--night-2), var(--night) 70%);
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:2;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--strato);
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    margin-bottom:1.4rem;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;background:var(--strato);
+    display:inline-block;
+  }
+  h1.display{
+    font-size:clamp(2.8rem, 8vw, 5.2rem);
+    font-weight:500;
+    margin:0 0 0.3rem;
+    letter-spacing:-0.01em;
+    color:#F7F4EC;
+  }
+  .subtitle{
+    font-size:1.15rem;
+    color:var(--muted);
+    margin:0 0 2.2rem;
+    max-width:32ch;
+  }
+  .lede{
+    font-size:1.08rem;
+    max-width:56ch;
+    color:#D9D3C4;
+  }
+  .lede b{color:#F7F4EC;font-weight:600;}
+  .lede .latin{
+    font-style:italic;
+    color:var(--tropo);
+  }
+
+  /* atmospheric profile curve */
+  .profile-svg{
+    position:absolute;
+    right:-5%;
+    top:0;
+    height:100%;
+    width:60%;
+    opacity:0.85;
+    z-index:1;
+    pointer-events:none;
+  }
+
+  /* ---------- PILLARS ---------- */
+  .pillars{
+    max-width:900px;
+    margin:0 auto;
+    padding:3.5rem 1.5rem 3rem;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1.2rem;
+  }
+  .pillar{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1.6rem 1.4rem;
+  }
+  .pillar .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--muted);
+    letter-spacing:0.08em;
+  }
+  .pillar h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.25rem;
+    margin:0.5rem 0 0.5rem;
+    color:#F7F4EC;
+  }
+  .pillar p{
+    font-size:0.92rem;
+    color:#B9C2CE;
+    margin:0;
+  }
+  .pillar.tropo{border-top:2px solid var(--tropo);}
+  .pillar.strato{border-top:2px solid var(--strato);}
+  .pillar.ocean{border-top:2px solid var(--ocean);}
+
+  /* ---------- VIVA VOCE EXPLAINER ---------- */
+  .explainer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem 3.5rem;
+    scroll-margin-top:2rem;
+  }
+  .explainer-card{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--ocean);
+    border-radius:4px;
+    padding:1.8rem 1.8rem 1.6rem;
+  }
+  .explainer-card h2.display{
+    font-size:1.5rem;
+    font-weight:500;
+    color:#F7F4EC;
+    margin:0 0 0.9rem;
+  }
+  .explainer-card p{
+    font-size:0.96rem;
+    color:#C7CDD6;
+    margin:0 0 0.9rem;
+  }
+  .explainer-card p:last-child{margin-bottom:0;}
+  .explainer-card .latin{font-style:italic;color:var(--tropo);}
+  .explainer-card ul{
+    margin:0 0 0.9rem;
+    padding-left:1.2rem;
+    color:#C7CDD6;
+    font-size:0.94rem;
+  }
+  .explainer-card li{margin-bottom:0.35rem;}
+
+  /* ---------- ASSESSMENT STRIP ---------- */
+  .assess{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem 3.5rem;
+  }
+  .assess h2.display{
+    font-size:1.5rem;
+    font-weight:500;
+    color:#F7F4EC;
+    margin:0 0 1.2rem;
+  }
+  .assess-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:0.9rem;
+  }
+  .a-card{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1rem 1.1rem;
+  }
+  .a-card .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--strato);
+  }
+  .a-card .t{
+    font-family:'Fraunces',serif;
+    font-size:1.02rem;
+    margin:0.35rem 0 0.3rem;
+    color:#F1ECE0;
+  }
+  .a-card .d{
+    font-size:0.82rem;
+    color:var(--muted);
+    margin:0;
+  }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline-section{
+    background:var(--card);
+    color:var(--ink);
+    padding:4rem 1.5rem 6rem;
+  }
+  .timeline-head{
+    max-width:900px;margin:0 auto 2.5rem;
+  }
+  .timeline-head .eyebrow2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ocean);
+  }
+  .timeline-head h2.display{
+    font-size:clamp(1.8rem,4vw,2.4rem);
+    font-weight:500;
+    margin:0.4rem 0 0.6rem;
+  }
+  .timeline-head p{
+    color:#5B6472;
+    max-width:56ch;
+    font-size:0.98rem;
+  }
+
+  .timeline{
+    max-width:900px;
+    margin:0 auto;
+    position:relative;
+    padding-left:2.2rem;
+    border-left:2px solid var(--card-2);
+  }
+  .week{
+    position:relative;
+    padding:0 0 2.3rem 1.6rem;
+  }
+  .week::before{
+    content:"";
+    position:absolute;
+    left:-2.4rem;
+    top:0.35rem;
+    width:11px;height:11px;
+    border-radius:50%;
+    background:var(--card);
+    border:3px solid var(--muted);
+  }
+  .week.unit-tropo::before{border-color:var(--tropo);}
+  .week.unit-strato::before{border-color:var(--strato);}
+  .week.unit-ocean::before{border-color:var(--ocean);}
+  .week.is-break::before{border-color:#C7BFA8; background:#C7BFA8;}
+  .week.is-now::before{
+    background:var(--tropo);
+    border-color:var(--tropo);
+    box-shadow:0 0 0 5px rgba(232,147,90,0.25);
+  }
+
+  .week-meta{
+    display:flex;
+    align-items:baseline;
+    gap:0.7rem;
+    flex-wrap:wrap;
+    margin-bottom:0.35rem;
+  }
+  .week-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    color:var(--muted);
+  }
+  .week-dates{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    color:#8A8163;
+  }
+  .now-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    background:var(--tropo);
+    color:#1B1420;
+    padding:0.15rem 0.5rem;
+    border-radius:2px;
+  }
+  .week h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.28rem;
+    margin:0.1rem 0 0.5rem;
+    color:var(--ink);
+  }
+  .week .flags{
+    display:flex;
+    gap:0.4rem;
+    flex-wrap:wrap;
+    margin-bottom:0.6rem;
+  }
+  .flag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:0.18rem 0.5rem;
+    border-radius:2px;
+    border:1px solid currentColor;
+  }
+  .flag.viva{color:var(--ocean);}
+  .flag.prove{color:#B0442E;}
+  .flag.notat{color:#8A6D1E;}
+  .flag.felt{color:var(--tropo);}
+  .flag.fagsamtale{color:#5B3E99;}
+
+  .links{
+    display:flex;
+    flex-direction:column;
+    gap:0.45rem;
+  }
+  .link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.9rem;
+    color:var(--ink);
+    text-decoration:none;
+    background:#fff;
+    border:1px solid var(--card-2);
+    border-radius:3px;
+    padding:0.5rem 0.8rem;
+    max-width:fit-content;
+    transition:border-color 0.15s, transform 0.1s;
+  }
+  .link-btn:hover{
+    border-color:var(--ocean);
+    transform:translateX(2px);
+  }
+  .link-btn .arrow{color:var(--ocean);}
+
+  .no-link-note{
+    font-size:0.88rem;
+    color:#8A8580;
+    font-style:italic;
+  }
+
+  .ki-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.9rem;
+    text-decoration:none;
+    border-radius:3px;
+    padding:0.5rem 0.8rem;
+    max-width:fit-content;
+  }
+  .ki-btn.ready{
+    color:var(--ink);
+    background:#EFE6F5;
+    border:1px solid #C9AEDC;
+    transition:border-color 0.15s, transform 0.1s;
+  }
+  .ki-btn.ready:hover{border-color:#8A5FB0; transform:translateX(2px);}
+  .ki-btn.ready .arrow{color:#8A5FB0;}
+  .ki-btn.placeholder{
+    color:#9A8FA8;
+    background:transparent;
+    border:1px dashed #C9AEDC;
+    cursor:default;
+  }
+
+  footer{
+    max-width:900px;margin:0 auto;
+    padding:2rem 1.5rem 4rem;
+    color:#8A8580;
+    font-size:0.85rem;
+    background:var(--card);
+  }
+  footer a{color:var(--ocean);}
+
+  @media (max-width:720px){
+    .pillars{grid-template-columns:1fr;}
+    .assess-grid{grid-template-columns:1fr 1fr;}
+    .profile-svg{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <svg class="profile-svg" viewBox="0 0 400 700" preserveAspectRatio="none">
+    <!-- stylised temperature-vs-altitude atmosphere profile -->
+    <path d="M 60 700 C 140 520, 40 380, 90 260 C 130 170, 60 110, 120 40"
+          fill="none" stroke="#4FB6C8" stroke-width="2" opacity="0.55"/>
+    <path d="M 60 700 C 140 520, 40 380, 90 260 C 130 170, 60 110, 120 40"
+          fill="none" stroke="#E8935B" stroke-width="1" stroke-dasharray="1 6" opacity="0.4"/>
+    <line x1="0" y1="260" x2="400" y2="260" stroke="#2A3A4E" stroke-width="1"/>
+    <line x1="0" y1="480" x2="400" y2="480" stroke="#2A3A4E" stroke-width="1"/>
+    <text x="20" y="475" fill="#5B6472" font-family="IBM Plex Mono" font-size="11">troposfære</text>
+    <text x="20" y="255" fill="#5B6472" font-family="IBM Plex Mono" font-size="11">stratosfære</text>
+  </svg>
+  <div class="hero-inner">
+    <div class="eyebrow">Geofag 2 · REA3043 · Høst 2026</div>
+    <h1 class="display">Viva voce</h1>
+    <p class="subtitle">— «med levende stemme»</p>
+    <p class="lede">
+      Dette er opplegget for hvordan vi jobber med geofag i høst. Navnet er latin, og betyr
+      <span class="latin">«med levende stemme»</span>. Det er det samme uttrykket som brukes om det
+      muntlige forsvaret av en doktorgrad — og poenget er det samme for oss: du skal kunne
+      <b>forklare forståelsen din med din egen stemme</b>, ikke bare levere et svar på papir.
+    </p>
+  </div>
+</section>
+
+<section class="pillars">
+  <div class="pillar tropo">
+    <div class="num">01</div>
+    <h3>KI som motor</h3>
+    <p>Før timen jobber du med oppgaver sammen med en KI-veileder. Den gir deg ikke fasiten — den
+    stiller spørsmål tilbake, slik at du tenker selv.</p>
+  </div>
+  <div class="pillar strato">
+    <div class="num">02</div>
+    <h3>Analog fordypning</h3>
+    <p>I klasserommet legger vi bort skjermene. Papir og blyant er verktøyet når vi bygger
+    forståelse sammen og strever litt med det som er vanskelig.</p>
+  </div>
+  <div class="pillar ocean">
+    <div class="num">03</div>
+    <h3>Viva voce</h3>
+    <p>Hver uke viser du muntlig, i en liten gruppe, at du forstår temaet. Kort, direkte,
+    med egne ord. <a href="#viva-forklart" style="color:var(--ocean);">Les mer ↓</a></p>
+  </div>
+</section>
+
+<section class="explainer" id="viva-forklart">
+  <div class="explainer-card">
+    <h2 class="display">Hva er et viva voce?</h2>
+    <p>
+      <b>Viva voce</b> er latin, og betyr <span class="latin">«med levende stemme»</span>.
+      Det samme uttrykket brukes når en doktorgradskandidat forsvarer avhandlingen sin muntlig
+      foran en komité — de må vise at de faktisk forstår det de har skrevet, ikke bare
+      gjenta det. Vi låner ordet og bruker det på samme måte i mindre skala.
+    </p>
+    <p>Slik fungerer det i praksis:</p>
+    <ul>
+      <li>Etter at et tema er ferdig i undervisningen, tar du et kort, muntlig viva voce sammen med 2–3 andre elever.</li>
+      <li>Du får spørsmål om temaet og skal forklare med egne ord — ingen forberedte manus, ingen KI-hjelp der og da.</li>
+      <li>Et bestått viva voce dokumenterer at du er på karakternivå 4–6 for temaet. Det avgjør ikke alene hvor på skalaen du ligger — det gjør SEB-prøven, refleksjonsnotatet og fagsamtalen.</li>
+      <li>Består du ikke, tar du det igjen — enten i bufferuka (uke 42) eller i det ukentlige viva voce-vinduet en senere uke.</li>
+    </ul>
+    <p>Forberedelsen skjer i det uavhengige rommet: les kapittelet, jobb med oppgavene og bruk
+    KI-veilederen til å tenke gjennom det du er usikker på — <i>før</i> du møter til viva voce.</p>
+  </div>
+</section>
+
+<section class="assess">
+  <h2 class="display">Vurdering gjennom høsten</h2>
+  <div class="assess-grid">
+    <div class="a-card">
+      <div class="tag">Ukentlig</div>
+      <div class="t">Viva voce</div>
+      <p class="d">Muntlig mestringssjekk per tema, i liten gruppe.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Høstblokken</div>
+      <div class="t">SEB-prøve</div>
+      <p class="d">Skriftlig, uten hjelpemidler. Dato kommer.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Uke 37</div>
+      <div class="t">Refleksjonsnotat</div>
+      <p class="d">Knyttet til drivhuseffekten og energibalansemodellen.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Desember</div>
+      <div class="t">Fagsamtale</div>
+      <p class="d">Avsluttende muntlig, på tvers av hele høsten.</p>
+    </div>
+  </div>
+</section>
+
+<section class="timeline-section">
+  <div class="timeline-head">
+    <div class="eyebrow2">Undervisningsopplegg</div>
+    <h2 class="display">Uke for uke</h2>
+    <p>Hvert tema lenker til kapittelet i Jordens puls. Les det før timen, og ha spørsmål klare
+    til KI-veilederen.</p>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<footer>
+  Læreboka: <a href="https://pgelisa.github.io/REA3043_jordenspuls/" target="_blank" rel="noopener">Jordens puls</a> —
+  åpen geofag-ressurs. Spørsmål om opplegget? Spør i timen eller på viva voce.
+</footer>
+
+<script>
+const weeks = [
+  {uke:34, dates:"20.–21. aug", title:"Læring i en KI-alder", unit:"tropo",
+   links:[{t:"Kap. 1 — Introduksjon til Geofag 2", u:"01_introduksjon.html"}], flags:[],
+   kiUrl:null},
+  {uke:35, dates:"24.–28. aug", title:"Atmosfærens inndeling og stråling", unit:"tropo",
+   links:[{t:"Kap. 2 — Innledning til atmosfærefysikk", u:"02_atmosfaerens_inndeling.html"},
+           {t:"Kap. 3 — Stråling", u:"03_straaling.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:36, dates:"31. aug – 4. sep", title:"Drivhuseffekten", unit:"tropo",
+   links:[{t:"Kap. 4 — Drivhuseffekten", u:"04_drivhuseffekten.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:37, dates:"7.–11. sep", title:"Ozonlaget og varmetransport", unit:"tropo",
+   links:[{t:"Kap. 5 — Ozonlaget", u:"05_ozonlaget.html"},
+           {t:"Kap. 6 — Varmetransport og energioverføring", u:"06_energioverforingAtmosfaeren.html"}],
+   flags:["viva","notat"], kiUrl:null},
+  {uke:38, dates:"14.–18. sep", title:"Atmosfærens stabilitet og skydannelse", unit:"tropo",
+   links:[{t:"Kap. 7 — Atmosfærens stabilitet", u:"07_atmoStabilitet.html"},
+           {t:"Kap. 8 — Skydannelse og nedbør", u:"08_skyerNedbor.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"39–40", dates:"21. sep – 1. okt", title:"Vind og temperatur", unit:"tropo",
+   links:[{t:"Kap. 9 — Vind", u:"09_vind.html"},
+           {t:"Kap. 10 — Temperatur", u:"10_temperatur.html"}], flags:["viva","prove"],
+   kiUrl:null},
+  {uke:41, dates:"5.–9. okt", title:"Haustferie", unit:"break", isBreak:true, links:[], flags:[]},
+  {uke:42, dates:"12.–19. okt", title:"Buffer­uke — innhenting av viva voce", unit:"tropo",
+   links:[], note:"Ingen nytt tema. Har du en viva voce å ta igjen, er dette uka.", flags:["viva"]},
+  {uke:"43–44", dates:"22.–29. okt", title:"Sirkulasjon i atmosfæren", unit:"tropo",
+   links:[{t:"Kap. 11 — Sirkulasjon i atmosfæren", u:"11_atmosfaeren.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:45, dates:"2.–5. nov", title:"Fronter og ekstratropiske lavtrykk", unit:"tropo",
+   links:[{t:"Kap. 12 — Fronter og ekstratropiske lavtrykk", u:"12_fronterLavtrykk.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:46, dates:"9. nov", title:"Ekstremvær", unit:"tropo",
+   links:[{t:"Kap. 13 — Ekstremvær", u:"13_ekstremvaer.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"46–47", dates:"12.–19. nov", title:"Værvarsling — feltarbeid", unit:"tropo",
+   links:[{t:"Kap. 14 — Værvarsling", u:"14_vaervarsling.html"}],
+   flags:["felt"], note:"Du varsler selv over flere dager. Sett av tid hver dag.",
+   kiUrl:null},
+  {uke:48, dates:"23.–26. nov", title:"Havet og havstrømmer", unit:"ocean",
+   links:[{t:"Kap. 15 — Introduksjon til havet", u:"15_havet.html"},
+           {t:"Kap. 16 — Havstrømmer og sirkulasjon i havet", u:"16_havstrommer.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:49, dates:"30. nov – 3. des", title:"Bølger, tidevann og naturfarer", unit:"ocean",
+   links:[{t:"Kap. 17 — Bølger og tidevann", u:"17_bolgertidevann.html"},
+           {t:"Kap. 18 — Naturfarer knyttet til havet", u:"18_naturfarerHav.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"50–51", dates:"7.–17. des", title:"Fagsamtale", unit:"ocean",
+   links:[], flags:["fagsamtale"], note:"Avsluttende muntlig. Går på tvers av hele høstens tema."},
+];
+
+const flagLabel = {viva:"Viva voce", prove:"SEB-prøve", notat:"Refleksjonsnotat",
+                    felt:"Feltarbeid", fagsamtale:"Fagsamtale"};
+const base = "https://pgelisa.github.io/REA3043_jordenspuls/";
+
+function parseStart(dates){
+  // crude parse of first day/month in Norwegian short form, assumes 2026
+  const monthMap = {aug:7, sep:8, okt:9, nov:10, des:11};
+  const m = dates.match(/(\d+)\.\s*([a-zæøå]+)/i);
+  if(!m) return null;
+  const day = parseInt(m[1],10);
+  const mon = monthMap[m[2].toLowerCase().slice(0,3)];
+  if(mon===undefined) return null;
+  return new Date(2026, mon, day);
+}
+
+const today = new Date();
+const timeline = document.getElementById('timeline');
+
+weeks.forEach((w, idx)=>{
+  const el = document.createElement('div');
+  const start = parseStart(w.dates);
+  const next = weeks[idx+1] ? parseStart(weeks[idx+1].dates) : null;
+  const isNow = start && ((next && today>=start && today<next) || (!next && today>=start));
+
+  el.className = 'week unit-' + (w.unit || 'tropo') + (w.isBreak? ' is-break':'') + (isNow? ' is-now':'');
+
+  const flagsHtml = (w.flags||[]).map(f=>
+    f==='viva'
+      ? `<a class="flag viva" href="#viva-forklart" style="text-decoration:none;">${flagLabel[f]}</a>`
+      : `<span class="flag ${f}">${flagLabel[f]}</span>`
+  ).join('');
+  const linksHtml = (w.links||[]).map(l=>
+    `<a class="link-btn" href="${base + l.u}" target="_blank" rel="noopener">${l.t} <span class="arrow">→</span></a>`
+  ).join('');
+  const kiHtml = ('kiUrl' in w)
+    ? (w.kiUrl
+        ? `<a class="ki-btn ready" href="${w.kiUrl}" target="_blank" rel="noopener">KI-veileder — kapittel ${w.uke} <span class="arrow">→</span></a>`
+        : `<span class="ki-btn placeholder">KI-veileder — legges til</span>`)
+    : '';
+
+  el.innerHTML = `
+    <div class="week-meta">
+      <span class="week-num">UKE ${w.uke}</span>
+      <span class="week-dates">${w.dates}</span>
+      ${isNow ? '<span class="now-badge">Denne uka</span>' : ''}
+    </div>
+    <h3>${w.title}</h3>
+    <div class="flags">${flagsHtml}</div>
+    <div class="links">${linksHtml}${kiHtml}</div>
+    ${w.note ? `<p class="no-link-note">${w.note}</p>` : ''}
+  `;
+  timeline.appendChild(el);
+});
+</script>
+
+</body>
+</html>
