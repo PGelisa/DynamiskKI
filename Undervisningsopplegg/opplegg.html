@@ -1,452 +1,617 @@
 <!DOCTYPE html>
-<html lang="nb">
+<html lang="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Undervisningsopplegg – laget med KI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --clr-bg: #f4f1eb;
-      --clr-frame: #2c3e2d;
-      --clr-frame-light: #3d5a3f;
-      --clr-accent: #a67c52;
-      --clr-accent-light: #c9a87c;
-      --clr-text: #2b2b2b;
-      --clr-text-muted: #6b6b6b;
-      --clr-white: #fffdf8;
-      --clr-link: #1a5c3a;
-      --clr-link-hover: #a67c52;
-      --clr-border: #d4cfc6;
-      --font-display: 'Cormorant Garamond', Georgia, serif;
-      --font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viva voce — Geofag 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0B1420;
+    --night-2:#101E30;
+    --card:#F1ECE0;
+    --card-2:#E9E2D2;
+    --ink:#1B1F2B;
+    --muted:#7C8798;
+    --tropo:#E8935B;
+    --strato:#4FB6C8;
+    --ocean:#2E7D8C;
+    --line:#2A3A4E;
+    --glow: rgba(232,147,90,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;scroll-behavior:smooth;}
+  body{
+    background:var(--night);
+    color:var(--card);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:5rem 1.5rem 4rem;
+    overflow:hidden;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, var(--night-2), var(--night) 70%);
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:2;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--strato);
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    margin-bottom:1.4rem;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;background:var(--strato);
+    display:inline-block;
+  }
+  h1.display{
+    font-size:clamp(2.8rem, 8vw, 5.2rem);
+    font-weight:500;
+    margin:0 0 0.3rem;
+    letter-spacing:-0.01em;
+    color:#F7F4EC;
+  }
+  .subtitle{
+    font-size:1.15rem;
+    color:var(--muted);
+    margin:0 0 2.2rem;
+    max-width:32ch;
+  }
+  .lede{
+    font-size:1.08rem;
+    max-width:56ch;
+    color:#D9D3C4;
+  }
+  .lede b{color:#F7F4EC;font-weight:600;}
+  .lede .latin{
+    font-style:italic;
+    color:var(--tropo);
+  }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--clr-bg);
-      color: var(--clr-text);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
+  /* atmospheric profile curve */
+  .profile-svg{
+    position:absolute;
+    right:-5%;
+    top:0;
+    height:100%;
+    width:60%;
+    opacity:0.85;
+    z-index:1;
+    pointer-events:none;
+  }
 
-    /* === OUTER FRAME === */
-    .frame {
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto;
-      min-height: 100vh;
-    }
+  /* ---------- PILLARS ---------- */
+  .pillars{
+    max-width:900px;
+    margin:0 auto;
+    padding:3.5rem 1.5rem 3rem;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1.2rem;
+  }
+  .pillar{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1.6rem 1.4rem;
+  }
+  .pillar .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--muted);
+    letter-spacing:0.08em;
+  }
+  .pillar h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.25rem;
+    margin:0.5rem 0 0.5rem;
+    color:#F7F4EC;
+  }
+  .pillar p{
+    font-size:0.92rem;
+    color:#B9C2CE;
+    margin:0;
+  }
+  .pillar.tropo{border-top:2px solid var(--tropo);}
+  .pillar.strato{border-top:2px solid var(--strato);}
+  .pillar.ocean{border-top:2px solid var(--ocean);}
 
-    /* === HEADER / TOP FRAME === */
-    .frame-header {
-      background: var(--clr-frame);
-      color: var(--clr-white);
-      padding: 3rem 2rem 2.5rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+  /* ---------- VIVA VOCE EXPLAINER ---------- */
+  .explainer{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem 3.5rem;
+    scroll-margin-top:2rem;
+  }
+  .explainer-card{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--ocean);
+    border-radius:4px;
+    padding:1.8rem 1.8rem 1.6rem;
+  }
+  .explainer-card h2.display{
+    font-size:1.5rem;
+    font-weight:500;
+    color:#F7F4EC;
+    margin:0 0 0.9rem;
+  }
+  .explainer-card p{
+    font-size:0.96rem;
+    color:#C7CDD6;
+    margin:0 0 0.9rem;
+  }
+  .explainer-card p:last-child{margin-bottom:0;}
+  .explainer-card .latin{font-style:italic;color:var(--tropo);}
+  .explainer-card ul{
+    margin:0 0 0.9rem;
+    padding-left:1.2rem;
+    color:#C7CDD6;
+    font-size:0.94rem;
+  }
+  .explainer-card li{margin-bottom:0.35rem;}
 
-    .frame-header::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 20% 50%, rgba(166,124,82,0.15) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 30%, rgba(61,90,63,0.3) 0%, transparent 50%);
-      pointer-events: none;
-    }
+  /* ---------- ASSESSMENT STRIP ---------- */
+  .assess{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 1.5rem 3.5rem;
+  }
+  .assess h2.display{
+    font-size:1.5rem;
+    font-weight:500;
+    color:#F7F4EC;
+    margin:0 0 1.2rem;
+  }
+  .assess-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:0.9rem;
+  }
+  .a-card{
+    background:var(--night-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1rem 1.1rem;
+  }
+  .a-card .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--strato);
+  }
+  .a-card .t{
+    font-family:'Fraunces',serif;
+    font-size:1.02rem;
+    margin:0.35rem 0 0.3rem;
+    color:#F1ECE0;
+  }
+  .a-card .d{
+    font-size:0.82rem;
+    color:var(--muted);
+    margin:0;
+  }
 
-    .frame-header h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      margin-bottom: 0.5rem;
-      position: relative;
-    }
+  /* ---------- TIMELINE ---------- */
+  .timeline-section{
+    background:var(--card);
+    color:var(--ink);
+    padding:4rem 1.5rem 6rem;
+  }
+  .timeline-head{
+    max-width:900px;margin:0 auto 2.5rem;
+  }
+  .timeline-head .eyebrow2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ocean);
+  }
+  .timeline-head h2.display{
+    font-size:clamp(1.8rem,4vw,2.4rem);
+    font-weight:500;
+    margin:0.4rem 0 0.6rem;
+  }
+  .timeline-head p{
+    color:#5B6472;
+    max-width:56ch;
+    font-size:0.98rem;
+  }
 
-    .frame-header .subtitle {
-      font-size: 1.05rem;
-      font-weight: 300;
-      opacity: 0.85;
-      max-width: 600px;
-      margin: 0 auto;
-      position: relative;
-    }
+  .timeline{
+    max-width:900px;
+    margin:0 auto;
+    position:relative;
+    padding-left:2.2rem;
+    border-left:2px solid var(--card-2);
+  }
+  .week{
+    position:relative;
+    padding:0 0 2.3rem 1.6rem;
+  }
+  .week::before{
+    content:"";
+    position:absolute;
+    left:-2.4rem;
+    top:0.35rem;
+    width:11px;height:11px;
+    border-radius:50%;
+    background:var(--card);
+    border:3px solid var(--muted);
+  }
+  .week.unit-tropo::before{border-color:var(--tropo);}
+  .week.unit-strato::before{border-color:var(--strato);}
+  .week.unit-ocean::before{border-color:var(--ocean);}
+  .week.is-break::before{border-color:#C7BFA8; background:#C7BFA8;}
+  .week.is-now::before{
+    background:var(--tropo);
+    border-color:var(--tropo);
+    box-shadow:0 0 0 5px rgba(232,147,90,0.25);
+  }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(166,124,82,0.25);
-      border: 1px solid rgba(166,124,82,0.4);
-      border-radius: 100px;
-      padding: 0.3rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 1.2rem;
-      position: relative;
-    }
+  .week-meta{
+    display:flex;
+    align-items:baseline;
+    gap:0.7rem;
+    flex-wrap:wrap;
+    margin-bottom:0.35rem;
+  }
+  .week-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    color:var(--muted);
+  }
+  .week-dates{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    color:#8A8163;
+  }
+  .now-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    background:var(--tropo);
+    color:#1B1420;
+    padding:0.15rem 0.5rem;
+    border-radius:2px;
+  }
+  .week h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.28rem;
+    margin:0.1rem 0 0.5rem;
+    color:var(--ink);
+  }
+  .week .flags{
+    display:flex;
+    gap:0.4rem;
+    flex-wrap:wrap;
+    margin-bottom:0.6rem;
+  }
+  .flag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:0.18rem 0.5rem;
+    border-radius:2px;
+    border:1px solid currentColor;
+  }
+  .flag.viva{color:var(--ocean);}
+  .flag.prove{color:#B0442E;}
+  .flag.notat{color:#8A6D1E;}
+  .flag.felt{color:var(--tropo);}
+  .flag.fagsamtale{color:#5B3E99;}
 
-    .badge svg {
-      width: 14px;
-      height: 14px;
-      fill: var(--clr-accent-light);
-    }
+  .links{
+    display:flex;
+    flex-direction:column;
+    gap:0.45rem;
+  }
+  .link-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.9rem;
+    color:var(--ink);
+    text-decoration:none;
+    background:#fff;
+    border:1px solid var(--card-2);
+    border-radius:3px;
+    padding:0.5rem 0.8rem;
+    max-width:fit-content;
+    transition:border-color 0.15s, transform 0.1s;
+  }
+  .link-btn:hover{
+    border-color:var(--ocean);
+    transform:translateX(2px);
+  }
+  .link-btn .arrow{color:var(--ocean);}
 
-    /* === SIDE PANELS (frame effect) === */
-    .frame-body {
-      display: grid;
-      grid-template-columns: 280px 1fr 280px;
-      gap: 0;
-    }
+  .no-link-note{
+    font-size:0.88rem;
+    color:#8A8580;
+    font-style:italic;
+  }
 
-    @media (max-width: 1024px) {
-      .frame-body {
-        grid-template-columns: 1fr;
-      }
-    }
+  .ki-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.9rem;
+    text-decoration:none;
+    border-radius:3px;
+    padding:0.5rem 0.8rem;
+    max-width:fit-content;
+  }
+  .ki-btn.ready{
+    color:var(--ink);
+    background:#EFE6F5;
+    border:1px solid #C9AEDC;
+    transition:border-color 0.15s, transform 0.1s;
+  }
+  .ki-btn.ready:hover{border-color:#8A5FB0; transform:translateX(2px);}
+  .ki-btn.ready .arrow{color:#8A5FB0;}
+  .ki-btn.placeholder{
+    color:#9A8FA8;
+    background:transparent;
+    border:1px dashed #C9AEDC;
+    cursor:default;
+  }
 
-    .sidebar {
-      background: var(--clr-frame);
-      color: var(--clr-white);
-      padding: 2.5rem 1.8rem;
-      font-size: 0.92rem;
-      line-height: 1.7;
-    }
+  footer{
+    max-width:900px;margin:0 auto;
+    padding:2rem 1.5rem 4rem;
+    color:#8A8580;
+    font-size:0.85rem;
+    background:var(--card);
+  }
+  footer a{color:var(--ocean);}
 
-    .sidebar h2 {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      color: var(--clr-accent-light);
-    }
-
-    .sidebar p {
-      opacity: 0.88;
-      margin-bottom: 1rem;
-    }
-
-    .sidebar .info-block {
-      background: rgba(255,255,255,0.06);
-      border-left: 3px solid var(--clr-accent);
-      padding: 1rem 1.2rem;
-      border-radius: 0 6px 6px 0;
-      margin: 1.5rem 0;
-    }
-
-    .sidebar .info-block h3 {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-      color: var(--clr-accent-light);
-    }
-
-    .sidebar .info-block p {
-      font-size: 0.85rem;
-      opacity: 0.8;
-      margin-bottom: 0;
-    }
-
-    .sidebar-right .transparency-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .sidebar-right .transparency-list li {
-      padding: 0.6rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 0.88rem;
-      opacity: 0.85;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .sidebar-right .transparency-list li::before {
-      content: '→';
-      color: var(--clr-accent-light);
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    /* === MAIN CONTENT AREA === */
-    .main-content {
-      background: var(--clr-white);
-      padding: 3rem 3.5rem;
-      min-height: 500px;
-    }
-
-    .main-content h2 {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--clr-frame);
-      margin-bottom: 0.5rem;
-    }
-
-    .main-content .intro {
-      color: var(--clr-text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 2.5rem;
-      max-width: 600px;
-    }
-
-    /* === LINK CARDS === */
-    .link-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .link-card {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      padding: 1.2rem 1.5rem;
-      background: var(--clr-bg);
-      border: 1px solid var(--clr-border);
-      border-radius: 8px;
-      text-decoration: none;
-      color: var(--clr-text);
-      transition: all 0.25s ease;
-    }
-
-    .link-card:hover {
-      border-color: var(--clr-accent);
-      box-shadow: 0 4px 16px rgba(166,124,82,0.12);
-      transform: translateY(-2px);
-    }
-
-    .link-card .icon {
-      width: 44px;
-      height: 44px;
-      background: var(--clr-frame);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .link-card .icon svg {
-      width: 22px;
-      height: 22px;
-      fill: var(--clr-accent-light);
-    }
-
-    .link-card .card-text h3 {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--clr-link);
-      margin-bottom: 0.15rem;
-    }
-
-    .link-card:hover .card-text h3 {
-      color: var(--clr-link-hover);
-    }
-
-    .link-card .card-text p {
-      font-size: 0.85rem;
-      color: var(--clr-text-muted);
-      margin: 0;
-    }
-
-    .link-card .arrow {
-      margin-left: auto;
-      color: var(--clr-border);
-      transition: color 0.25s ease, transform 0.25s ease;
-      flex-shrink: 0;
-    }
-
-    .link-card:hover .arrow {
-      color: var(--clr-accent);
-      transform: translateX(4px);
-    }
-
-    /* Placeholder styling */
-    .placeholder-note {
-      margin-top: 2.5rem;
-      padding: 1.2rem 1.5rem;
-      background: linear-gradient(135deg, rgba(166,124,82,0.06), rgba(44,62,45,0.04));
-      border: 1px dashed var(--clr-border);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: var(--clr-text-muted);
-    }
-
-    .placeholder-note code {
-      background: rgba(0,0,0,0.06);
-      padding: 0.15em 0.4em;
-      border-radius: 3px;
-      font-size: 0.85em;
-    }
-
-    /* === FOOTER / BOTTOM FRAME === */
-    .frame-footer {
-      background: var(--clr-frame);
-      color: var(--clr-white);
-      padding: 1.5rem 2rem;
-      text-align: center;
-      font-size: 0.82rem;
-      opacity: 0.7;
-    }
-
-    /* === RESPONSIVE === */
-    @media (max-width: 1024px) {
-      .sidebar { padding: 2rem 1.5rem; }
-      .main-content { padding: 2rem 1.5rem; }
-    }
-
-    @media (max-width: 768px) {
-      .frame-header { padding: 2rem 1.2rem 1.8rem; }
-      .main-content { padding: 1.5rem 1.2rem; }
-    }
-
-    /* === ANIMATIONS === */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .link-card {
-      animation: fadeInUp 0.5s ease both;
-    }
-    .link-card:nth-child(1) { animation-delay: 0.1s; }
-    .link-card:nth-child(2) { animation-delay: 0.2s; }
-    .link-card:nth-child(3) { animation-delay: 0.3s; }
-    .link-card:nth-child(4) { animation-delay: 0.4s; }
-    .link-card:nth-child(5) { animation-delay: 0.5s; }
-    .link-card:nth-child(6) { animation-delay: 0.6s; }
-  </style>
+  @media (max-width:720px){
+    .pillars{grid-template-columns:1fr;}
+    .assess-grid{grid-template-columns:1fr 1fr;}
+    .profile-svg{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
 </head>
 <body>
 
-<div class="frame">
-
-  <!-- TOP FRAME -->
-  <header class="frame-header">
-    <span class="badge">
-      <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a2 2 0 1 1 0 4h-1.17A7 7 0 0 1 14 23h-4a7 7 0 0 1-6.83-5H2a2 2 0 1 1 0-4h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 12 2zm-2 9a5 5 0 0 0-5 5 5 5 0 0 0 5 5h4a5 5 0 0 0 5-5 5 5 0 0 0-5-5h-4zm-1 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>
-      KI-assisterte ressurser
-    </span>
-    <h1>Undervisningsopplegg</h1>
-    <p class="subtitle">En samling undervisningsopplegg utviklet med støtte fra kunstig intelligens – kvalitetssikret av faglærer</p>
-  </header>
-
-  <!-- BODY: SIDEBAR + MAIN + SIDEBAR -->
-  <div class="frame-body">
-
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar sidebar-left">
-      <h2>Om disse ressursene</h2>
-      <p>Undervisningsoppleggene som er samlet her, er utviklet med bruk av kunstig intelligens (KI) som verktøy i utformingsprosessen.</p>
-      <p>KI har blitt brukt til å generere utkast, strukturere innhold, formulere oppgaver og utarbeide faglige tekster. Alt innhold er deretter gjennomgått, tilpasset og kvalitetssikret av faglærer.</p>
-
-      <div class="info-block">
-        <h3>Hva betyr dette?</h3>
-        <p>Oppleggene er ikke rene KI-produkter, men resultat av et samarbeid mellom meg som faglærer og ulike KI-verktøy. Faglig vurdering og didaktisk tilpasning er gjort av mennesker.</p>
-      </div>
-
-      <div class="info-block">
-        <h3>Hvilket KI-verktøy?</h3>
-        <p>Hovedsakelig Gemini (Google) og Claude (Anthropic) er brukt som KI-assistent i utviklingen av materialet.</p>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-      <h2>Undervisningsopplegg</h2>
-      <p class="intro">Klikk på et opplegg for å åpne det i Google Docs. Oppleggene er sortert etter tema.</p>
-
-      <div class="link-list">
-
-        <!-- ============================================
-             LEGG TIL DINE LENKER HER
-             Kopier en link-card-blokk og endre:
-             - href="..." → Google Docs-lenke
-             - <h3>Tittel</h3> → Navn på opplegget
-             - <p>Beskrivelse</p> → Kort beskrivelse
-             ============================================ -->
-
-        <a href="https://docs.google.com/document/d/1x4jcEaY6q-2hmDcf_LCEdH2KP00Muq6GOKnbrVy68pg/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
-          <div class="icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
-          </div>
-          <div class="card-text">
-            <h3>Geofag 2: Gruppeprosjekt om forhistorisk klima</h3>
-            <p>Elevene jobber i grupper. De skal finne og laste ned forskningsdata fra åpne databaser på nett. De skal få hjelp fra generativ KI til å forstå hvilke data de har hentet, og hva dataene forteller (proxydata). De bruker KI som støtte til å lage Python-koder for å visualisere dataene de laster ned. Elevene skal også lage animert infografikk som forklarer metoden de har fordypet seg i.</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
-
-        <a href="https://docs.google.com/document/d/1pZYjwkJc35oyz1wt9lXUL4vWsLSIFaD_h-H4oFccNqk/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
-          <div class="icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
-          </div>
-          <div class="card-text">
-            <h3>Geografi: Trening på forskjellen mellom beskrive, forklare og drøfte</h3>
-            <p>Undervisningsopplegget er en treningsøvelse for elevene i å se forskjell på hva som gjør en tekst beskrivende, forklarende og drøftende.</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
-
-        <a href="https://docs.google.com/document/d/1F4mtgQvlGCQdZfx5gLFqvUW_hhCUkOf5kFCcp3nyU_s/edit?usp=sharing" class="link-card" target="_blank" rel="noopener">
-          <div class="icon">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-7h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
-          </div>
-          <div class="card-text">
-            <h3>Geografi: Å skrive for å lære</h3>
-            <p>Kort beskrivelse av undervisningsopplegget</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
-
-      </div>
-
-      <!-- Instruksjoner for redigering -->
-      <div class="placeholder-note">
-        <strong>For å legge til flere lenker:</strong> Kopier en <code>&lt;a class="link-card"&gt;...&lt;/a&gt;</code>-blokk inne i <code>&lt;div class="link-list"&gt;</code>. Bytt ut <code>href</code> med Google Docs-lenken, og oppdater tittel og beskrivelse.
-      </div>
-    </main>
-
-    <!-- RIGHT SIDEBAR -->
-    <aside class="sidebar sidebar-right">
-      <h2>Åpenhet om KI-bruk</h2>
-      <p>Det er viktig å være åpen om at kunstig intelligens er brukt i utvikling av undervisningsmateriell. Her er noen prinsipper som er fulgt:</p>
-
-      <ul class="transparency-list">
-        <li>KI er brukt som hjelpeverktøy, ikke som erstatning for fagkompetanse</li>
-        <li>Alt innhold er kontrollert opp mot læreplanen og kompetansemålene</li>
-        <li>Faglige feil og unøyaktigheter fra KI er rettet opp</li>
-        <li>Oppgaveformuleringer er tilpasset elevgruppen og nivået</li>
-        <li>Kilder og faglig grunnlag er verifisert av faglærer</li>
-        <li>Oppleggene er testet og justert basert på erfaring i klasserommet</li>
-      </ul>
-
-      <div class="info-block">
-        <h3>Tilbakemelding?</h3>
-        <p>Har du kommentarer eller forslag til forbedringer, ta gjerne kontakt.</p>
-      </div>
-    </aside>
-
+<section class="hero">
+  <svg class="profile-svg" viewBox="0 0 400 700" preserveAspectRatio="none">
+    <!-- stylised temperature-vs-altitude atmosphere profile -->
+    <path d="M 60 700 C 140 520, 40 380, 90 260 C 130 170, 60 110, 120 40"
+          fill="none" stroke="#4FB6C8" stroke-width="2" opacity="0.55"/>
+    <path d="M 60 700 C 140 520, 40 380, 90 260 C 130 170, 60 110, 120 40"
+          fill="none" stroke="#E8935B" stroke-width="1" stroke-dasharray="1 6" opacity="0.4"/>
+    <line x1="0" y1="260" x2="400" y2="260" stroke="#2A3A4E" stroke-width="1"/>
+    <line x1="0" y1="480" x2="400" y2="480" stroke="#2A3A4E" stroke-width="1"/>
+    <text x="20" y="475" fill="#5B6472" font-family="IBM Plex Mono" font-size="11">troposfære</text>
+    <text x="20" y="255" fill="#5B6472" font-family="IBM Plex Mono" font-size="11">stratosfære</text>
+  </svg>
+  <div class="hero-inner">
+    <div class="eyebrow">Geofag 2 · REA3043 · Høst 2026</div>
+    <h1 class="display">Viva voce</h1>
+    <p class="subtitle">— «med levende stemme»</p>
+    <p class="lede">
+      Dette er opplegget for hvordan vi jobber med geofag i høst. Navnet er latin, og betyr
+      <span class="latin">«med levende stemme»</span>. Det er det samme uttrykket som brukes om det
+      muntlige forsvaret av en doktorgrad — og poenget er det samme for oss: du skal kunne
+      <b>forklare forståelsen din med din egen stemme</b>, ikke bare levere et svar på papir.
+    </p>
   </div>
+</section>
 
-  <!-- BOTTOM FRAME -->
-  <footer class="frame-footer">
-    <p>&copy; 2026 · Undervisningsressurser utviklet med KI-støtte · Kvalitetssikret av faglærer</p>
-  </footer>
+<section class="pillars">
+  <div class="pillar tropo">
+    <div class="num">01</div>
+    <h3>KI som motor</h3>
+    <p>Før timen jobber du med oppgaver sammen med en KI-veileder. Den gir deg ikke fasiten — den
+    stiller spørsmål tilbake, slik at du tenker selv.</p>
+  </div>
+  <div class="pillar strato">
+    <div class="num">02</div>
+    <h3>Analog fordypning</h3>
+    <p>I klasserommet legger vi bort skjermene. Papir og blyant er verktøyet når vi bygger
+    forståelse sammen og strever litt med det som er vanskelig.</p>
+  </div>
+  <div class="pillar ocean">
+    <div class="num">03</div>
+    <h3>Viva voce</h3>
+    <p>Hver uke viser du muntlig, i en liten gruppe, at du forstår temaet. Kort, direkte,
+    med egne ord. <a href="#viva-forklart" style="color:var(--ocean);">Les mer ↓</a></p>
+  </div>
+</section>
 
-</div>
+<section class="explainer" id="viva-forklart">
+  <div class="explainer-card">
+    <h2 class="display">Hva er et viva voce?</h2>
+    <p>
+      <b>Viva voce</b> er latin, og betyr <span class="latin">«med levende stemme»</span>.
+      Det samme uttrykket brukes når en doktorgradskandidat forsvarer avhandlingen sin muntlig
+      foran en komité — de må vise at de faktisk forstår det de har skrevet, ikke bare
+      gjenta det. Vi låner ordet og bruker det på samme måte i mindre skala.
+    </p>
+    <p>Slik fungerer det i praksis:</p>
+    <ul>
+      <li>Etter at et tema er ferdig i undervisningen, tar du et kort, muntlig viva voce sammen med 2–3 andre elever.</li>
+      <li>Du får spørsmål om temaet og skal forklare med egne ord — ingen forberedte manus, ingen KI-hjelp der og da.</li>
+      <li>Et bestått viva voce dokumenterer at du er på karakternivå 4–6 for temaet. Det avgjør ikke alene hvor på skalaen du ligger — det gjør SEB-prøven, refleksjonsnotatet og fagsamtalen.</li>
+      <li>Består du ikke, tar du det igjen — enten i bufferuka (uke 42) eller i det ukentlige viva voce-vinduet en senere uke.</li>
+    </ul>
+    <p>Forberedelsen skjer i det uavhengige rommet: les kapittelet, jobb med oppgavene og bruk
+    KI-veilederen til å tenke gjennom det du er usikker på — <i>før</i> du møter til viva voce.</p>
+  </div>
+</section>
+
+<section class="assess">
+  <h2 class="display">Vurdering gjennom høsten</h2>
+  <div class="assess-grid">
+    <div class="a-card">
+      <div class="tag">Ukentlig</div>
+      <div class="t">Viva voce</div>
+      <p class="d">Muntlig mestringssjekk per tema, i liten gruppe.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Høstblokken</div>
+      <div class="t">SEB-prøve</div>
+      <p class="d">Skriftlig, uten hjelpemidler. Dato kommer.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Uke 37</div>
+      <div class="t">Refleksjonsnotat</div>
+      <p class="d">Knyttet til drivhuseffekten og energibalansemodellen.</p>
+    </div>
+    <div class="a-card">
+      <div class="tag">Desember</div>
+      <div class="t">Fagsamtale</div>
+      <p class="d">Avsluttende muntlig, på tvers av hele høsten.</p>
+    </div>
+  </div>
+</section>
+
+<section class="timeline-section">
+  <div class="timeline-head">
+    <div class="eyebrow2">Undervisningsopplegg</div>
+    <h2 class="display">Uke for uke</h2>
+    <p>Hvert tema lenker til kapittelet i Jordens puls. Les det før timen, og ha spørsmål klare
+    til KI-veilederen.</p>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<footer>
+  Læreboka: <a href="https://pgelisa.github.io/REA3043_jordenspuls/" target="_blank" rel="noopener">Jordens puls</a> —
+  åpen geofag-ressurs. Spørsmål om opplegget? Spør i timen eller på viva voce.
+</footer>
+
+<script>
+const weeks = [
+  {uke:34, dates:"20.–21. aug", title:"Læring i en KI-alder", unit:"tropo",
+   links:[{t:"Kap. 1 — Introduksjon til Geofag 2", u:"01_introduksjon.html"}], flags:[],
+   kiUrl:null},
+  {uke:35, dates:"24.–28. aug", title:"Atmosfærens inndeling og stråling", unit:"tropo",
+   links:[{t:"Kap. 2 — Innledning til atmosfærefysikk", u:"02_atmosfaerens_inndeling.html"},
+           {t:"Kap. 3 — Stråling", u:"03_straaling.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:36, dates:"31. aug – 4. sep", title:"Drivhuseffekten", unit:"tropo",
+   links:[{t:"Kap. 4 — Drivhuseffekten", u:"04_drivhuseffekten.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:37, dates:"7.–11. sep", title:"Ozonlaget og varmetransport", unit:"tropo",
+   links:[{t:"Kap. 5 — Ozonlaget", u:"05_ozonlaget.html"},
+           {t:"Kap. 6 — Varmetransport og energioverføring", u:"06_energioverforingAtmosfaeren.html"}],
+   flags:["viva","notat"], kiUrl:null},
+  {uke:38, dates:"14.–18. sep", title:"Atmosfærens stabilitet og skydannelse", unit:"tropo",
+   links:[{t:"Kap. 7 — Atmosfærens stabilitet", u:"07_atmoStabilitet.html"},
+           {t:"Kap. 8 — Skydannelse og nedbør", u:"08_skyerNedbor.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"39–40", dates:"21. sep – 1. okt", title:"Vind og temperatur", unit:"tropo",
+   links:[{t:"Kap. 9 — Vind", u:"09_vind.html"},
+           {t:"Kap. 10 — Temperatur", u:"10_temperatur.html"}], flags:["viva","prove"],
+   kiUrl:null},
+  {uke:41, dates:"5.–9. okt", title:"Haustferie", unit:"break", isBreak:true, links:[], flags:[]},
+  {uke:42, dates:"12.–19. okt", title:"Buffer­uke — innhenting av viva voce", unit:"tropo",
+   links:[], note:"Ingen nytt tema. Har du en viva voce å ta igjen, er dette uka.", flags:["viva"]},
+  {uke:"43–44", dates:"22.–29. okt", title:"Sirkulasjon i atmosfæren", unit:"tropo",
+   links:[{t:"Kap. 11 — Sirkulasjon i atmosfæren", u:"11_atmosfaeren.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:45, dates:"2.–5. nov", title:"Fronter og ekstratropiske lavtrykk", unit:"tropo",
+   links:[{t:"Kap. 12 — Fronter og ekstratropiske lavtrykk", u:"12_fronterLavtrykk.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:46, dates:"9. nov", title:"Ekstremvær", unit:"tropo",
+   links:[{t:"Kap. 13 — Ekstremvær", u:"13_ekstremvaer.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"46–47", dates:"12.–19. nov", title:"Værvarsling — feltarbeid", unit:"tropo",
+   links:[{t:"Kap. 14 — Værvarsling", u:"14_vaervarsling.html"}],
+   flags:["felt"], note:"Du varsler selv over flere dager. Sett av tid hver dag.",
+   kiUrl:null},
+  {uke:48, dates:"23.–26. nov", title:"Havet og havstrømmer", unit:"ocean",
+   links:[{t:"Kap. 15 — Introduksjon til havet", u:"15_havet.html"},
+           {t:"Kap. 16 — Havstrømmer og sirkulasjon i havet", u:"16_havstrommer.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:49, dates:"30. nov – 3. des", title:"Bølger, tidevann og naturfarer", unit:"ocean",
+   links:[{t:"Kap. 17 — Bølger og tidevann", u:"17_bolgertidevann.html"},
+           {t:"Kap. 18 — Naturfarer knyttet til havet", u:"18_naturfarerHav.html"}], flags:["viva"],
+   kiUrl:null},
+  {uke:"50–51", dates:"7.–17. des", title:"Fagsamtale", unit:"ocean",
+   links:[], flags:["fagsamtale"], note:"Avsluttende muntlig. Går på tvers av hele høstens tema."},
+];
+
+const flagLabel = {viva:"Viva voce", prove:"SEB-prøve", notat:"Refleksjonsnotat",
+                    felt:"Feltarbeid", fagsamtale:"Fagsamtale"};
+const base = "https://pgelisa.github.io/REA3043_jordenspuls/";
+
+function parseStart(dates){
+  // crude parse of first day/month in Norwegian short form, assumes 2026
+  const monthMap = {aug:7, sep:8, okt:9, nov:10, des:11};
+  const m = dates.match(/(\d+)\.\s*([a-zæøå]+)/i);
+  if(!m) return null;
+  const day = parseInt(m[1],10);
+  const mon = monthMap[m[2].toLowerCase().slice(0,3)];
+  if(mon===undefined) return null;
+  return new Date(2026, mon, day);
+}
+
+const today = new Date();
+const timeline = document.getElementById('timeline');
+
+weeks.forEach((w, idx)=>{
+  const el = document.createElement('div');
+  const start = parseStart(w.dates);
+  const next = weeks[idx+1] ? parseStart(weeks[idx+1].dates) : null;
+  const isNow = start && ((next && today>=start && today<next) || (!next && today>=start));
+
+  el.className = 'week unit-' + (w.unit || 'tropo') + (w.isBreak? ' is-break':'') + (isNow? ' is-now':'');
+
+  const flagsHtml = (w.flags||[]).map(f=>
+    f==='viva'
+      ? `<a class="flag viva" href="#viva-forklart" style="text-decoration:none;">${flagLabel[f]}</a>`
+      : `<span class="flag ${f}">${flagLabel[f]}</span>`
+  ).join('');
+  const linksHtml = (w.links||[]).map(l=>
+    `<a class="link-btn" href="${base + l.u}" target="_blank" rel="noopener">${l.t} <span class="arrow">→</span></a>`
+  ).join('');
+  const kiHtml = ('kiUrl' in w)
+    ? (w.kiUrl
+        ? `<a class="ki-btn ready" href="${w.kiUrl}" target="_blank" rel="noopener">KI-veileder — kapittel ${w.uke} <span class="arrow">→</span></a>`
+        : `<span class="ki-btn placeholder">KI-veileder — legges til</span>`)
+    : '';
+
+  el.innerHTML = `
+    <div class="week-meta">
+      <span class="week-num">UKE ${w.uke}</span>
+      <span class="week-dates">${w.dates}</span>
+      ${isNow ? '<span class="now-badge">Denne uka</span>' : ''}
+    </div>
+    <h3>${w.title}</h3>
+    <div class="flags">${flagsHtml}</div>
+    <div class="links">${linksHtml}${kiHtml}</div>
+    ${w.note ? `<p class="no-link-note">${w.note}</p>` : ''}
+  `;
+  timeline.appendChild(el);
+});
+</script>
 
 </body>
 </html>
