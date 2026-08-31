@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viva voce – Kapittel 3: Stråling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F4EF;
+    --panel:#E7ECE4;
+    --ink:#16212C;
+    --ink-soft:#4B5760;
+    --gold:#B96E17;
+    --gold-bg:#F3E3C8;
+    --indigo:#2C4A73;
+    --indigo-bg:#DCE4EE;
+    --sage:#3E6350;
+    --sage-bg:#DEE8DF;
+    --rule:#C7D0C7;
+    --rule-strong:#9CA89C;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:17px;
+    line-height:1.65;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 96px;}
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  p{max-width:66ch;}
+  a{color:var(--indigo);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:72px 0 40px;
+    position:relative;
+  }
+  .hero-eyebrow{
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .hero h1{
+    font-size:clamp(34px,5.4vw,50px);
+    margin:0 0 20px;
+    max-width:14ch;
+  }
+  .hero p{font-size:18px;color:var(--ink-soft);}
+  .horizon{
+    width:100%;
+    height:64px;
+    margin-top:36px;
+    border-radius:2px;
+    overflow:hidden;
+  }
+
+  /* ---------- Sections ---------- */
+  section{padding:44px 0;border-top:1px solid var(--rule);}
+  section:first-of-type{border-top:none;}
+  .kicker{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+  }
+  h2{font-size:28px;margin:0 0 18px;}
+  h3{font-size:20px;margin:28px 0 10px;}
+
+  /* ---------- Mestringsbilde ---------- */
+  .mastery{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    margin-top:8px;
+  }
+  .mastery-col h3{margin-top:0;font-size:17px;}
+  .mastery-col ul{list-style:none;margin:0;padding:0;}
+  .mastery-col li{
+    padding:10px 0 10px 20px;
+    border-bottom:1px solid var(--rule);
+    font-size:15.5px;
+    position:relative;
+  }
+  .mastery-col li:last-child{border-bottom:none;}
+  .mastery-col li::before{
+    content:'';
+    position:absolute;
+    left:0;top:17px;
+    width:7px;height:7px;
+    border-radius:50%;
+  }
+  .solid li::before{background:var(--sage);}
+  .usikkert li::before{background:var(--gold);}
+  .usikkert li{font-weight:500;}
+  @media (max-width:600px){.mastery{grid-template-columns:1fr;}}
+
+  /* ---------- Del 1: review rows ---------- */
+  .review{border-left:3px solid var(--rule-strong);padding-left:18px;margin-bottom:22px;}
+  .review h4{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  .review ul{margin:0;padding-left:20px;}
+  .review li{margin-bottom:6px;color:var(--ink-soft);}
+
+  /* ---------- Del 2: fordypningskort ---------- */
+  .deep{margin-bottom:52px;}
+  .deep-label{
+    display:inline-block;
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    font-weight:600;
+    background:var(--panel);
+    border-radius:4px;
+    padding:2px 9px;
+    margin-bottom:10px;
+  }
+  .callout{
+    background:var(--panel);
+    border-radius:4px;
+    padding:16px 20px;
+    margin:16px 0;
+    font-size:15.5px;
+  }
+  .steps{list-style:none;margin:16px 0;padding:0;counter-reset:step;}
+  .steps li{
+    counter-increment:step;
+    position:relative;
+    padding:8px 0 8px 34px;
+    border-bottom:1px solid var(--rule);
+    font-size:15.5px;
+  }
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{
+    content:counter(step);
+    position:absolute;
+    left:0;top:8px;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--indigo-bg);
+    color:var(--indigo);
+    font-size:12px;
+    font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  table.curvekey{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;}
+  table.curvekey th,table.curvekey td{
+    text-align:left;
+    padding:8px 10px;
+    border-bottom:1px solid var(--rule);
+  }
+  table.curvekey th{color:var(--ink-soft);font-weight:600;font-size:13.5px;}
+  .check-block{
+    background:var(--sage-bg);
+    border-radius:4px;
+    padding:16px 20px;
+    margin-top:20px;
+  }
+  .check-block h4{
+    margin:0 0 8px;
+    font-size:14px;
+    color:var(--sage);
+    font-weight:600;
+  }
+  .check-block ul{margin:0;padding-left:20px;}
+  .check-block li{margin-bottom:5px;}
+
+  /* ---------- SVG chart ---------- */
+  .chart-wrap{margin:20px 0 8px;}
+  .chart-legend{
+    display:flex;gap:22px;margin-top:10px;font-size:13.5px;color:var(--ink-soft);
+    flex-wrap:wrap;
+  }
+  .chart-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:3px;display:inline-block;}
+
+  /* ---------- Balance icon ---------- */
+  .balance-icon{display:block;margin:18px 0;}
+
+  /* ---------- Absorption band ---------- */
+  .band-wrap{margin:18px 0 6px;}
+  .band-labels{
+    display:flex;justify-content:space-between;
+    font-size:13px;color:var(--ink-soft);margin-top:6px;
+  }
+
+  /* ---------- Viva voce questions ---------- */
+  .vv-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:8px;}
+  .vv-col h3{font-size:16px;margin-top:0;}
+  .vv-col ol{padding-left:20px;margin:0;}
+  .vv-col li{margin-bottom:12px;font-size:15.5px;}
+  .vv-group{margin-bottom:26px;}
+  .vv-group-title{
+    font-size:13px;
+    text-transform:none;
+    color:var(--gold);
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  @media (max-width:600px){.vv-grid{grid-template-columns:1fr;}}
+
+  /* ---------- Checklist ---------- */
+  .checklist{list-style:none;margin:16px 0 0;padding:0;}
+  .checklist li{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--rule);
+    cursor:pointer;
+  }
+  .checklist li:last-child{border-bottom:none;}
+  .checklist input{
+    appearance:none;
+    -webkit-appearance:none;
+    width:19px;height:19px;
+    border:1.5px solid var(--rule-strong);
+    border-radius:4px;
+    margin-top:1px;
+    flex-shrink:0;
+    cursor:pointer;
+    position:relative;
+    background:var(--paper);
+  }
+  .checklist input:checked{
+    background:var(--sage);
+    border-color:var(--sage);
+  }
+  .checklist input:checked::after{
+    content:'';
+    position:absolute;
+    left:5px;top:1px;
+    width:5px;height:10px;
+    border:solid var(--paper);
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .checklist label{font-size:15.5px;cursor:pointer;}
+  .checklist li.done label{color:var(--ink-soft);text-decoration:line-through;}
+
+  footer{
+    margin-top:60px;
+    padding-top:24px;
+    border-top:1px solid var(--rule);
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+
+  @media print{
+    body{background:#fff;}
+    .horizon{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <p class="hero-eyebrow">Geofag 2 · Kapittel 3</p>
+    <h1>Viva voce: Stråling</h1>
+    <p>Felles gjennomgang og fordypning, bygget på egenvurderingene dere ga etter kapittel 3.</p>
+    <svg class="horizon" viewBox="0 0 760 64" preserveAspectRatio="none" role="img" aria-label="Illustrasjon av sol og atmosfære">
+      <rect x="0" y="0" width="760" height="64" fill="#DCE4EE"></rect>
+      <rect x="0" y="34" width="760" height="30" fill="#B8C6D6"></rect>
+      <circle cx="120" cy="32" r="16" fill="#D98A2B"></circle>
+    </svg>
+  </div>
+
+  <section>
+    <p class="kicker">Formål</p>
+    <p>De fleste av dere kjenner albedo, absorpsjon og svartlegemestråling godt — flere av dere har allerede møtt dette i fysikk. Strålingsbalanse peker seg derimot klart ut som det temaet flest er usikre på. Vi bruker økten til to ting: en rask, felles bekreftelse av det dere allerede mestrer, og en grundigere gjennomgang av de tre temaene flest er usikre på.</p>
+  </section>
+
+  <section>
+    <p class="kicker">Mestringsbilde i klassen</p>
+    <h2>Hva sitter, hva trenger vi mer av</h2>
+    <div class="mastery">
+      <div class="mastery-col solid">
+        <h3>Sitter godt</h3>
+        <ul>
+          <li>Albedo, absorpsjon, emisjon, refleksjon</li>
+          <li>Svartlegemestråling og Plancks strålingslov</li>
+          <li>Drivhusgassers absorpsjon/emisjon (fysikkoverlapp)</li>
+          <li>Strålingsoverskudd/-underskudd som begrep</li>
+        </ul>
+      </div>
+      <div class="mastery-col usikkert">
+        <h3>Trenger mer arbeid</h3>
+        <ul>
+          <li>Strålingsbalanse — nevnt av flest</li>
+          <li>Strålingsfordeling / figuren med overskudd og underskudd</li>
+          <li>Gassenes absorpsjon ved ulike bølgelengder</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Del 1</p>
+    <h2>Rask fellesgjennomgang</h2>
+    <p>Målet er bare å bekrefte at grunnmuren sitter, ikke gå i dybden. Gå raskt gjennom disse muntlig og la ulike elever svare — dette bør ta 5–10 minutter.</p>
+
+    <div class="review">
+      <h4>Albedo og absorpsjon</h4>
+      <ul>
+        <li>Hva betyr det at en overflate har albedo 0,8, versus albedo 0,1?</li>
+        <li>Hva er forskjellen på at stråling absorberes og at den reflekteres?</li>
+        <li>Gi ett eksempel hver på en overflate med høy og lav albedo.</li>
+      </ul>
+    </div>
+
+    <div class="review">
+      <h4>Svartlegemestråling og Plancks strålingslov</h4>
+      <ul>
+        <li>Hvorfor sender solen ut mest kortbølget stråling, mens jorden sender ut mest langbølget stråling?</li>
+        <li>Hva skjer med bølgelengden og intensiteten når temperaturen til et objekt øker?</li>
+        <li>Hvordan henger dette sammen med det dere har lært i Fysikk 1?</li>
+      </ul>
+    </div>
+
+    <div class="review">
+      <h4>Strålingsoverskudd/-underskudd (begrepet)</h4>
+      <ul>
+        <li>Hva menes med strålingsoverskudd, og hva menes med strålingsunderskudd?</li>
+        <li>Hvor omtrent ligger grensen mellom overskudd og underskudd på jorda?</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Del 2</p>
+    <h2>Fordypning i de tre usikre temaene</h2>
+
+    <div class="deep">
+      <span class="deep-label">A</span>
+      <h3 style="margin-top:0;">Strålingsbalanse</h3>
+      <p>Dette er selve kjernebegrepet i kapittelet — ikke rart flere er usikre, siden det brukes i flere sammenhenger. Gå gjennom det stegvis.</p>
+
+      <svg class="balance-icon" viewBox="0 0 400 60" width="220" height="34" role="img" aria-label="Kortbølget stråling ned, langbølget stråling opp">
+        <line x1="150" y1="6" x2="150" y2="52" stroke="#D98A2B" stroke-width="3"></line>
+        <polygon points="150,54 144,42 156,42" fill="#D98A2B"></polygon>
+        <line x1="250" y1="52" x2="250" y2="6" stroke="#2C4A73" stroke-width="3"></line>
+        <polygon points="250,4 244,16 256,16" fill="#2C4A73"></polygon>
+      </svg>
+
+      <div class="callout">Strålingsbalanse betyr at det stråler like mye energi <em>inn</em> i et system som det stråler <em>ut</em> — ikke at det stråler like mye inn overalt på jordkloden.</div>
+
+      <p><strong>Ved toppen av atmosfæren (TOA):</strong> kortbølget stråling fra solen inn, langbølget stråling ut. Når disse er like store for hele jordkloden samlet, har vi balanse ved TOA.</p>
+
+      <p><strong>Ved jordoverflaten</strong> — gå gjennom stegene, og la elevene peke på tilsvarende del av figuren i boka mens dere snakker om den:</p>
+      <ol class="steps">
+        <li>Kortbølget stråling går gjennom atmosfæren og absorberes av jordoverflaten.</li>
+        <li>Noe kortbølget stråling reflekteres av gasser og skyer i atmosfæren.</li>
+        <li>Noe kortbølget stråling reflekteres av jordoverflaten selv (høyt albedo — snø, is).</li>
+        <li>Jordoverflaten sender ut langbølget stråling basert på sin temperatur.</li>
+        <li>Mye av denne strålingen absorberes i atmosfæren, som igjen stråler langbølget både ned mot bakken og ut mot TOA.</li>
+      </ol>
+
+      <div class="check-block">
+        <h4>Sjekk forståelsen</h4>
+        <ul>
+          <li>Hva er forskjellen på strålingsbalanse ved TOA og ved jordoverflaten?</li>
+          <li>Hvorfor er ikke jordoverflaten i «ren» balanse med bare solstråling — hva mer bidrar til den innkommende strålingen ved bakken?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="deep">
+      <span class="deep-label">B</span>
+      <h3 style="margin-top:0;">Strålingsfordeling</h3>
+      <p>Dette er figuren flere er usikre på. Den ser komplisert ut med fire kurver, men blir enkel hvis dere tar den linje for linje.</p>
+
+      <table class="curvekey">
+        <tr><th>Kurve</th><th>Hva den viser</th></tr>
+        <tr><td>E_insol</td><td>Total innstråling fra solen per breddegrad</td></tr>
+        <tr><td>E_in</td><td>Strålingsenergi som absorberes av overflaten</td></tr>
+        <tr><td>E_out</td><td>Strålingsenergi som emitteres fra overflaten</td></tr>
+        <tr><td>E_net</td><td>Netto: E_net = E_in − E_out</td></tr>
+      </table>
+
+      <div class="chart-wrap">
+        <svg viewBox="0 0 800 300" width="100%" height="auto" role="img" aria-label="Illustrasjon: E_in og E_out per breddegrad, med strålingsoverskudd nær ekvator og strålingsunderskudd nær polene, balanse ved omtrent 38 grader nord og sør">
+          <path d="M248,140 Q324,105 400,70 Q476,105 552,140 Q476,133 400,125 Q324,133 248,140 Z" fill="#F3E3C8"></path>
+          <path d="M40,210 Q144,175 248,140 Q144,148 40,155 Z" fill="#DCE4EE"></path>
+          <path d="M552,140 Q656,175 760,210 L760,155 Q656,148 552,140 Z" fill="#DCE4EE"></path>
+
+          <line x1="248" y1="30" x2="248" y2="240" stroke="#9CA89C" stroke-width="1" stroke-dasharray="3,3"></line>
+          <line x1="552" y1="30" x2="552" y2="240" stroke="#9CA89C" stroke-width="1" stroke-dasharray="3,3"></line>
+
+          <path d="M40,210 Q144,175 248,140 Q324,105 400,70 Q476,105 552,140 Q656,175 760,210" fill="none" stroke="#B96E17" stroke-width="3"></path>
+          <path d="M40,155 Q144,148 248,140 Q324,133 400,125 Q476,133 552,140 Q656,148 760,155" fill="none" stroke="#2C4A73" stroke-width="3"></path>
+
+          <text x="400" y="100" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" fill="#8A5A0E">Strålingsoverskudd</text>
+          <text x="115" y="235" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#2C4A73">Strålingsunderskudd</text>
+          <text x="685" y="235" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#2C4A73">Strålingsunderskudd</text>
+
+          <line x1="40" y1="255" x2="760" y2="255" stroke="#C7D0C7" stroke-width="1"></line>
+          <text x="40" y="275" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#4B5760">90S</text>
+          <text x="248" y="275" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#4B5760">38S</text>
+          <text x="400" y="275" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#4B5760">Ekvator</text>
+          <text x="552" y="275" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#4B5760">38N</text>
+          <text x="760" y="275" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" fill="#4B5760">90N</text>
+        </svg>
+        <div class="chart-legend">
+          <span><i class="swatch" style="background:#B96E17;"></i>E_in (absorbert energi)</span>
+          <span><i class="swatch" style="background:#2C4A73;"></i>E_out (emittert energi)</span>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--ink-soft);">Illustrasjonen viser prinsippet skjematisk — se figuren i boka for de nøyaktige verdiene.</p>
+
+      <p>Der E_in > E_out har vi <strong>strålingsoverskudd</strong> (rundt ekvator). Der E_out > E_in har vi <strong>strålingsunderskudd</strong> (mot polene). Der kurvene møtes, ved omtrent 38°N og 38°S, er E_net = 0 — strålingslikevekt.</p>
+
+      <p>Dette overskuddet ved ekvator og underskuddet ved polene er «motoren» som driver atmosfærens og havets sirkulasjon — energien må transporteres fra ekvator mot polene.</p>
+
+      <div class="check-block">
+        <h4>Sjekk forståelsen</h4>
+        <ul>
+          <li>Beskriv med egne ord hva E_net forteller oss.</li>
+          <li>Hvorfor stråler polene ut mer energi enn de mottar, over tid — hvor kommer den ekstra energien fra?</li>
+          <li>Hvilke to deler av klimasystemet frakter overskuddsenergien fra ekvator mot polene?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="deep" style="margin-bottom:0;">
+      <span class="deep-label">C</span>
+      <h3 style="margin-top:0;">Gassenes absorpsjon ved ulike bølgelengder</h3>
+      <p>Dette henger sammen med noe dere allerede kan fra Vg1 naturfag: ulike gasser absorberer ulike bølgelengder.</p>
+
+      <div class="band-wrap">
+        <svg viewBox="0 0 800 40" width="100%" height="40" role="img" aria-label="Illustrativt bånd fra kortbølget til langbølget stråling, med mørkere partier der gasser absorberer mer">
+          <defs>
+            <linearGradient id="wavegrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#4A6FA0"></stop>
+              <stop offset="100%" stop-color="#B96E17"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="800" height="40" fill="url(#wavegrad)"></rect>
+          <rect x="90" y="0" width="34" height="40" fill="#16212C" opacity="0.42"></rect>
+          <rect x="300" y="0" width="50" height="40" fill="#16212C" opacity="0.55"></rect>
+          <rect x="470" y="0" width="26" height="40" fill="#16212C" opacity="0.3"></rect>
+          <rect x="600" y="0" width="70" height="40" fill="#16212C" opacity="0.6"></rect>
+        </svg>
+        <div class="band-labels">
+          <span>Kortbølget</span>
+          <span>Langbølget</span>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--ink-soft);">Illustrativt — mørke felt viser hvor gasser typisk absorberer mer. Se Figur 3.2 (Sahara-figuren) i boka for det faktiske spekteret.</p>
+
+      <p><strong>Nøkkelpoeng:</strong> solstrålingen (kortbølget) og jordens/atmosfærens utstråling (langbølget) har ulike bølgelengdeområder. Ulike gasser — vanndamp, CO₂, ozon — absorberer godt ved bestemte bølgelengder og slipper andre nesten uhindret gjennom. Der ingen gasser absorberer godt, har vi et «atmosfærisk vindu». Dette er selve grunnlaget for drivhuseffekten, som dere går videre med i kapittel 4.</p>
+
+      <div class="check-block">
+        <h4>Sjekk forståelsen</h4>
+        <ul>
+          <li>Se på Figur 3.2: ved hvilke bølgelengder absorberer atmosfæren mye stråling, og ved hvilke slipper den lettere gjennom?</li>
+          <li>Hvorfor er det ikke tilfeldig hvilke bølgelengder som absorberes av en gitt gass?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Viva voce</p>
+    <h2>Spørsmål til samtalen</h2>
+    <p>Start med bekreftelsesspørsmålene, gå så videre til fordypningsspørsmålene ut fra hva den enkelte elev selv har markert som usikkert.</p>
+    <div class="vv-grid">
+      <div class="vv-col">
+        <div class="vv-group">
+          <p class="vv-group-title">Bekreftelse</p>
+          <ol>
+            <li>Forklar begrepet albedo med et eksempel.</li>
+            <li>Hvorfor sender solen mest kortbølget og jorda mest langbølget stråling?</li>
+            <li>Hva er forskjellen på strålingsoverskudd og strålingsunderskudd?</li>
+          </ol>
+        </div>
+        <div class="vv-group">
+          <p class="vv-group-title">Strålingsbalanse</p>
+          <ol>
+            <li>Forklar strålingsbalanse ved toppen av atmosfæren med egne ord.</li>
+            <li>Gjør rede for hvilke faktorer som påvirker strålingsbalansen ved jordoverflaten.</li>
+            <li>Hva ville skjedd med jordas gjennomsnittstemperatur dersom det kom inn mer energi enn det gikk ut ved TOA?</li>
+          </ol>
+        </div>
+      </div>
+      <div class="vv-col">
+        <div class="vv-group">
+          <p class="vv-group-title">Strålingsfordeling</p>
+          <ol>
+            <li>Hvorfor har vi strålingsoverskudd ved ekvator og strålingsunderskudd ved polene?</li>
+            <li>Hva ville skjedd med temperaturene ved ekvator og polene uten transport av overskuddsenergien?</li>
+            <li>Hvor ligger breddegraden for strålingslikevekt omtrent, og hva betyr det?</li>
+          </ol>
+        </div>
+        <div class="vv-group">
+          <p class="vv-group-title">Gassenes absorpsjon</p>
+          <ol>
+            <li>Forklar hvorfor ulike gasser i atmosfæren absorberer ulike bølgelengder av stråling.</li>
+            <li>Hva er et «atmosfærisk vindu», og hvorfor er det viktig for jordas energibalanse?</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Egenvurdering</p>
+    <h2>Sjekkliste etter viva voce</h2>
+    <p>Kan brukes som en enkel oppfølging rett etter samtalen.</p>
+    <ul class="checklist" id="checklist">
+      <li><input type="checkbox" id="c1"><label for="c1">Jeg kan forklare albedo, absorpsjon, emisjon og refleksjon</label></li>
+      <li><input type="checkbox" id="c2"><label for="c2">Jeg kan forklare svartlegemestråling og koble det til Plancks strålingslov</label></li>
+      <li><input type="checkbox" id="c3"><label for="c3">Jeg kan forklare strålingsbalanse — både ved TOA og ved jordoverflaten</label></li>
+      <li><input type="checkbox" id="c4"><label for="c4">Jeg kan lese og forklare figuren som viser strålingsoverskudd/-underskudd per breddegrad</label></li>
+      <li><input type="checkbox" id="c5"><label for="c5">Jeg kan forklare hvorfor ulike gasser absorberer ulike bølgelengder av stråling</label></li>
+    </ul>
+  </section>
+
+  <footer>Geofag 2 (REA3043) · Jordens puls, kapittel 3 · Viva voce-ressurs</footer>
+
+</div>
+<script>
+  document.querySelectorAll('.checklist li').forEach(function(li){
+    var box = li.querySelector('input');
+    function sync(){ li.classList.toggle('done', box.checked); }
+    box.addEventListener('change', sync);
+    sync();
+  });
+</script>
+</body>
+</html>
