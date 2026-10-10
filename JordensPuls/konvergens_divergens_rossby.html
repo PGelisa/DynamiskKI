@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fra bølge i høyden til vær ved bakken</title>
+<style>
+  :root{
+    --turkis:#33CCCC;   --turkis-lys:#E0F7F7;
+    --djuphav:#0B2A41;  --djuphav-lys:#E6E9EC;
+    --solnedgang:#F2731D; --solnedgang-lys:#FDEADD;
+    --fjell:#D14D26;    --fjell-lys:#F8E4DE;
+    --gull:#F8BF4B;     --gull-lys:#FDF5E4;
+    --skum:#FFF6EC;     --kant:#d8d8d8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;color:var(--djuphav);
+    font-family:Roboto,Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5}
+  .wrap{max-width:780px;margin:0 auto;padding:10px 12px 14px}
+  header{background:var(--turkis-lys);border-top:4px solid var(--turkis);
+    border-radius:10px 10px 0 0;padding:10px 16px 8px}
+  header h1{margin:0;font-size:1.3rem;line-height:1.25}
+  header p{margin:2px 0 0;font-size:.9rem}
+  .steps{display:flex;gap:6px;margin:10px 0 8px;padding:0;list-style:none}
+  .steps li{flex:1 1 0;min-width:0}
+  .steps button{width:100%;min-height:44px;border:1px solid var(--kant);border-radius:8px;
+    background:var(--skum);color:var(--djuphav);font:inherit;font-size:.85rem;
+    padding:4px 6px;cursor:pointer;line-height:1.2}
+  .steps button b{display:block;font-size:1rem}
+  .steps button[aria-current="step"]{background:var(--djuphav);color:#fff;border-color:var(--djuphav)}
+  @media (max-width:560px){.steps .lbl{display:none}}
+  button:focus-visible{outline:3px solid var(--djuphav);outline-offset:2px}
+  .fig{border:1px solid var(--kant);border-radius:10px;background:#fff;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:Roboto,Arial,Helvetica,sans-serif}
+  .fade{transition:opacity .4s}
+  .panel{margin-top:10px;background:var(--gull-lys);border:1px solid #E8D29C;
+    border-radius:10px;padding:12px 16px 10px;min-height:150px}
+  .panel h2{margin:0 0 4px;font-size:1.05rem}
+  .panel p{margin:0 0 8px}
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+  .nav button{min-height:44px;min-width:96px;border-radius:8px;border:1px solid var(--djuphav);
+    font:inherit;font-weight:600;cursor:pointer;padding:6px 14px}
+  #next{background:var(--turkis);color:var(--djuphav)}
+  #prev,#pp{background:#fff;color:var(--djuphav)}
+  .nav button:disabled{opacity:.4;cursor:default}
+  .mid{display:flex;align-items:center;gap:10px}
+  .count{font-size:.9rem}
+  .foot{margin:10px 2px 0;font-size:.8rem;color:#33475a}
+  .down{stroke-dasharray:10 8;animation:flowdown 1.1s linear infinite}
+  .up{stroke-dasharray:10 8;animation:flowup 1.1s linear infinite}
+  @keyframes flowdown{to{stroke-dashoffset:-18}}
+  @keyframes flowup{to{stroke-dashoffset:18}}
+  .paused .down,.paused .up{animation-play-state:paused}
+  @media (prefers-reduced-motion:reduce){.fade{transition:none}.down,.up{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Fra bølge i høyden til vær ved bakken</h1>
+  <p>Hvordan rygger og tråg i jetstrømmen gir høytrykk og lavtrykk ved bakken.</p>
+</header>
+
+<ol class="steps" id="steps"></ol>
+
+<div class="fig">
+<svg id="svg" viewBox="0 0 760 590" role="img" aria-labelledby="t d">
+  <title id="t">Jetstrømmen sett ovenfra og et snitt gjennom atmosfæren under den</title>
+  <desc id="d">Øverst: jetstrømmen ca. 10 km over bakken, med en rygg og et tråg. Nederst: et snitt fra vest til øst. Øst for ryggen hoper luften seg opp i høyden, synker og gir høytrykk ved bakken. Øst for tråget spres luften ut i høyden, stiger og gir lavtrykk med skyer og nedbør.</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#0B2A41"/></marker>
+    <marker id="ahR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#D14D26"/></marker>
+    <marker id="ahT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#0B2A41"/></marker>
+    <clipPath id="clipTop"><rect x="40" y="30" width="700" height="230" rx="10"/></clipPath>
+  </defs>
+
+  <!-- ===== Øvre panel: kart ===== -->
+  <text x="40" y="20" font-size="14" font-weight="700" fill="#0B2A41">Sett ovenfra, ca. 10 km over bakken</text>
+  <text x="740" y="20" text-anchor="end" font-size="13" font-weight="600" fill="#0B2A41">Nord ↑</text>
+  <rect x="40" y="30" width="700" height="230" rx="10" fill="#F4FBFB" stroke="#0B2A41" stroke-opacity=".3"/>
+  <g clip-path="url(#clipTop)">
+    <g id="zones" class="fade" style="opacity:0"></g>
+    <path id="band" fill="none" stroke="#F8BF4B" stroke-opacity=".4" stroke-width="56"/>
+    <path id="s0" fill="none" stroke="#0B2A41" stroke-width="2"/>
+    <path id="s1" fill="none" stroke="#0B2A41" stroke-width="3" marker-end="url(#ah)"/>
+    <path id="s2" fill="none" stroke="#0B2A41" stroke-width="2"/>
+    <g id="dots"></g>
+  </g>
+  <g id="zoneLbl" class="fade" style="opacity:0"></g>
+  <g id="rtLbl"></g>
+  <g id="speedLbl" class="fade" style="opacity:0"></g>
+
+  <!-- hjelpelinjer mellom panelene -->
+  <g id="guides" class="fade" style="opacity:0">
+    <line x1="150" y1="40" x2="150" y2="262" stroke="#0B2A41" stroke-width="1.3" stroke-dasharray="4 5"/>
+    <line x1="410" y1="40" x2="410" y2="262" stroke="#0B2A41" stroke-width="1.3" stroke-dasharray="4 5"/>
+    <line x1="150" y1="300" x2="150" y2="550" stroke="#0B2A41" stroke-width="1.3" stroke-dasharray="4 5"/>
+    <line x1="410" y1="300" x2="410" y2="550" stroke="#0B2A41" stroke-width="1.3" stroke-dasharray="4 5"/>
+  </g>
+
+  <!-- ===== Nedre panel: snitt ===== -->
+  <text x="40" y="290" font-size="14" font-weight="700" fill="#0B2A41">Snitt fra vest til øst, fra bakken til tropopausen</text>
+  <rect x="40" y="300" width="700" height="250" rx="10" fill="#ffffff" stroke="#0B2A41" stroke-opacity=".3"/>
+  <line x1="40" y1="330" x2="740" y2="330" stroke="#0B2A41" stroke-width="1.3" stroke-dasharray="7 5"/>
+  <text x="734" y="324" text-anchor="end" font-size="12" fill="#0B2A41">Tropopausen, ca. 10 km</text>
+  <rect x="40" y="520" width="700" height="30" fill="#E6E9EC"/>
+  <line x1="40" y1="520" x2="740" y2="520" stroke="#0B2A41" stroke-width="2"/>
+  <text x="48" y="541" font-size="12" font-weight="600" fill="#0B2A41">Bakken</text>
+  <text x="48" y="582" font-size="13" font-weight="700" fill="#0B2A41">Vest</text>
+  <text x="734" y="582" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Øst</text>
+
+  <!-- høyden: konvergens/divergens-piler -->
+  <g id="upper" class="fade" style="opacity:0">
+    <line x1="195" y1="350" x2="258" y2="350" stroke="#D14D26" stroke-width="4" marker-end="url(#ahR)"/>
+    <line x1="365" y1="350" x2="302" y2="350" stroke="#D14D26" stroke-width="4" marker-end="url(#ahR)"/>
+    <text x="280" y="378" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Konvergens</text>
+    <line x1="525" y1="350" x2="462" y2="350" stroke="#0B2A41" stroke-width="4" marker-end="url(#ahT)"/>
+    <line x1="555" y1="350" x2="618" y2="350" stroke="#0B2A41" stroke-width="4" marker-end="url(#ahT)"/>
+    <text x="540" y="378" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Divergens</text>
+  </g>
+
+  <!-- søylene -->
+  <g id="cols" class="fade" style="opacity:0">
+    <rect x="245" y="390" width="70" height="128" rx="4" fill="#F2731D" fill-opacity=".28" stroke="#D14D26" stroke-width="1.5"/>
+    <rect x="505" y="390" width="70" height="128" rx="4" fill="#33CCCC" fill-opacity=".12" stroke="#0B2A41" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="180" y="430" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Mer luft,</text>
+    <text x="180" y="447" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">tyngre søyle</text>
+    <text x="640" y="430" font-size="13" font-weight="700" fill="#0B2A41">Mindre luft,</text>
+    <text x="640" y="447" font-size="13" font-weight="700" fill="#0B2A41">lettere søyle</text>
+    <line x1="184" y1="436" x2="240" y2="436" stroke="#0B2A41" stroke-width="1.2"/>
+    <line x1="636" y1="436" x2="580" y2="436" stroke="#0B2A41" stroke-width="1.2"/>
+  </g>
+
+  <!-- vertikal bevegelse -->
+  <g id="vert" class="fade" style="opacity:0">
+    <line class="down" x1="268" y1="392" x2="268" y2="500" stroke="#D14D26" stroke-width="3.5" marker-end="url(#ahR)"/>
+    <line class="down" x1="292" y1="392" x2="292" y2="500" stroke="#D14D26" stroke-width="3.5" marker-end="url(#ahR)"/>
+    <line class="up" x1="528" y1="505" x2="528" y2="398" stroke="#0B2A41" stroke-width="3.5" marker-end="url(#ahT)"/>
+    <line class="up" x1="552" y1="505" x2="552" y2="398" stroke="#0B2A41" stroke-width="3.5" marker-end="url(#ahT)"/>
+    <text x="304" y="470" font-size="13" font-weight="700" fill="#0B2A41" stroke="#fff" stroke-width="4" paint-order="stroke">Synker</text>
+    <text x="564" y="470" font-size="13" font-weight="700" fill="#0B2A41" stroke="#fff" stroke-width="4" paint-order="stroke">Stiger</text>
+  </g>
+
+  <!-- trykk ved bakken -->
+  <g id="press" class="fade" style="opacity:0">
+    <text x="280" y="544" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Trykket stiger ↑</text>
+    <text x="540" y="544" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Trykket faller ↓</text>
+  </g>
+
+  <!-- vær -->
+  <g id="wx" class="fade" style="opacity:0">
+    <circle cx="200" cy="420" r="16" fill="#F8BF4B" stroke="#0B2A41" stroke-width="1.5"/>
+    <g stroke="#F2731D" stroke-width="3" stroke-linecap="round">
+      <line x1="200" y1="393" x2="200" y2="385"/><line x1="200" y1="447" x2="200" y2="455"/>
+      <line x1="173" y1="420" x2="165" y2="420"/><line x1="227" y1="420" x2="235" y2="420"/>
+      <line x1="181" y1="401" x2="175" y2="395"/><line x1="219" y1="439" x2="225" y2="445"/>
+      <line x1="219" y1="401" x2="225" y2="395"/><line x1="181" y1="439" x2="175" y2="445"/>
+    </g>
+    <text x="200" y="478" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Klarvær</text>
+    <path d="M592 420 a18 18 0 0 1 30 -12 a22 22 0 0 1 40 6 a16 16 0 0 1 4 30 h-70 a14 14 0 0 1 -4 -24z" fill="#E6E9EC" stroke="#0B2A41" stroke-width="1.5"/>
+    <g stroke="#33CCCC" stroke-width="3" stroke-linecap="round">
+      <line class="up" x1="606" y1="454" x2="602" y2="470"/>
+      <line x1="622" y1="454" x2="618" y2="470"/>
+      <line x1="638" y1="454" x2="634" y2="470"/>
+      <line x1="654" y1="454" x2="650" y2="470"/>
+    </g>
+    <text x="628" y="490" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Skyer og nedbør</text>
+    <line x1="252" y1="530" x2="200" y2="530" stroke="#0B2A41" stroke-width="2" marker-end="url(#ahT)"/>
+    <line x1="308" y1="530" x2="360" y2="530" stroke="#0B2A41" stroke-width="2" marker-end="url(#ahT)"/>
+    <line x1="460" y1="530" x2="512" y2="530" stroke="#0B2A41" stroke-width="2" marker-end="url(#ahT)"/>
+    <line x1="620" y1="530" x2="568" y2="530" stroke="#0B2A41" stroke-width="2" marker-end="url(#ahT)"/>
+    <circle cx="280" cy="530" r="17" fill="#FDEADD" stroke="#D14D26" stroke-width="2"/>
+    <text x="280" y="537" text-anchor="middle" font-size="20" font-weight="800" fill="#0B2A41">H</text>
+    <circle cx="540" cy="530" r="17" fill="#E0F7F7" stroke="#0B2A41" stroke-width="2"/>
+    <text x="540" y="537" text-anchor="middle" font-size="20" font-weight="800" fill="#0B2A41">L</text>
+    <text x="150" y="312" text-anchor="middle" font-size="12" font-weight="600" fill="#0B2A41" stroke="#fff" stroke-width="4" paint-order="stroke">Under ryggen</text>
+    <text x="410" y="312" text-anchor="middle" font-size="12" font-weight="600" fill="#0B2A41" stroke="#fff" stroke-width="4" paint-order="stroke">Under tråget</text>
+  </g>
+
+  <!-- stegtekst i snittet før det fylles -->
+  <text id="placeholder" class="fade" x="390" y="440" text-anchor="middle" font-size="14" fill="#33475a">Snittet fylles ut i de neste stegene</text>
+</svg>
+</div>
+
+<section class="panel" aria-live="polite">
+  <h2 id="ptitle"></h2>
+  <div id="pbody"></div>
+</section>
+
+<div class="nav">
+  <button id="prev" type="button">Forrige</button>
+  <span class="mid"><span class="count" id="count"></span><button id="pp" type="button">Pause</button></span>
+  <button id="next" type="button">Neste</button>
+</div>
+<p class="foot">Forenklet fremstilling til Jordens puls, kapittel 11. Ikke i målestokk. Nordlige halvkule.</p>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS = 'http://www.w3.org/2000/svg';
+  var $ = function(id){ return document.getElementById(id); };
+  var X0 = 40, X1 = 740, Y0 = 145, A = 58, XR = 150, LAM = 520, OFF = 30;
+
+  function y(x, o){ return Y0 + o - A*Math.cos(2*Math.PI*(x - XR)/LAM); }
+  function path(o){
+    var d = '';
+    for (var x = X0; x <= X1 - 8; x += 4) d += (x === X0 ? 'M' : 'L') + x + ' ' + y(x,o).toFixed(1) + ' ';
+    return d;
+  }
+  $('s0').setAttribute('d', path(-OFF));
+  $('s1').setAttribute('d', path(0));
+  $('s2').setAttribute('d', path(OFF));
+  $('band').setAttribute('d', path(0));
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text) e.textContent = text;
+    parent.appendChild(e); return e;
+  }
+  function label(parent, x, yy, txt, fill, stroke){
+    var w = txt.length*7.6 + 20;
+    el('rect', {x:x-w/2, y:yy-14, width:w, height:26, rx:13, fill:fill, stroke:stroke, 'stroke-width':1.6}, parent);
+    el('text', {x:x, y:yy+4, 'text-anchor':'middle', 'font-size':13, 'font-weight':700, fill:'#0B2A41'}, parent, txt);
+  }
+
+  // rygg og tråg
+  var rt = $('rtLbl');
+  label(rt, XR, y(XR,-OFF) - 22, 'Rygg', '#FDEADD', '#D14D26');
+  label(rt, XR + LAM/2, y(XR + LAM/2, OFF) + 24, 'Tråg', '#E0F7F7', '#0B2A41');
+  label(rt, XR + LAM, y(XR + LAM, -OFF) - 22, 'Rygg', '#FDEADD', '#D14D26');
+
+  // soner
+  var z = $('zones');
+  el('rect', {x:XR, y:30, width:LAM/2, height:230, fill:'#F2731D', 'fill-opacity':.16}, z);
+  el('rect', {x:XR + LAM/2, y:30, width:LAM/2, height:230, fill:'#33CCCC', 'fill-opacity':.2}, z);
+  el('rect', {x:X0, y:30, width:XR - X0, height:230, fill:'#33CCCC', 'fill-opacity':.2}, z);
+  el('rect', {x:XR + LAM, y:30, width:X1 - XR - LAM, height:230, fill:'#F2731D', 'fill-opacity':.16}, z);
+  var zl = $('zoneLbl');
+  label(zl, XR + LAM/4, 238, 'Konvergens i høyden', '#ffffff', '#D14D26');
+  label(zl, XR + 3*LAM/4, 52, 'Divergens i høyden', '#ffffff', '#0B2A41');
+
+  // fart
+  var sl = $('speedLbl');
+  label(sl, XR + 46, y(XR,-OFF) - 22, 'Rask', '#ffffff', '#0B2A41');
+  label(sl, XR + LAM/2 + 52, y(XR + LAM/2, OFF) + 24, 'Langsom', '#ffffff', '#0B2A41');
+
+  // partikler
+  var dots = $('dots'), parts = [], V = 95, spawn = 0, SP = 0.42;
+  function speed(x){ return V*(1 + 0.5*Math.cos(2*Math.PI*(x - XR)/LAM)); }
+  function addPart(x, lane){
+    var c = el('circle', {r:5.5, fill:'#F8BF4B', stroke:'#0B2A41', 'stroke-width':1.6}, dots);
+    parts.push({x:x, lane:lane, c:c});
+  }
+  // forhåndsfyll slik at tettheten er riktig fra start
+  (function prefill(){
+    var lanes = [-OFF, 0, OFF];
+    lanes.forEach(function(o, k){
+      var x = X1 - 12 - k*9;
+      while (x > X0){ addPart(x, o); x -= speed(x)*SP; }
+    });
+  })();
+
+  var STEPS = [
+    {s:'Bølgen', t:'Bølgen i høyden',
+     b:'<p>Kartet øverst viser jetstrømmen sett ovenfra, ca. 10 km over bakken. Den bukter seg nordover i en <b>rygg</b> og sørover i et <b>tråg</b>.</p><p>Figuren nederst er et snitt fra vest til øst gjennom atmosfæren rett under jetstrømmen. De stiplede linjene viser hvor ryggen og tråget ligger.</p>'},
+    {s:'Farten', t:'Farten varierer langs bølgen',
+     b:'<p>Følg de gule prikkene. Luften går fortere gjennom ryggen enn gjennom tråget. I ryggen svinger luften rundt et høytrykk, og i tråget rundt et lavtrykk. Husk gradientvinden fra kapittel 9. Rundt et høytrykk hjelper sentrifugalkraften trykkgradientkraften, og vinden blir sterkere. Rundt et lavtrykk virker sentrifugalkraften sammen med corioliskraften, og vinden blir svakere.</p><p>Legg merke til at prikkene ligger tettere i tråget og lenger fra hverandre i ryggen, akkurat som biler som bremser opp i en kø.</p>'},
+    {s:'Opphoping', t:'Luften hoper seg opp eller spres ut',
+     b:'<p><b>Øst for ryggen</b> bremser luften opp. Det kommer mer luft inn i området enn det går ut, og luften hoper seg opp. Det kaller vi <b>konvergens</b>.</p><p><b>Øst for tråget</b> øker farten igjen. Det går mer luft ut enn det kommer inn, og luften spres ut. Det kaller vi <b>divergens</b>.</p>'},
+    {s:'Søylen', t:'Søylen blir tyngre eller lettere',
+     b:'<p>Trykket ved bakken er vekten av hele luftsøylen over. Under konvergensen blir det mer luft i søylen. Søylen blir tyngre, og trykket ved bakken stiger. Luften i søylen synker.</p><p>Under divergensen blir det mindre luft i søylen, og trykket ved bakken faller. Luft nedenfra stiger opp for å fylle på.</p>'},
+    {s:'Været', t:'Været ved bakken',
+     b:'<p>Synkende luft varmes opp og blir tørr. Da får vi <b>høytrykk med klarvær</b>. Stigende luft avkjøles, vanndampen kondenserer, og vi får <b>lavtrykk med skyer og nedbør</b>.</p><p>Derfor ligger høytrykket ved bakken litt øst for ryggen i høyden, og lavtrykket litt øst for tråget.</p>'}
+  ];
+
+  var step = 1, paused = false;
+  var ol = $('steps');
+  STEPS.forEach(function(s, i){
+    var li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<b>' + (i+1) + '</b><span class="lbl">' + s.s + '</span>';
+    b.addEventListener('click', function(){ go(i+1); });
+    li.appendChild(b); ol.appendChild(li);
+  });
+
+  function vis(id, on){ $(id).style.opacity = on ? 1 : 0; }
+  function go(n){
+    if (n < 1 || n > STEPS.length) return;
+    step = n;
+    $('ptitle').textContent = STEPS[n-1].t;
+    $('pbody').innerHTML = STEPS[n-1].b;
+    $('count').textContent = 'Steg ' + n + ' av ' + STEPS.length;
+    $('prev').disabled = n === 1; $('next').disabled = n === STEPS.length;
+    var bs = ol.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++){ if (i === n-1) bs[i].setAttribute('aria-current','step'); else bs[i].removeAttribute('aria-current'); }
+    dots.style.opacity = n >= 2 ? 1 : 0;
+    vis('speedLbl', n === 2);
+    vis('zones', n >= 3); vis('zoneLbl', n >= 3);
+    vis('guides', true);
+    vis('upper', n >= 3);
+    vis('cols', n === 4);
+    vis('vert', n >= 4);
+    vis('press', n === 4);
+    vis('wx', n === 5);
+    vis('placeholder', n <= 2);
+  }
+  $('prev').addEventListener('click', function(){ go(step-1); });
+  $('next').addEventListener('click', function(){ go(step+1); });
+  $('pp').addEventListener('click', function(){
+    paused = !paused;
+    $('pp').textContent = paused ? 'Spill av' : 'Pause';
+    document.body.classList.toggle('paused', paused);
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') go(step+1);
+    if (e.key === 'ArrowLeft') go(step-1);
+  });
+
+  function place(p){
+    p.c.setAttribute('cx', p.x.toFixed(1));
+    p.c.setAttribute('cy', y(p.x, p.lane).toFixed(1));
+  }
+  parts.forEach(place);
+
+  var last = performance.now();
+  function frame(now){
+    var dt = Math.min(0.05, (now - last)/1000); last = now;
+    if (!paused && !reduce){
+      spawn += dt;
+      if (spawn >= SP){ spawn -= SP; addPart(X0 - 4, -OFF); addPart(X0 - 4, 0); addPart(X0 - 4, OFF); }
+      for (var i = parts.length - 1; i >= 0; i--){
+        var p = parts[i];
+        p.x += speed(p.x)*dt;
+        if (p.x > X1 - 10){ dots.removeChild(p.c); parts.splice(i, 1); continue; }
+        place(p);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  if (reduce){ $('pp').style.display = 'none'; }
+  go(1);
+  requestAnimationFrame(function(t){ last = t; frame(t); });
+})();
+</script>
+</body>
+</html>
