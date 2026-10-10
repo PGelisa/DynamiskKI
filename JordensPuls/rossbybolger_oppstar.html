@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slik oppstår Rossbybølger</title>
+<style>
+  :root{
+    --turkis:#33CCCC;   --turkis-lys:#E0F7F7;
+    --djuphav:#0B2A41;  --djuphav-lys:#E6E9EC;
+    --solnedgang:#F2731D; --solnedgang-lys:#FDEADD;
+    --fjell:#D14D26;    --fjell-lys:#F8E4DE;
+    --gull:#F8BF4B;     --gull-lys:#FDF5E4;
+    --skum:#FFF6EC;
+    --kant:#d8d8d8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#ffffff;color:var(--djuphav);
+    font-family:Roboto,Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5}
+  .wrap{max-width:780px;margin:0 auto;padding:10px 12px 14px}
+
+  header{background:var(--turkis-lys);border-top:4px solid var(--turkis);
+    border-radius:10px 10px 0 0;padding:10px 16px 8px}
+  header h1{margin:0;font-size:1.3rem;line-height:1.25}
+  header p{margin:2px 0 0;font-size:.9rem}
+
+  .steps{display:flex;gap:6px;margin:10px 0 8px;padding:0;list-style:none}
+  .steps li{flex:1 1 0;min-width:0}
+  .steps button{width:100%;min-height:44px;border:1px solid var(--kant);border-radius:8px;
+    background:var(--skum);color:var(--djuphav);font:inherit;font-size:.85rem;
+    padding:4px 6px;cursor:pointer;line-height:1.2}
+  .steps button b{display:block;font-size:1rem}
+  .steps button[aria-current="step"]{background:var(--djuphav);color:#fff;border-color:var(--djuphav)}
+  .steps .lbl{display:inline}
+  @media (max-width:560px){.steps .lbl{display:none}}
+
+  button:focus-visible,input:focus-visible{outline:3px solid var(--djuphav);outline-offset:2px}
+
+  .fig{border:1px solid var(--kant);border-radius:10px;background:#fff;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:Roboto,Arial,Helvetica,sans-serif}
+  .fade{transition:opacity .35s}
+
+  .panel{margin-top:10px;background:var(--gull-lys);border:1px solid #E8D29C;
+    border-radius:10px;padding:12px 16px 10px}
+  .panel h2{margin:0 0 4px;font-size:1.05rem}
+  .panel p{margin:0 0 8px}
+  .small{font-size:.85rem}
+
+  .bar{display:flex;border:1px solid var(--djuphav);border-radius:8px;overflow:hidden;margin:6px 0 4px;min-height:44px}
+  .bar div{display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:4px 6px;font-size:.9rem;font-weight:600;transition:width .08s;color:var(--djuphav)}
+  .bJ{background:var(--turkis)} .bE{background:var(--solnedgang)}
+  .bW{background:var(--gull)}   .bV{background:var(--turkis)}
+  .row{display:flex;align-items:center;gap:8px;margin:4px 0}
+  .row .name{flex:0 0 150px;font-size:.9rem}
+  .row .track{flex:1 1 auto;background:var(--djuphav-lys);border-radius:6px;height:28px;overflow:hidden}
+  .row .fill{height:100%;display:flex;align-items:center;padding:0 8px;font-size:.85rem;
+    font-weight:600;color:var(--djuphav);white-space:nowrap;min-width:3.2em}
+  .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:6px 0 2px}
+  .ctl label{display:flex;align-items:center;gap:8px;flex:1 1 260px;font-size:.9rem}
+  .ctl input[type=range]{flex:1 1 auto;min-width:120px;height:32px;accent-color:var(--djuphav)}
+  .result{font-weight:700;margin:6px 0 0}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+  .nav button,.ctl button{min-height:44px;min-width:96px;border-radius:8px;border:1px solid var(--djuphav);
+    font:inherit;font-weight:600;cursor:pointer;padding:6px 14px}
+  #next{background:var(--turkis);color:var(--djuphav)}
+  #prev,.ctl button{background:#fff;color:var(--djuphav)}
+  .nav button:disabled{opacity:.4;cursor:default}
+  .count{font-size:.9rem}
+  .foot{margin:10px 2px 0;font-size:.8rem;color:#33475a}
+  @media (prefers-reduced-motion:reduce){.fade{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Slik oppstår Rossbybølger</h1>
+  <p>Fem steg fra rett jetstrøm til bølge. Kartet er sett ovenfra, med nord opp.</p>
+</header>
+
+<ol class="steps" id="steps"></ol>
+
+<div class="fig">
+<svg id="map" viewBox="0 0 760 400" role="img" aria-labelledby="svgT svgD">
+  <title id="svgT">Kart over jetstrømmen sett ovenfra</title>
+  <desc id="svgD">Jetstrømmen blåser fra vest mot øst. Etter hvert som stegene går, blir strømmen dyttet nordover, pendler fram og tilbake rundt sitt opprinnelige spor og danner rygger og tråg.</desc>
+  <defs>
+    <linearGradient id="gf" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#E0F7F7"/>
+      <stop offset="1" stop-color="#33CCCC" stop-opacity=".55"/>
+    </linearGradient>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#0B2A41"/>
+    </marker>
+    <marker id="ahF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#D14D26"/>
+    </marker>
+    <marker id="ahD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#0B2A41"/>
+    </marker>
+  </defs>
+
+  <!-- kartflate: lysere i sør, mørkere turkis i nord = sterkere dreining fra jorden -->
+  <rect x="50" y="30" width="690" height="340" rx="12" fill="url(#gf)" stroke="#0B2A41" stroke-opacity=".35"/>
+  <line x1="32" y1="352" x2="32" y2="48" stroke="#0B2A41" stroke-width="2" marker-end="url(#ah)"/>
+  <text transform="translate(18,200) rotate(-90)" text-anchor="middle" font-size="13" font-weight="600" fill="#0B2A41">Jordens dreining øker mot nord</text>
+  <text x="395" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Nord</text>
+  <text x="395" y="391" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Sør</text>
+  <text x="56" y="391" font-size="13" font-weight="700" fill="#0B2A41">Vest</text>
+  <text x="736" y="391" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Øst</text>
+
+  <!-- fjellkjede -->
+  <g id="mtn" class="fade" style="opacity:0">
+    <polygon points="118,232 142,186 166,232" fill="#D14D26" fill-opacity=".85" stroke="#0B2A41" stroke-width="1.5"/>
+    <polygon points="146,240 172,192 198,240" fill="#D14D26" fill-opacity=".85" stroke="#0B2A41" stroke-width="1.5"/>
+    <polygon points="132,244 154,204 176,244" fill="#F8E4DE" fill-opacity=".95" stroke="#0B2A41" stroke-width="1.5"/>
+    <text x="158" y="268" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Fjellkjede</text>
+  </g>
+
+  <!-- jetbånd og strømlinjer -->
+  <clipPath id="mapclip"><rect x="50" y="30" width="690" height="340" rx="12"/></clipPath>
+  <path id="band" d="" fill="none" stroke="#F8BF4B" stroke-opacity=".45" stroke-width="44" stroke-linejoin="round" clip-path="url(#mapclip)"/>
+  <path id="l0" d="" fill="none" stroke="#0B2A41" stroke-width="2.5" marker-end="url(#ah)"/>
+  <path id="l1" d="" fill="none" stroke="#0B2A41" stroke-width="3.5" marker-end="url(#ah)"/>
+  <path id="l2" d="" fill="none" stroke="#0B2A41" stroke-width="2.5" marker-end="url(#ah)"/>
+
+  <text id="jetlbl" class="fade" x="640" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Jetstrøm, vestavind</text>
+  <text id="pushlbl" class="fade" x="176" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41" style="opacity:0">Luften presses nordover</text>
+
+  <!-- bølgelengde -->
+  <g id="dim" class="fade" style="opacity:0">
+    <line id="dimL" x1="0" y1="64" x2="0" y2="64" stroke="#0B2A41" stroke-width="1.8" marker-start="url(#ahD)" marker-end="url(#ahD)"/>
+    <text id="dimT" x="0" y="56" text-anchor="middle" font-size="13" font-weight="600" fill="#0B2A41">Bølgelengde, ofte flere tusen kilometer</text>
+  </g>
+
+  <!-- rygg og tråg -->
+  <g id="ridge" class="fade" style="opacity:0">
+    <rect id="ridgeR" x="0" y="0" width="64" height="26" rx="13" fill="#FDEADD" stroke="#D14D26" stroke-width="1.8"/>
+    <text id="ridgeT" x="0" y="0" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Rygg</text>
+  </g>
+  <g id="trough" class="fade" style="opacity:0">
+    <rect id="troughR" x="0" y="0" width="64" height="26" rx="13" fill="#E0F7F7" stroke="#0B2A41" stroke-width="1.8"/>
+    <text id="troughT" x="0" y="0" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">Tråg</text>
+  </g>
+
+  <!-- steg 5: trekkamp mellom beta-effekt og vestavind, og ryggprikk -->
+  <g id="g5" class="fade" style="opacity:0">
+    <line x1="395" y1="40" x2="395" y2="352" stroke="#0B2A41" stroke-width="1.5" stroke-dasharray="5 5"/>
+    <text x="401" y="346" font-size="13" font-weight="600" fill="#0B2A41">Fast punkt på kartet</text>
+    <text id="dayT" x="62" y="52" font-size="13" font-weight="700" fill="#0B2A41">Døgn 0 av 4</text>
+
+    <line id="aBl" x1="395" y1="50" x2="395" y2="50" stroke="#D14D26" stroke-width="7" stroke-linecap="round"/>
+    <polygon id="aBh" points="0,0 0,0 0,0" fill="#D14D26"/>
+    <text id="tB" x="732" y="55" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Beta-effekten</text>
+
+    <line id="aVl" x1="395" y1="78" x2="395" y2="78" stroke="#0B2A41" stroke-width="7" stroke-linecap="round"/>
+    <polygon id="aVh" points="0,0 0,0 0,0" fill="#0B2A41"/>
+    <text id="tV" x="732" y="83" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Vestavinden</text>
+
+    <line id="aRo" x1="395" y1="108" x2="395" y2="108" stroke="#0B2A41" stroke-width="12" stroke-linecap="round"/>
+    <line id="aRl" x1="395" y1="108" x2="395" y2="108" stroke="#F8BF4B" stroke-width="7" stroke-linecap="round"/>
+    <polygon id="aRh" points="0,0 0,0 0,0" fill="#F8BF4B" stroke="#0B2A41" stroke-width="2" stroke-linejoin="round"/>
+    <text id="tR" x="732" y="113" text-anchor="end" font-size="13" font-weight="700" fill="#0B2A41">Resultat</text>
+
+    <line id="cl" x1="0" y1="0" x2="0" y2="0" stroke="#D14D26" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <circle id="cg" r="9" cx="0" cy="0" fill="#ffffff" fill-opacity=".6" stroke="#0B2A41" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <circle id="cd" r="10" cx="0" cy="0" fill="#F8BF4B" stroke="#0B2A41" stroke-width="2.5"/>
+    <text id="ct" x="0" y="0" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41" stroke="#ffffff" stroke-width="4" paint-order="stroke">Rygg</text>
+  </g>
+
+  <!-- luftpakke -->
+  <g id="parcel" class="fade" style="opacity:0">
+    <line id="tang" x1="0" y1="0" x2="0" y2="0" stroke="#D14D26" stroke-width="3" marker-end="url(#ahF)"/>
+    <circle id="pc" r="10" cx="0" cy="0" fill="#F8BF4B" stroke="#0B2A41" stroke-width="2.5"/>
+    <rect id="turnR" x="0" y="0" width="150" height="26" rx="13" fill="#ffffff" fill-opacity=".95" stroke="#0B2A41" stroke-width="1.5"/>
+    <text id="turnT" x="0" y="0" text-anchor="middle" font-size="13" font-weight="700" fill="#0B2A41">går rett fram</text>
+  </g>
+</svg>
+</div>
+
+<section class="panel" id="panel" aria-live="polite">
+  <h2 id="ptitle"></h2>
+  <div id="pbody"></div>
+</section>
+
+<div class="nav">
+  <button id="prev" type="button">Forrige</button>
+  <span class="count" id="count"></span>
+  <button id="next" type="button">Neste</button>
+</div>
+
+<p class="foot">Forenklet fremstilling til Jordens puls, kapittel 11.</p>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(id){return document.getElementById(id);};
+
+  var X0 = 56, X1 = 734;           // tegneområde i x
+  var LINES = [170, 205, 240];     // y for de tre strømlinjene
+  var F = {x0:110, lam:260, A:58, decay:420};   // fjellforsert bølge
+  var PX_KM = 20;                  // 1 piksel = 20 km
+  var U = 15, BETA = 1.6e-11;      // vestavind (m/s) og beta ved ca. 45 grader nord
+
+  var STEPS = [
+    {short:'Utgangspunkt', title:'Jetstrømmen og jordens dreining'},
+    {short:'Dytt',         title:'Noe dytter luften ut av sporet'},
+    {short:'Beta-effekten',title:'Beta-effekten snur luften'},
+    {short:'Bølgen',       title:'Resultatet er en bølge'},
+    {short:'Fart',         title:'Står bølgen stille eller flytter den seg?'}
+  ];
+
+  var step = 1, prev = 1, w = 1;
+  var parcelX = X0 + 6, phase = 0, lamKm = 3000;
+  var CYC_T = 4, cyc = 0;           // fire døgn per runde
+  var userPaused = false;
+
+  // ---------- stegknapper ----------
+  var ol = $('steps');
+  STEPS.forEach(function(s,i){
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<b>'+(i+1)+'</b><span class="lbl">'+s.short+'</span>';
+    b.addEventListener('click', function(){go(i+1);});
+    li.appendChild(b); ol.appendChild(li);
+  });
+
+  // ---------- fysikk for tegningen ----------
+  function off(s, x){
+    if (s === 1) return 0;
+    var d = x - F.x0;
+    if (s === 2){
+      if (d < 0 || d > F.lam/2) return 0;
+      return F.A * Math.sin(2*Math.PI*d/F.lam);
+    }
+    if (s === 3 || s === 4){
+      if (d < 0) return 0;
+      return F.A * Math.exp(-d/F.decay) * Math.sin(2*Math.PI*d/F.lam);
+    }
+    var lamPx = lamKm / PX_KM;
+    return 52 * Math.sin(2*Math.PI*(x - F.x0 - phase)/lamPx);
+  }
+  function b(x){ return (1-w)*off(prev,x) + w*off(step,x); }
+
+  function pathD(y0){
+    var d = '';
+    for (var x = X0; x <= X1; x += 4){
+      d += (x===X0 ? 'M' : 'L') + x + ' ' + (y0 - b(x)).toFixed(1) + ' ';
+    }
+    return d;
+  }
+
+  function drift(){            // Rossbys vestlige drift, m/s
+    var L = lamKm * 1000;
+    return BETA * L * L / (4*Math.PI*Math.PI);
+  }
+  function cSpeed(){ return U - drift(); }   // positiv = østover
+
+  // ---------- panelinnhold ----------
+  function panel(){
+    $('ptitle').textContent = STEPS[step-1].title;
+    var h = '';
+    if (step === 1){
+      h = '<p>Høyt oppe blåser jetstrømmen fra vest mot øst. Jorden dreier all luft litt rundt, og denne dreiningen blir sterkere jo lenger nord vi kommer. Det er samme effekt som gjør at Corioliskraften er null ved ekvator og størst ved polene. Husk dette, for det er hele nøkkelen til Rossbybølger.</p>';
+    } else if (step === 2){
+      h = '<p>En fjellkjede, for eksempel Rocky Mountains, eller en stor temperaturforskjell mellom hav og land kan tvinge luften ut av det rette sporet. Her blir luften presset nordover. Dytten alene gir bare en liten bule. Hva som gjør bulen til en bølge, ser vi i neste steg.</p>';
+    } else if (step === 3){
+      h = '<p>Luft som flyttes nordover kommer til et sted der jorden dreier mer. Summen av jordens dreining og luftas egen rotasjon må være den samme hele tiden. Da må luftas egen rotasjon minke, og luften svinger mot høyre, tilbake mot sør. Flytter luften seg sørover, skjer det motsatte. Den egne rotasjonen øker, og luften svinger mot venstre, tilbake mot nord. Luften pendler dermed fram og tilbake rundt det opprinnelige sporet, og pendlingen er en bølge. At dreiningen fra jorden endrer seg med breddegraden, kalles <b>beta-effekten</b>.</p>'
+        + '<div class="bar" aria-hidden="true"><div class="bJ" id="bJ">Jordens dreining</div><div class="bE" id="bE">Luftas egen rotasjon</div></div>'
+        + '<p class="small">Summen er alltid den samme. Når den ene delen vokser, minker den andre.</p>'
+        + '<div class="ctl"><label>Plass langs banen <input type="range" id="pos" min="0" max="100" value="0" aria-label="Luftpakkens plass langs banen"></label><button type="button" id="pp"></button></div>';
+    } else if (step === 4){
+      h = '<p>Pendlingen fortsetter lenger øst og gir en rekke rygger og tråg. I en rygg bukter jetstrømmen seg nordover og bærer varm luft med seg. I et tråg bukter den seg sørover og bærer kald luft. Bølgene er så lange at de må regnes i tusener av kilometer. Dette er Rossbybølger.</p>';
+    } else {
+      h = '<p>Tenk deg at du går opp en rulletrapp som går nedover. Går du like fort som trappen, blir du stående på samme sted. En Rossbybølge er i samme situasjon. Beta-effekten drar bølgemønsteret mot vest, mens vestavinden bærer det mot øst. Hvem som vinner, avhenger av bølgelengden. Prøv selv.</p>'
+        + '<div class="ctl"><button type="button" class="pre" data-l="2500">Kort bølge</button><button type="button" class="pre" data-l="6000">Middels bølge</button><button type="button" class="pre" data-l="10000">Lang bølge</button><button type="button" id="pp"></button></div>'
+        + '<div class="ctl"><label>Bølgelengde <output id="lout"></output><input type="range" id="lam" min="2000" max="10000" step="250" value="'+lamKm+'" aria-label="Bølgelengde i kilometer"></label></div>'
+        + '<p class="result" id="res"></p><p class="small" id="res2"></p>'
+        + '<p class="small">Følg den gule prikken på ryggen. Den hule sirkelen viser hvor ryggen startet. De to pilene øverst viser hvor sterk beta-effekten og vestavinden er. Ett sekund i animasjonen er ett døgn. Forenklet modell med vestavind på 15 m/s ved ca. 45° nord.</p>';
+    }
+    $('pbody').innerHTML = h;
+    $('count').textContent = 'Steg ' + step + ' av ' + STEPS.length;
+    $('prev').disabled = step === 1;
+    $('next').disabled = step === STEPS.length;
+
+    var btns = ol.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++){
+      if (i === step-1) btns[i].setAttribute('aria-current','step'); else btns[i].removeAttribute('aria-current');
+    }
+    wire();
+  }
+
+  function setPP(){
+    var pp = $('pp'); if (!pp) return;
+    pp.textContent = userPaused ? 'Spill av' : 'Pause';
+  }
+  function wire(){
+    setPP();
+    var pp = $('pp');
+    if (pp) pp.addEventListener('click', function(){ userPaused = !userPaused; setPP(); });
+    var pos = $('pos');
+    if (pos){
+      pos.value = Math.round((parcelX - X0)/(X1 - X0)*100);
+      pos.addEventListener('input', function(){
+        parcelX = X0 + (X1 - X0) * (pos.value/100);
+        userPaused = true; setPP();
+      });
+    }
+    var lam = $('lam');
+    if (lam){
+      lam.addEventListener('input', function(){ lamKm = +lam.value; cyc = 0; });
+    }
+    var pres = document.querySelectorAll('.pre');
+    for (var i = 0; i < pres.length; i++){
+      (function(btn){
+        btn.addEventListener('click', function(){
+          lamKm = +btn.getAttribute('data-l'); cyc = 0;
+          if (lam) lam.value = lamKm;
+        });
+      })(pres[i]);
+    }
+  }
+
+  function go(n){
+    if (n < 1 || n > STEPS.length || n === step) return;
+    prev = step; step = n; w = reduce ? 1 : 0;
+    panel();
+  }
+  $('prev').addEventListener('click', function(){go(step-1);});
+  $('next').addEventListener('click', function(){go(step+1);});
+  document.addEventListener('keydown', function(e){
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') go(step+1);
+    if (e.key === 'ArrowLeft')  go(step-1);
+  });
+
+  // ---------- tegning ----------
+  var L0=$('l0'), L1=$('l1'), L2=$('l2'), BAND=$('band');
+  function vis(id, on){ $(id).style.opacity = on ? 1 : 0; }
+
+  function draw(){
+    if (step === 5) phase = cSpeed()*4.32*Math.min(cyc, CYC_T);
+    L0.setAttribute('d', pathD(LINES[0]));
+    L1.setAttribute('d', pathD(LINES[1]));
+    L2.setAttribute('d', pathD(LINES[2]));
+    BAND.setAttribute('d', pathD(LINES[1]));
+    var me = (step === 5) ? '' : 'url(#ah)';
+    [L0, L1, L2].forEach(function(l){
+      if (me) l.setAttribute('marker-end', me); else l.removeAttribute('marker-end');
+    });
+
+    vis('mtn',  step>=2 && step<=4);
+    vis('jetlbl', step<=2);
+    vis('pushlbl', step===2);
+    vis('parcel', step===3);
+    vis('ridge',  step===4);
+    vis('trough', step===4);
+    vis('dim',    step===4);
+
+    if (step === 4){
+      var cx = F.x0 + F.lam/4, tx = F.x0 + 3*F.lam/4;
+      var ry = LINES[0] - off(4,cx) - 30;
+      var ty = LINES[2] - off(4,tx) + 30;
+      $('ridgeR').setAttribute('x', cx-32);  $('ridgeR').setAttribute('y', ry-13);
+      $('ridgeT').setAttribute('x', cx);     $('ridgeT').setAttribute('y', ry+5);
+      $('troughR').setAttribute('x', tx-32); $('troughR').setAttribute('y', ty-13);
+      $('troughT').setAttribute('x', tx);    $('troughT').setAttribute('y', ty+5);
+      $('dimL').setAttribute('x1', cx); $('dimL').setAttribute('x2', cx + F.lam);
+      $('dimT').setAttribute('x', cx + F.lam/2);
+    }
+
+    if (step === 3){
+      var px = parcelX, o = b(px), py = LINES[1] - o;
+      var slope = (b(px+2) - b(px-2))/4;
+      var len = Math.sqrt(1 + slope*slope);
+      var vx = 32/len, vy = -32*slope/len;
+      $('pc').setAttribute('cx', px); $('pc').setAttribute('cy', py);
+      $('tang').setAttribute('x1', px); $('tang').setAttribute('y1', py);
+      $('tang').setAttribute('x2', px+vx); $('tang').setAttribute('y2', py+vy);
+
+      var curv = (b(px+4) - 2*b(px) + b(px-4))/16;
+      var txt = 'går rett fram';
+      if (curv < -0.006) txt = 'svinger mot høyre';
+      else if (curv > 0.006) txt = 'svinger mot venstre';
+      $('turnT').textContent = txt;
+      var cxl = Math.max(130, Math.min(690, px));
+      var cyl = (o > 12 ? py + 30 : py - 30);   // plasser merkelappen utenfor strømlinjene
+      if (o > 12) cyl = LINES[2] - o + 34; else cyl = LINES[0] - o - 34;
+      $('turnR').setAttribute('x', cxl-75); $('turnR').setAttribute('y', cyl-13);
+      $('turnT').setAttribute('x', cxl);    $('turnT').setAttribute('y', cyl+5);
+
+      var norm = o / F.A;
+      var jw = 50 + 22*norm;
+      var bj = $('bJ'), be = $('bE');
+      if (bj && be){ bj.style.width = jw.toFixed(1)+'%'; be.style.width = (100-jw).toFixed(1)+'%'; }
+      var pos = $('pos');
+      if (pos && document.activeElement !== pos) pos.value = Math.round((px - X0)/(X1 - X0)*100);
+    }
+
+    vis('g5', step === 5);
+    if (step === 5){
+      var dr = drift(), c = cSpeed();
+      var lo = $('lout'); if (lo) lo.textContent = lamKm + ' km';
+
+      // pilene (4 piksler per m/s), alle starter ved det faste punktet
+      var S = 4, XC = 395;
+      arrow('aB', XC, -dr*S, 50);
+      arrow('aV', XC,  U*S, 78);
+      $('tB').textContent = 'Beta-effekten drar mot vest, ' + Math.round(dr) + ' m/s';
+      $('tV').textContent = 'Vestavinden bærer mot øst, ' + U + ' m/s';
+      var still = Math.abs(c) < 1.5;
+      arrow('aR', XC, c*S, 108);
+      var showR = still ? 'none' : '';
+      $('aRo').style.display = showR; $('aRl').style.display = showR; $('aRh').style.display = showR;
+      if (still){ $('tR').textContent = 'Resultat, bølgen står i ro'; }
+      else { $('tR').textContent = 'Resultat, ' + Math.round(Math.abs(c)) + ' m/s mot ' + (c > 0 ? 'øst' : 'vest'); }
+
+      // ryggprikken
+      var lamPx = lamKm / PX_KM, T = CYC_T;
+      var D = c*4.32*T;
+      var target = Math.max(120, Math.min(670, XC - D/2));
+      var k = Math.round((target - (F.x0 + lamPx/4)) / lamPx);
+      var xs = F.x0 + lamPx/4 + k*lamPx;
+      var yc = LINES[1] - 52;
+      var xn = xs + phase;
+      $('cg').setAttribute('cx', xs); $('cg').setAttribute('cy', yc);
+      $('cd').setAttribute('cx', xn); $('cd').setAttribute('cy', yc);
+      $('cl').setAttribute('x1', xs); $('cl').setAttribute('y1', yc);
+      $('cl').setAttribute('x2', xn); $('cl').setAttribute('y2', yc);
+      $('ct').setAttribute('x', xn);  $('ct').setAttribute('y', yc-16);
+      $('dayT').textContent = 'Døgn ' + Math.floor(Math.min(cyc, T)) + ' av ' + T;
+
+      var res = $('res'), res2 = $('res2');
+      if (res){
+        var km = Math.round(Math.abs(c)*86.4/10)*10, t, t2 = '';
+        if (still){ t = 'Uavgjort. Bølgen står nesten stille.'; t2 = 'Slike nesten stille bølger kan holde et værmønster på plass i mange dager.'; }
+        else if (c > 0) t = 'Vinden vinner. Bølgen flytter seg østover, omtrent ' + km + ' km i døgnet.';
+        else t = 'Beta-effekten vinner. Bølgen flytter seg vestover, omtrent ' + km + ' km i døgnet.';
+        if (res.textContent !== t) res.textContent = t;
+        if (res2.textContent !== t2) res2.textContent = t2;
+      }
+    }
+  }
+
+  function arrow(id, x0, len, y){
+    var line = $(id+'l'), head = $(id+'h'), outl = $(id+'o');
+    var s = len >= 0 ? 1 : -1, a = Math.abs(len), HL = 13;
+    var tipX = x0 + s*Math.max(a, HL + 2);
+    var baseX = tipX - s*HL;
+    line.setAttribute('x1', x0); line.setAttribute('x2', baseX);
+    line.setAttribute('y1', y);  line.setAttribute('y2', y);
+    if (outl){ outl.setAttribute('x1', x0); outl.setAttribute('x2', baseX); outl.setAttribute('y1', y); outl.setAttribute('y2', y); }
+    head.setAttribute('points', tipX+','+y+' '+baseX+','+(y-8)+' '+baseX+','+(y+8));
+  }
+
+  var last = performance.now();
+  function frame(now){
+    var dt = Math.min(0.05, (now - last)/1000); last = now;
+    if (w < 1) w = Math.min(1, w + dt/0.5);
+    if (!userPaused && !reduce){
+      if (step === 3){ parcelX += 110*dt; if (parcelX > X1 - 8) parcelX = X0 + 6; }
+      if (step === 5){ cyc += dt; if (cyc > CYC_T + 1.2) cyc = 0; }   // 1 m/s = 4,32 px per døgn-sekund
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  if (reduce){ userPaused = true; parcelX = F.x0 + F.lam/4; cyc = CYC_T; }
+  panel();
+  requestAnimationFrame(function(t){ last = t; frame(t); });
+})();
+</script>
+</body>
+</html>
