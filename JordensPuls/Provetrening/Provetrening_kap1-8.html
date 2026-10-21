@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prøvetrening kapittel 1–8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@500&display=swap">
+<style>
+/* Layout: smal lesekolonne med oppgavekort, klebrig poenglinje øverst, nummerkart som navigasjon */
+:root {
+  --bg: #F3F7F7;
+  --surface: #FFFFFF;
+  --surface-2: #E8F1F1;
+  --ink: #0B2A41;
+  --ink-soft: #3E5566;
+  --line: #CBDADA;
+  --accent: #167676;
+  --accent-fill: #33CCCC;
+  --on-accent: #0B2A41;
+  --deep: #0B2A41;
+  --on-deep: #FFFFFF;
+  --ok: #1E6B45;
+  --ok-bg: #E3F2EA;
+  --bad: #A8321F;
+  --bad-bg: #FBE7E2;
+  --part: #8A5A00;
+  --part-bg: #FDF1D8;
+  --gold-bg: #FDF5E4;
+  --gold-line: #E8D29C;
+  --display: "Roboto Slab", Georgia, serif;
+  --body: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Roboto Mono", ui-monospace, Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #08151F; --surface: #0F2333; --surface-2: #143047; --ink: #E4EEF2; --ink-soft: #A7BBC6;
+    --line: #24435A; --accent: #5FD6D6; --accent-fill: #33CCCC; --on-accent: #062030; --deep: #33CCCC; --on-deep: #062030;
+    --ok: #7FD8A7; --ok-bg: #12352A; --bad: #FF9A85; --bad-bg: #3D1B16; --part: #F5C66A; --part-bg: #3A2C0E;
+    --gold-bg: #2C2410; --gold-line: #6B5520; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #08151F; --surface: #0F2333; --surface-2: #143047; --ink: #E4EEF2; --ink-soft: #A7BBC6;
+  --line: #24435A; --accent: #5FD6D6; --accent-fill: #33CCCC; --on-accent: #062030; --deep: #33CCCC; --on-deep: #062030;
+  --ok: #7FD8A7; --ok-bg: #12352A; --bad: #FF9A85; --bad-bg: #3D1B16; --part: #F5C66A; --part-bg: #3A2C0E;
+  --gold-bg: #2C2410; --gold-line: #6B5520; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.25; margin: 0; }
+a { color: var(--accent); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent-fill); outline-offset: 2px; }
+
+/* topp */
+.hero { padding-block: 40px 24px; border-top: 4px solid var(--accent-fill); }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 8px; }
+.hero h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+.hero p.lead { color: var(--ink-soft); max-width: 62ch; margin: 12px 0 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+.facts li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 0.9rem; }
+.facts b { font-family: var(--mono); font-weight: 500; }
+
+/* poenglinje */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; }
+.stat { display: flex; flex-direction: column; min-width: 0; }
+.stat span { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.stat b { font-family: var(--mono); font-weight: 500; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.progress { flex: 1 1 140px; height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; min-width: 120px; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent-fill); transition: width .3s; }
+.btn-ghost { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; }
+.btn-ghost:hover { border-color: var(--accent); }
+.confirm { display: flex; gap: 8px; align-items: center; font-size: 0.85rem; flex-wrap: wrap; }
+
+/* nummerkart */
+.map { padding-block: 24px 8px; }
+.map h2 { font-size: 0.8rem; font-family: var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin: 12px 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink); font-family: var(--mono); font-size: 0.9rem; }
+.chip[data-s="ok"] { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.chip[data-s="part"] { background: var(--part-bg); border-color: var(--part); color: var(--part); }
+.chip[data-s="bad"] { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.chip[data-s="self"] { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.8rem; color: var(--ink-soft); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; border: 1px solid; }
+
+/* seksjoner */
+.part-head { padding-block: 36px 8px; }
+.part-head h2 { font-size: 1.5rem; }
+.part-head p { color: var(--ink-soft); margin: 6px 0 0; max-width: 62ch; }
+.group { margin: 28px 0 12px; padding: 20px; background: var(--surface-2); border-radius: var(--radius); }
+.group .tag { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+.group h3 { font-size: 1.25rem; margin: 2px 0 10px; }
+.group p { margin: 0 0 10px; }
+figure { margin: 12px 0 0; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+details.fig { margin: 0 0 12px; }
+details.fig summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin: 14px 0; scroll-margin-top: 90px; }
+.q-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
+.q-num { font-family: var(--mono); font-size: 0.95rem; color: var(--accent); }
+.q-head h3 { font-size: 1.1rem; flex: 1 1 220px; min-width: 0; }
+.q-meta { font-size: 0.8rem; color: var(--ink-soft); }
+.q-body p { margin: 0 0 10px; }
+.opts { display: grid; gap: 8px; margin: 12px 0; }
+.opt { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface); }
+.opt:hover { border-color: var(--accent); }
+.opt input { margin: 4px 0 0; width: 18px; height: 18px; accent-color: var(--accent); }
+.opt .ex { grid-column: 2; font-size: 0.9rem; color: var(--ink-soft); margin-top: 4px; }
+.opt.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.mark { font-weight: 700; margin-right: 6px; }
+.is-ok .mark, .f-ok { color: var(--ok); }
+.is-bad .mark, .f-bad { color: var(--bad); }
+
+.inline-text { line-height: 2.4; }
+.inline-text select, .match select { border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; background: var(--surface); max-width: 100%; }
+.inline-text select.is-ok, .match select.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.inline-text select.is-bad, .match select.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.fexpl { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; font-size: 0.92rem; }
+.fexpl li { padding: 8px 12px; border-radius: 6px; background: var(--surface-2); }
+
+.match { display: grid; gap: 10px; margin: 12px 0; }
+.match .row { display: grid; grid-template-columns: 1fr minmax(150px, 40%); gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.match .row > div { min-width: 0; }
+.match .row .ex { grid-column: 1 / -1; font-size: 0.9rem; color: var(--ink-soft); }
+@media (max-width: 520px) { .match .row { grid-template-columns: 1fr; } }
+
+.fill input { width: 7em; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-family: var(--mono); }
+.fill input.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.fill input.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.blank { font-family: var(--mono); color: var(--accent); }
+
+textarea { width: 100%; min-height: 160px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); resize: vertical; line-height: 1.55; }
+.count { font-size: 0.8rem; color: var(--ink-soft); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+.btn { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 500; cursor: pointer; background: var(--deep); color: var(--on-deep); }
+.btn.alt { background: var(--accent-fill); color: var(--on-accent); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.result { font-weight: 500; }
+.result.ok { color: var(--ok); } .result.bad { color: var(--bad); } .result.part { color: var(--part); }
+.explain { margin-top: 12px; padding: 12px 14px; border-left: 3px solid var(--accent-fill); background: var(--surface-2); border-radius: 0 6px 6px 0; }
+.explain p { margin: 0 0 6px; }
+
+.rubric { margin-top: 14px; display: grid; gap: 14px; }
+.rubric h4 { font-family: var(--display); font-size: 1rem; margin: 0 0 6px; }
+.rubric .model { background: var(--gold-bg); border: 1px solid var(--gold-line); border-radius: 8px; padding: 12px 14px; }
+.rubric .model p { margin: 0 0 8px; }
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.tbl th { text-align: left; background: var(--deep); color: var(--on-deep); padding: 7px 10px; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl tr:nth-child(even) td { background: var(--surface-2); }
+.rubric ul { margin: 0; padding-left: 20px; }
+.self { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 8px; }
+.self select { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); }
+.self p { margin: 0; flex: 1 1 260px; font-size: 0.9rem; color: var(--ink-soft); }
+
+/* oppsummering */
+.summary { margin: 40px 0 60px; padding: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.summary h2 { font-size: 1.4rem; margin-bottom: 6px; }
+.big { font-family: var(--mono); font-size: 2rem; font-variant-numeric: tabular-nums; }
+.sumgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; }
+.sumgrid div { padding: 12px 14px; background: var(--surface-2); border-radius: 8px; }
+.sumgrid span { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.kaps { margin: 8px 0 0; padding-left: 20px; }
+.note { font-size: 0.85rem; color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Geofag 2 · Jordens puls · kapittel 1–8</p>
+    <h1>Prøvetrening kapittel 1–8</h1>
+    <p class="lead">Dette er prøven fra 15. oktober, laget om til en øvingsside. Svar på oppgavene og trykk «Sjekk svar» for å se hva som er riktig, og hvorfor de andre alternativene er feil. På de åpne skriveoppgavene skriver du først et svar, og ser deretter forslag til svar og poengtrappen. Der setter du poeng på deg selv.</p>
+    <ul class="facts">
+      <li><b>25</b> oppgaver</li>
+      <li><b>37</b> poeng</li>
+      <li><b>24</b> rettes automatisk</li>
+      <li><b>13</b> egenvurderes</li>
+      <li>Svarene lagres i nettleseren din</li>
+    </ul>
+  </div>
+</header>
+
+<div class="bar" role="status" aria-live="polite">
+  <div class="wrap">
+    <div class="stat"><span>Rettet</span><b id="s-auto">0 / 24</b></div>
+    <div class="stat"><span>Egenvurdert</span><b id="s-self">0 / 13</b></div>
+    <div class="stat"><span>Sjekket</span><b id="s-done">0 / 25</b></div>
+    <div class="progress" aria-hidden="true"><i id="s-prog"></i></div>
+    <div id="reset-wrap"><button class="btn-ghost" id="reset" type="button">Start på nytt</button></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <nav class="map" aria-label="Oppgaver">
+    <h2>Del 1</h2><div class="chips" id="chips-1"></div>
+    <h2>Del 2</h2><div class="chips" id="chips-2"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok-bg);border-color:var(--ok)"></i>Full score</span>
+      <span><i style="background:var(--part-bg);border-color:var(--part)"></i>Delvis</span>
+      <span><i style="background:var(--bad-bg);border-color:var(--bad)"></i>0 poeng</span>
+      <span><i style="background:var(--surface-2);border-color:var(--accent)"></i>Egenvurdert</span>
+    </div>
+  </nav>
+  <div id="quiz"></div>
+  <section class="summary" id="summary" aria-labelledby="sum-h"></section>
+</main>
+
+<script>
+const DATA = {"groups": [{"id": "A", "title": "Jordas strålingsbalanse", "sec": "del2", "img": "prove_h24_10.png", "alt": "Verdenskart som viser netto stråling i W/m² i september 2008. Fargeskalaen går fra −280 (blå) via 0 (gul) til 280 (rød).", "stem": "<p>Figuren viser netto stråling (strålingsbalansen) i W/m² i september 2008.<\/p>"}, {"id": "B", "title": "Fønvind", "sec": "del2", "img": "prove_fonvind.png", "alt": "Skisse av et 2000 meter høyt fjell ved havnivå. Vinden blåser fra venstre, skyer og nedbør ligger på venstre side, og skybasen er markert i 800 meters høyde. Temperaturen ved foten til venstre er 14 °C, og temperaturen ved foten til høyre er ukjent.", "stem": "<p>Figuren viser en idealisert situasjon med et fjell der foten ligger ved havnivå. Fjellet er 2000 meter høyt. Det blåser inn mot fjellet, noe som gir orografisk nedbør. Skyene dannes i 800 meters høyde. Temperaturen ved foten av fjellet på losiden er 14 °C. Regn med en tørradiabatisk temperaturgradient på 1 °C / 100 m og en fuktigadiabatisk temperaturgradient på 0,5 °C / 100 m.<\/p>"}, {"id": "C", "title": "En vårdag i dalen", "sec": "del2", "img": "prove_profiler.png", "alt": "Graf med temperatur på x-aksen og høyde over dalbunnen på y-aksen, fra 0 til 2000 meter. Kurve for kl. 06 er stiplet og kurve for kl. 15 er heltrukket. Over 1000 meter ligger de to kurvene oppå hverandre.", "stem": "<p>En klar og vindstille dag i april måles temperaturen i lufta over en dal to ganger, kl. 06 og kl. 15. Figuren viser de to temperaturprofilene. Over 1000 m er temperaturen den samme ved begge tidspunktene, så der ligger de to profilene oppå hverandre.<\/p>"}, {"id": "D", "title": "Fra fuktig luft til nedbør", "sec": "del2", "img": "prove_metningskurve.png", "alt": "Graf over hvor mye vanndamp lufta kan inneholde ved ulike temperaturer. Lufttemperatur fra −10 til 35 °C på x-aksen, maksimal vanndamp i g/m³ på y-aksen. Kurven stiger stadig brattere mot høyere temperatur. Støttelinjer for hver 2. °C.", "stem": "<p>Figuren viser hvor mye vanndamp lufta kan inneholde ved ulike temperaturer før den blir mettet. En sommerettermiddag er temperaturen ved bakken 25 °C og den relative fuktigheten 40 %. Bruk LCL = (T − Td) · 125 m/°C.<\/p>"}, {"id": "E", "title": "Ozon og stratosfærisk inversjon", "sec": "del2", "stem": ""}, {"id": "F", "title": "Enkel energibalansemodell", "sec": "del2", "img": "prove_energibalanse.png", "alt": "Graf over likevektstemperatur ved bakken i °C (y-aksen, fra −20 til 30) mot atmosfærens emissivitet ε (x-aksen, fra 0 til 1). Temperaturen stiger med økende emissivitet, og kurven blir brattere mot høyere verdier. Støttelinjer for hver 0,1 og hver 5 °C. ε = 0,77 er markert med en stiplet linje.", "stem": "<p>Figuren viser likevektstemperaturen ved jordoverflaten i ettlagsmodellen for drivhuseffekten, regnet ut for ulike verdier av atmosfærens emissivitet ε. Emissiviteten sier hvor stor del av den langbølgede strålingen atmosfæren absorberer og sender ut, og ε = 0 betyr ingen atmosfære. Albedoen er 0,306 og solarkonstanten er 1361 W/m² i hele figuren.<\/p>"}], "qs": [{"n": 1, "title": "Atmosfæren og havet i tall", "group": null, "pts": 1.0, "kap": 1, "type": "inline", "text": "<p>Havet dekker nesten {0} av jordoverflaten. Presser vi hele atmosfæren sammen til den får samme trykk og temperatur som ved havnivået, blir laget bare omtrent {1} tykt.<\/p>", "fields": [[{"t": "71 %", "ok": true, "ex": "Riktig. Havet dekker nesten 71 % av jordoverflaten."}, {"t": "50 %", "ok": false, "ex": "For lavt. Havet dekker mer enn to tredeler av jordoverflaten."}, {"t": "85 %", "ok": false, "ex": "For høyt. Landjorda dekker omtrent 29 %, så havet dekker ikke så mye som 85 %."}], [{"t": "8 km", "ok": true, "ex": "Riktig. Hvis lufta hadde hatt samme tetthet som ved havnivå helt opp, ville atmosfæren vært omtrent 8 km tykk."}, {"t": "80 km", "ok": false, "ex": "For tykt. Atmosfæren strekker seg langt høyere enn dette, men mesteparten av massen ligger nær bakken. Sammenpresset blir den omtrent 8 km."}, {"t": "800 m", "ok": false, "ex": "For tynt. 800 m ville gitt bare omtrent en tidel av lufttrykket ved havnivå."}]], "sec": "del1"}, {"n": 2, "title": "Hydrostatisk likevekt", "group": null, "pts": 1.0, "kap": 2, "type": "choice", "prompt": "<p>Atmosfæren er tilnærmet i hydrostatisk likevekt. Hva betyr det?<\/p>", "opts": [{"t": "Tyngdekraften som trekker lufta nedover, balanseres av trykkgradientkraften som virker oppover, fordi lufttrykket avtar med høyden.", "ok": true, "ex": "Riktig. Trykket er høyest ved bakken og avtar med høyden. Trykkforskjellen gir en kraft oppover (trykkgradientkraften) som balanserer tyngdekraften som trekker nedover."}, {"t": "Lufttrykket er det samme i alle høyder, så lufta verken stiger eller synker.", "ok": false, "ex": "Feil. Lufttrykket avtar raskt med høyden. På toppen av Mount Everest er trykket langt under halvparten av trykket ved havnivå."}, {"t": "Lufttrykket øker med høyden, og det presser lufta ned mot bakken.", "ok": false, "ex": "Feil. Det er snudd: trykket er høyest ved bakken og avtar oppover."}, {"t": "Lufttettheten er konstant fra bakken og opp til toppen av atmosfæren.", "ok": false, "ex": "Feil. Tettheten avtar med høyden, og lufta blir tynnere jo høyere opp man kommer."}], "multi": false, "sec": "del1"}, {"n": 3, "title": "Stråling fra Sahara", "group": null, "pts": 1.0, "kap": 4, "img": "prove_v24_07.png", "alt": "To grafer med samme bølgelengdeakse. A: utstrålingsspekteret fra jordoverflaten i Sahara, med stiplede kurver for 220, 240, 260 og 280 K. B: tre kurver for absorpsjon fra ulike klimagasser, blå stiplet, rød heltrukket og svart med kryss.", "type": "choice", "prompt": "<p>Figurene nedenfor viser:<br />\nA: Utstrålingsspekteret fra jordoverflaten i Sahara. Førsteaksen viser bølgelengden, og andreaksen viser strålingsintensiteten. Temperaturen er oppgitt i kelvin (K).<br />\nB: Tre grafer som viser hvor mye ulike klimagasser absorberer. Førsteaksen viser bølgelengden, og andreaksen viser mengden absorbert stråling.<br />\nFørsteaksene i de to figurene har samme bølgelengder.<\/p>\n<p>Figur A viser tydelig at noe av strålingen blir absorbert av klimagassene. Figur B viser hvilke gasser som absorberer den utgående strålingen. Blå (stiplet), rød (heltrukket) og svart graf (heltrukket med kryss) viser ulike klimagasser. Hvilket alternativ er riktig?<\/p>", "opts": [{"t": "CO₂ = rød, O₃ med flere = blå, H₂O = svart", "ok": false, "ex": "Feil. CO₂ = rød er riktig, men vanndamp er den blå kurven med brede absorpsjonsområder, og ozon med flere gasser er den svarte kurven."}, {"t": "CO₂ = blå, O₃ med flere = svart, KFK = rød", "ok": false, "ex": "Feil. CO₂ er ikke den blå kurven. Den blå kurven viser vanndamp, som absorberer bredt."}, {"t": "H₂O = blå, CO₂ = rød, O₃ med flere = svart", "ok": true, "ex": "Riktig. Vanndamp (blå) absorberer over store deler av spekteret, CO₂ (rød) har ett kraftig bånd, og ozon med flere gasser (svart) gir flere mindre topper."}, {"t": "NO₂ = blå, H₂O = rød, CO₂ = svart", "ok": false, "ex": "Feil. Vanndamp er den blå kurven med bred absorpsjon, og CO₂ er den røde kurven med ett kraftig bånd."}], "multi": false, "sec": "del1"}, {"n": 4, "title": "Klimadriver og klimaforsterker", "group": null, "pts": 1.5, "kap": 4, "type": "inline", "text": "<p>Vanndamp har en oppholdstid på omtrent {0}, og mengden vanndamp i lufta følger temperaturen: varmere luft kan holde på mer vanndamp. CO₂ har en tilpasningstid på {1}, og blir derfor værende i atmosfæren og styre temperaturen over tid. Derfor regnes {2}.<\/p>", "fields": [[{"t": "10 døgn", "ok": true, "ex": "Riktig. Vanndamp er nesten alltid nær metningspunktet og kondenserer raskt ut som skyer og nedbør, så oppholdstiden er omtrent 10 døgn."}, {"t": "4 år", "ok": false, "ex": "Feil. 4 år er oppholdstiden til et enkelt CO₂-molekyl, ikke vanndamp."}, {"t": "100 år", "ok": false, "ex": "Feil. Så lenge blir ikke vanndamp værende i atmosfæren. Den faller raskt ut som nedbør."}, {"t": "1000 år", "ok": false, "ex": "Feil. Vanndamp blir ikke værende i tusen år. Den faller ut som nedbør etter omtrent 10 døgn."}], [{"t": "70–100 år eller mer", "ok": true, "ex": "Riktig. Tilpasningstiden, altså hvor lang tid det tar før mengden CO₂ justerer seg etter et utslipp, er 70–100 år eller mer."}, {"t": "omtrent 10 døgn", "ok": false, "ex": "Feil. 10 døgn er oppholdstiden til vanndamp."}, {"t": "omtrent 4 år", "ok": false, "ex": "Feil. Omtrent 4 år er oppholdstiden til et enkelt CO₂-molekyl, ikke tilpasningstiden. Molekylene byttes hele tiden ut med plantene, havet og jordsmonnet, men den ekstra mengden CO₂ blir værende mye lenger."}, {"t": "omtrent 1 år", "ok": false, "ex": "Feil. Det er kortere enn både oppholdstiden til et CO₂-molekyl (omtrent 4 år) og tilpasningstiden for mengden CO₂ (70–100 år eller mer)."}], [{"t": "CO₂ som klimadriver og vanndamp som klimaforsterker", "ok": true, "ex": "Riktig. Langlivede gasser som CO₂ er pådrivere (klimadrivere), mens kortlivede gasser som vanndamp i hovedsak forsterker effekten (klimaforsterkere)."}, {"t": "CO₂ som klimaforsterker og vanndamp som klimadriver", "ok": false, "ex": "Feil. Det er snudd. Vanndamp har kort oppholdstid og mengden følger temperaturen, så den forsterker. CO₂ er den som driver endringen."}, {"t": "begge som klimadrivere", "ok": false, "ex": "Feil. Vanndamp er ikke en driver: mengden vanndamp følger temperaturen, så den forsterker i hovedsak oppvarmingen."}, {"t": "begge som klimaforsterkere", "ok": false, "ex": "Feil. CO₂ er ikke bare en forsterker. Den blir værende lenge i atmosfæren og styrer temperaturen over tid, så den er en klimadriver."}]], "sec": "del1"}, {"n": 5, "title": "Albedo", "group": null, "pts": 1.0, "kap": 4, "type": "choice", "prompt": "<p>Hvilke påstander om albedo er riktige? Velg alle riktige svar.<\/p>", "opts": [{"t": "Lavere global albedo fører til økt absorpsjon av solenergi på jorden.", "ok": true, "ex": "Riktig. Albedo er hvor stor andel av solstrålingen som reflekteres. Lavere albedo betyr at mer absorberes."}, {"t": "Når snø smelter og bar bakke kommer fram, blir albedoen lavere.", "ok": true, "ex": "Riktig. Snø har høy albedo og bar bakke har lav albedo. Når snøen smelter, absorberes mer solstråling."}, {"t": "Det er mulig å bruke satellitter til å måle albedo.", "ok": true, "ex": "Riktig. Satellitter måler hvor mye av solstrålingen som reflekteres tilbake til verdensrommet."}, {"t": "Skyer har lav albedo og bidrar derfor bare til oppvarming.", "ok": false, "ex": "Feil. Skyer har høy albedo og reflekterer mye solstråling, noe som virker avkjølende. Samtidig absorberer og sender de ut langbølget stråling, noe som virker oppvarmende. Effekten er altså ikke bare oppvarming."}], "multi": true, "sec": "del1"}, {"n": 6, "title": "KFK og ozonlaget", "group": null, "pts": 1.0, "kap": 5, "type": "choice", "prompt": "<p>KFK-forbindelser som slippes ut i Asia, kan føre til mindre ozon over Antarktis. Hva er den beste forklaringen på dette?<\/p>", "opts": [{"t": "KFK har lang levetid, blandes inn i hele atmosfæren og når stratosfæren. Der frigjøres klor, som virker som et fritt radikal og kan bryte ned svært mange ozonmolekyler.", "ok": true, "ex": "Riktig. Lang levetid gjør at KFK rekker å bli blandet inn i hele atmosfæren, også opp i stratosfæren. Klor virker som et fritt radikal, og ett radikal kan bryte ned mange ozonmolekyler."}, {"t": "KFK er tyngre enn luft og synker ned mot polene, der den reagerer med is.", "ok": false, "ex": "Feil. KFK blandes inn i hele atmosfæren og transporteres opp i stratosfæren. Hvor tunge molekylene er, avgjør ikke dette."}, {"t": "KFK absorberer UV-stråling over Asia, slik at det dannes mindre ozon i resten av verden.", "ok": false, "ex": "Feil. KFK absorberer ikke UV-stråling over Asia. Det er i stratosfæren at klor fra KFK bryter ned ozon."}, {"t": "KFK hindrer at ozon blir transportert fra tropene mot polene.", "ok": false, "ex": "Feil. KFK påvirker ikke transporten av ozon. De bryter ned ozonet kjemisk."}], "multi": false, "sec": "del1"}, {"n": 7, "title": "Faseoverganger og latent varme", "group": null, "pts": 2.0, "kap": 6, "type": "inline", "text": "<p>Når vann fordamper, {0} energi fra omgivelsene. Når vanndamp kondenserer til dråper, {1} energi. Når is smelter, {2} energi. Når vanndamp går direkte over til is (deposisjon), {3} energi.<\/p>", "fields": [[{"t": "tar det opp", "ok": true, "ex": "Riktig. Når vann fordamper, tas det opp energi fra omgivelsene, som blir kjøligere. Det er derfor du fryser når du kommer våt opp av vannet."}, {"t": "avgir det", "ok": false, "ex": "Feil. Fordamping krever energi, så vannet tar opp energi fra omgivelsene."}], [{"t": "tar det opp", "ok": false, "ex": "Feil. Kondensasjon er det motsatte av fordamping, så energien frigjøres."}, {"t": "avgir det", "ok": true, "ex": "Riktig. Når vanndamp kondenserer, frigjøres latent varme. Denne varmen driver blant annet bygeskyer."}], [{"t": "tar det opp", "ok": true, "ex": "Riktig. Is må tilføres energi for å smelte."}, {"t": "avgir det", "ok": false, "ex": "Feil. Is må tilføres energi for å smelte. Temperaturen holder seg på 0 °C mens isen smelter."}], [{"t": "tar det opp", "ok": false, "ex": "Feil. Deposisjon er overgang fra gass til fast stoff, altså mot en mer ordnet tilstand, og da avgis energi."}, {"t": "avgir det", "ok": true, "ex": "Riktig. Når vanndamp går direkte over til is, avgis energi."}]], "sec": "del1"}, {"n": 8, "title": "Varmetransport i atmosfæren", "group": null, "pts": 1.0, "kap": 6, "type": "match", "prompt": "<p>Koble hver situasjon med den formen for varmetransport som dominerer.<\/p>", "pairs": [{"left": "Lufta nærmest bakken blir kald en klar natt fordi den er i direkte kontakt med den kalde bakken", "right": "Konduksjon", "expl": "Konduksjon. Lufta er i direkte kontakt med bakken og avgir varme til den."}, {"left": "Varme luftbobler stiger opp fra en solvarmet åker en sommerdag", "right": "Konveksjon", "expl": "Konveksjon. Luft som varmes nær bakken blir lettere og stiger. Konveksjon er vertikal transport av varme."}, {"left": "En sørlig vind fører varm luft fra Middelhavet nordover mot Skandinavia", "right": "Adveksjon", "expl": "Adveksjon. Vinden fører varm luft horisontalt fra ett område til et annet."}, {"left": "Jordoverflaten sender ut langbølget energi som blir absorbert av drivhusgasser høyere oppe i atmosfæren", "right": "Stråling", "expl": "Stråling. Jordoverflaten sender ut langbølget stråling uten at noe stoff trenger å bevege seg."}], "sec": "del1"}, {"n": 9, "title": "Skydannelse", "group": null, "pts": 1.0, "kap": 8, "type": "match", "prompt": "<p>Skyer dannes når lufta stiger og avkjøles til duggpunktet. Koble hver situasjon med den prosessen som får lufta til å stige.<\/p>", "pairs": [{"left": "En sommerdag dannes det cumulusskyer over en solvarmet åker, mens det er skyfritt over innsjøen ved siden av", "right": "Konveksjon", "expl": "Konveksjon. Åkeren varmes mer enn vannet, og varm luft stiger over åkeren."}, {"left": "Det regner mye på Vestlandet når fuktig luft blåser inn fra havet mot fjellene", "right": "Orografisk løft", "expl": "Orografisk løft. Vinden tvinger luften opp langs fjellsiden."}, {"left": "En varm luftmasse glir sakte opp over en kald luftmasse, og det dannes et tykt, lagdelt skydekke over et stort område", "right": "Frontløft", "expl": "Frontløft. Den varme, lette luften glir opp over den kalde, tunge luftmassen."}, {"left": "Sjøbris fra hver sin side av en smal halvøy møtes midt på halvøya, og det dannes byger", "right": "Konvergens", "expl": "Konvergens. Når luft fra to retninger møtes, kan den ikke gå annet sted enn oppover."}], "sec": "del1"}, {"n": 10, "title": "Oppgave A1", "group": "A", "pts": 1.0, "kap": 3, "type": "choice", "prompt": "<p>Bruk figuren til å avgjøre hvilke av påstandene 1–4 som er riktige.<br />\n1. Områdene langs ekvator mottar mer stråling enn de sender ut.<br />\n2. Polområdene sender ut mer stråling enn de mottar.<br />\n3. Områdene langs ekvator sender ut mer stråling enn de mottar.<br />\n4. Polområdene mottar mer stråling enn de sender ut.<br />\nMarker alternativet der begge påstandene er riktige.<\/p>", "opts": [{"t": "Påstand 1 og 4", "ok": false, "ex": "Feil. Påstand 1 er riktig, men påstand 4 er feil: polområdene har negativ netto stråling og sender ut mer enn de mottar."}, {"t": "Påstand 2 og 3", "ok": false, "ex": "Feil. Påstand 2 er riktig, men påstand 3 er feil: langs ekvator er netto stråling positiv, så de mottar mer enn de sender ut."}, {"t": "Påstand 3 og 4", "ok": false, "ex": "Feil. Begge påstandene er motsatt av figuren. Påstand 3 og 4 snur overskudd og underskudd."}, {"t": "Påstand 1 og 2", "ok": true, "ex": "Riktig. Ekvator har strålingsoverskudd, og polene har strålingsunderskudd."}], "multi": false, "sec": "del2"}, {"n": 11, "title": "Oppgave A2", "group": "A", "pts": 4.0, "kap": 3, "type": "open", "prompt": "<p>Selv om områdene rundt ekvator har strålingsoverskudd år etter år, blir det ikke stadig varmere der, og polområdene blir heller ikke stadig kaldere. Forklar hvorfor strålingsbalansen varierer med breddegraden, og hvordan klimasystemet jevner ut forskjellene.<\/p>", "model": "<p>Innstrålingen per kvadratmeter avtar mot polene. Solstrålene treffer jordoverflaten med lavere vinkel, slik at energien fordeles på et større areal, og strålene går en lengre vei gjennom atmosfæren, slik at mer blir spredt, reflektert og absorbert. Utstrålingen avhenger av temperaturen og varierer mye mindre med breddegraden. Resultatet er strålingsoverskudd rundt ekvator (innstråling større enn utstråling) og strålingsunderskudd mot polene.<\/p>\n<p>Uten utjevning ville tropene blitt stadig varmere og polene stadig kaldere. Utjevningen skjer ved at atmosfæren og havet transporterer energi mot polene, både som følbar varme og som latent varme (vanndamp som kondenserer et annet sted). Det er temperaturforskjellen mellom ekvator og polene som setter i gang vind og havstrømmer.<\/p>", "sec": "del2", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<th>Innhold<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>a) Innstråling<\/td>\n<td>Solvinkel: samme energi spres over større areal mot polene. Tilleggsmomenter: lengre vei gjennom atmosfæren og høy albedo ved polene.<\/td>\n<\/tr>\n<tr>\n<td>b) Utstråling<\/td>\n<td>Utstrålingen avhenger av temperatur og varierer mindre med breddegraden. Dette gir overskudd ved ekvator og underskudd ved polene.<\/td>\n<\/tr>\n<tr>\n<td>c) Transport<\/td>\n<td>Atmosfæren (vind, lavtrykk, globale sirkulasjonsceller) og havet (havstrømmer) frakter energi mot polene.<\/td>\n<\/tr>\n<tr>\n<td>d) Latent varme<\/td>\n<td>Fordamping i tropene og kondensasjon på høyere breddegrader.<\/td>\n<\/tr>\n<tr>\n<td>e) Drivkraft<\/td>\n<td>Temperaturforskjellen driver sirkulasjonen, slik at systemet regulerer seg selv.<\/td>\n<\/tr>\n<tr>\n<td>f) Figur<\/td>\n<td>Kobler overskudd og underskudd til fargene og fortegnet på skalaen.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td><strong>1<\/strong><\/td>\n<td>Beskriver at det er overskudd ved ekvator og underskudd ved polene, <em>eller<\/em> sier at varme flyttes mot polene, uten å forklare hvorfor. Hverdagslig språk.<\/td>\n<\/tr>\n<tr>\n<td><strong>2<\/strong><\/td>\n<td>Forklarer variasjonen med én årsak (oftest solvinkel og areal) <strong>og<\/strong> nevner at atmosfæren <em>eller<\/em> havet transporterer energi mot polene. Kan også være en god forklaring på bare én av de to delene.<\/td>\n<\/tr>\n<tr>\n<td><strong>3<\/strong><\/td>\n<td>Svarer på begge delene av oppgaven. Transporten er forklart med både atmosfæren og havet, med mekanisme eller konkrete eksempler, men forklaringen av variasjonen er svak eller har en faglig feil. Et svar som bare har atmosfæren, kan også nå 3 hvis det viser dyp forståelse av sammenhengen, for eksempel at ekvator stråler ut mindre enn den mottar fordi varme fraktes bort. Et svar med svært god forklaring av variasjonen, men der transporten bare gjelder atmosfæren eller bare er navngitt, ligger mellom 2 og 3 (2,5 poeng).<\/td>\n<\/tr>\n<tr>\n<td><strong>4<\/strong><\/td>\n<td>Svarer fullt ut på det oppgaven spør om. Variasjonen er forklart med solvinkel og minst ett tilleggsmoment (veilengde gjennom atmosfæren, albedo, eller at utstrålingen varierer mindre), uten faglige feil. Utjevningen er forklart med både atmosfæren og havet, med mekanisme eller konkrete eksempler (vind og værsystemer, havstrømmer). Svaret er en sammenhengende årsakskjede med presist fagspråk.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>\n<p>Latent varme (d), temperaturforskjellen som drivkraft (e) og aktiv bruk av figuren (f) er ikke krav for 4 poeng, fordi oppgaveteksten ikke ber om dem. De er styrker som kan veie opp for et svakt punkt i et svar som ellers ligger mellom 3 og 4.<\/p>", "feil": "<ul>\n<li>Ekvator er nærmere sola.<\/li>\n<li>Polene har strålingsunderskudd fordi de er kalde og stråler mye.<\/li>\n<li>Varmen lagres i havet, uten at transport nevnes.<\/li>\n<li>Ozonlaget eller drivhuseffekten blir brukt som forklaring på breddegradsforskjellen.<\/li>\n<\/ul>"}, {"n": 12, "title": "Oppgave B1", "group": "B", "pts": 1.0, "kap": 7, "type": "fill", "prompt": "<p>Hva er temperaturen i lufta når den når skybasen i 800 meters høyde? Svar: <span class=\"blank\">___<\/span> °C<\/p>", "answer": 6.0, "tol": 0, "expl": "<p>Fra bakken til skybasen avkjøles lufta tørradiabatisk, 1 °C per 100 m. 800 m gir 8 °C avkjøling: 14 − 8 = <strong>6 °C<\/strong>. Fuktigadiabaten (0,5 °C per 100 m) gjelder først over skybasen.<\/p>", "sec": "del2"}, {"n": 13, "title": "Oppgave B2", "group": "B", "pts": 1.0, "kap": 7, "type": "choice", "prompt": "<p>Hva er temperaturen på toppen av fjellet (2000 m) og ved foten av fjellet på lesiden (0 m)?<\/p>", "opts": [{"t": "Temperaturen på toppen av fjellet er 4 °C, og temperaturen ved foten av fjellet på lesiden er 24 °C.", "ok": false, "ex": "Feil. 4 °C på toppen får du hvis du bruker fuktigadiabaten (0,5 °C per 100 m) hele veien opp fra bakken. Men lufta avkjøles tørradiabatisk (1 °C per 100 m) fram til skybasen."}, {"t": "Temperaturen på toppen av fjellet er 0 °C, og temperaturen ved foten av fjellet på lesiden er 20 °C.", "ok": true, "ex": "Riktig. Toppen: 6 °C ved skybasen minus 1200 m · 0,5 °C per 100 m = 0 °C. Lesiden: 0 °C pluss 2000 m · 1 °C per 100 m = 20 °C."}, {"t": "Temperaturen på toppen av fjellet er −3 °C, og temperaturen ved foten av fjellet på lesiden er 17 °C.", "ok": false, "ex": "Feil. −3 °C på toppen får du bare hvis skybasen ligger i 1400 m i stedet for 800 m."}, {"t": "Temperaturen på toppen av fjellet er −6 °C, og temperaturen ved foten av fjellet på lesiden er 14 °C.", "ok": false, "ex": "Feil. −6 °C på toppen får du hvis lufta avkjøles tørradiabatisk hele veien opp. Da ville lufta kommet ned på lesiden med samme temperatur som den startet med (14 °C). Det skjer ikke, fordi kondensasjon frigjør latent varme."}], "multi": false, "sec": "del2"}, {"n": 14, "title": "Oppgave B3", "group": "B", "pts": 3.0, "kap": 8, "type": "open", "prompt": "<p>Forklar hvorfor lufta blir varmere og samtidig tørrere på lesiden av fjellet enn på losiden. Bruk begrepene latent varme, kondensasjon, tørradiabat og fuktigadiabat.<\/p>", "model": "<p>Fram til skybasen avkjøles lufta tørradiabatisk (1 °C per 100 m). Over skybasen kondenserer vanndamp, og kondensasjon frigjør latent varme. Derfor avkjøles lufta bare fuktigadiabatisk (0,5 °C per 100 m) på veien opp til toppen. Vannet faller ut som nedbør på losiden, så lufta mister fuktighet.<\/p>\n<p>På lesiden synker lufta og varmes tørradiabatisk (1 °C per 100 m) hele veien ned, siden den nå er umettet. Lufta har altså avkjølt seg langsommere på vei opp enn den varmes på vei ned, fordi latent varme ble frigjort. Resultatet er at lufta ender opp varmere enn den startet, og tørrere, fordi vannet er borte. Den relative fuktigheten blir dermed lav.<\/p>", "sec": "del2", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<th>Innhold<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>a) Tørradiabat opp<\/td>\n<td>Umettet luft avkjøles 1 °C per 100 m opp til skybasen.<\/td>\n<\/tr>\n<tr>\n<td>b) Kondensasjon og latent varme<\/td>\n<td>Over skybasen kondenserer vanndamp og frigjør latent varme, så lufta avkjøles fuktigadiabatisk (0,5 °C per 100 m).<\/td>\n<\/tr>\n<tr>\n<td>c) Nedbør<\/td>\n<td>Vannet faller ut på losiden.<\/td>\n<\/tr>\n<tr>\n<td>d) Tørradiabat ned<\/td>\n<td>Synkende, umettet luft varmes 1 °C per 100 m hele veien ned.<\/td>\n<\/tr>\n<tr>\n<td>e) Varmere<\/td>\n<td>Lufta avkjøles langsommere opp enn den varmes ned, så den ender varmere. Gjerne med tall fra B1/B2 (14 → 6 → 0 → 20 °C).<\/td>\n<\/tr>\n<tr>\n<td>f) Tørrere<\/td>\n<td>Lavere vanninnhold, og høyere temperatur gir lavere relativ fuktighet.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td><strong>1<\/strong><\/td>\n<td>Beskriver at lufta stiger, at det regner på losiden og at lufta synker og blir varm og tørr på lesiden, men uten riktig bruk av adiabatene eller latent varme. Svar som bruker begrepene i feil sammenheng, havner også her.<\/td>\n<\/tr>\n<tr>\n<td><strong>2<\/strong><\/td>\n<td>Forklarer én av delene med riktig mekanisme. Enten <em>varmere<\/em>: kondensasjon frigjør latent varme, slik at lufta avkjøles fuktigadiabatisk opp og varmes tørradiabatisk ned (a, b, d). Eller <em>tørrere<\/em>: vannet faller ut som nedbør, og adiabatene er riktig beskrevet, men koblingen til latent varme er uklar. Den andre delen mangler eller er svak.<\/td>\n<\/tr>\n<tr>\n<td><strong>3<\/strong><\/td>\n<td>Begge delene er forklart (a–f) med en sammenhengende årsakskjede, og alle fire begrepene er brukt presist. Toppscore krever at eleven forklarer at den latente varmen blir igjen i lufta mens vannet er borte. Tall fra B1 og B2 er en styrke, men ikke et krav.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Fuktigadiabaten er større enn tørradiabaten.<\/li>\n<li>Kondensasjon tar opp varme.<\/li>\n<li>Lufta varmes fuktigadiabatisk på vei ned.<\/li>\n<li>Lufta blir varm fordi den kommer nærmere bakken eller sola.<\/li>\n<li>Tørrere blir bare påstått, uten at nedbøren nevnes.<\/li>\n<\/ul>"}, {"n": 15, "title": "Oppgave C1", "group": "C", "pts": 1.0, "kap": 7, "type": "choice", "prompt": "<p>Omtrent hvor høyt opp når inversjonslaget kl. 06?<\/p>", "opts": [{"t": "Ca. 200 m", "ok": true, "ex": "Riktig. Temperaturen stiger fra 2 °C ved bakken til 8 °C i 200 m. Over 200 m synker den igjen."}, {"t": "Ca. 1000 m", "ok": false, "ex": "Feil. Ved 1000 m er temperaturen lik kl. 06 og kl. 15, men mellom 200 og 1000 m synker temperaturen med høyden kl. 06. Der er det ikke inversjon."}, {"t": "Ca. 2000 m", "ok": false, "ex": "Feil. 2000 m er toppen av figuren. Over 200 m øker ikke temperaturen med høyden."}, {"t": "Det er ingen inversjon kl. 06", "ok": false, "ex": "Feil. Temperaturen øker med høyden fra 0 til 200 m kl. 06, og det er en inversjon."}], "multi": false, "sec": "del2"}, {"n": 16, "title": "Oppgave C2", "group": "C", "pts": 1.0, "kap": 7, "type": "fill", "prompt": "<p>Hvor stor er miljøgradienten (ELR) i de nederste 1000 meterne kl. 15? Svar: <span class=\"blank\">___<\/span> °C per 1000 m<\/p>", "answer": 11.0, "tol": 0, "expl": "<p>Kl. 15 synker temperaturen fra 14 °C ved bakken til 3 °C i 1000 m. Miljøgradienten er (14 − 3) °C per 1000 m = <strong>11 °C per 1000 m<\/strong>.<\/p>", "sec": "del2"}, {"n": 17, "title": "Oppgave C3", "group": "C", "pts": 1.5, "kap": 7, "type": "inline", "text": "<p>Kl. 06 er lufta nær bakken {0}. Kl. 15 er de nederste 1000 meterne {1}, fordi miljøgradienten er {2} tørradiabaten.<\/p>", "fields": [[{"t": "svært stabil", "ok": true, "ex": "Riktig. I en inversjon er lufta nær bakken kaldere og tyngre enn lufta over, og den blandes ikke oppover."}, {"t": "betinget ustabil", "ok": false, "ex": "Feil. Betinget ustabil betyr at miljøgradienten ligger mellom fuktigadiabaten og tørradiabaten. Kl. 06 øker temperaturen med høyden nær bakken, og det er mye mer stabilt."}, {"t": "absolutt ustabil", "ok": false, "ex": "Feil. Absolutt ustabil krever at temperaturen synker raskere med høyden enn tørradiabaten. Her øker temperaturen med høyden."}], [{"t": "absolutt stabil", "ok": false, "ex": "Feil. Absolutt stabil betyr at miljøgradienten er mindre enn fuktigadiabaten. Her synker temperaturen med 11 °C per 1000 m, som er mye mer."}, {"t": "betinget ustabil", "ok": false, "ex": "Feil. Betinget ustabil gjelder når miljøgradienten ligger mellom fuktigadiabaten (ca. 6 °C per 1000 m) og tørradiabaten (10 °C per 1000 m). Kl. 15 er den 11 °C per 1000 m."}, {"t": "absolutt ustabil", "ok": true, "ex": "Riktig. Miljøgradienten er større enn tørradiabaten, så en luftpakke som løftes blir varmere enn omgivelsene uansett om den er mettet."}], [{"t": "større enn", "ok": true, "ex": "Riktig. 11 er større enn 10, så miljøgradienten er større enn tørradiabaten."}, {"t": "mindre enn", "ok": false, "ex": "Feil. Miljøgradienten (11 °C per 1000 m) er større enn tørradiabaten (10 °C per 1000 m)."}, {"t": "lik", "ok": false, "ex": "Feil. Miljøgradienten er 11 °C per 1000 m, mens tørradiabaten er 10 °C per 1000 m, så de er ikke like."}]], "sec": "del2"}, {"n": 18, "title": "Oppgave C4", "group": "C", "pts": 3.0, "kap": 6, "type": "open", "prompt": "<p>Forklar hvordan inversjonen kl. 06 har oppstått, og hvorfor den er borte kl. 15. Bruk begrepene stråling, konduksjon og konveksjon.<\/p>", "model": "<p>Natten er klar og vindstille. Bakken sender ut langbølget stråling, og uten skyer kommer det lite langbølget stråling tilbake. Bakken blir kald, og lufta nærmest bakken avkjøles ved konduksjon (direkte kontakt). Kald luft er tung og kan også renne ned dalsidene og samle seg i dalbunnen. Da har vi kald luft under varmere luft, altså en inversjon.<\/p>\n<p>Om dagen absorberer bakken kortbølget solstråling og blir varm. Den varmer lufta nærmest bakken ved konduksjon, og varm luft stiger (konveksjon) og blander seg med lufta over. Da brytes inversjonen opp, og temperaturen synker jevnt med høyden.<\/p>", "sec": "del2", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<th>Innhold<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>a) Utstråling om natta<\/td>\n<td>Bakken sender ut langbølget stråling. Klar himmel gir lite tilbakestråling.<\/td>\n<\/tr>\n<tr>\n<td>b) Konduksjon om natta<\/td>\n<td>Lufta nærmest bakken avkjøles ved kontakt med den kalde bakken. Kald, tung luft blir liggende nederst (eventuelt kaldluftdrenering fra dalsidene). Vindstille gir ingen blanding.<\/td>\n<\/tr>\n<tr>\n<td>c) Innstråling om dagen<\/td>\n<td>Bakken absorberer kortbølget solstråling og varmes.<\/td>\n<\/tr>\n<tr>\n<td>d) Konduksjon og konveksjon om dagen<\/td>\n<td>Lufta varmes nedenfra ved konduksjon, stiger (konveksjon) og blander lufta, så inversjonen brytes.<\/td>\n<\/tr>\n<tr>\n<td>e) Figur<\/td>\n<td>Bruker profilene: 2 °C ved bakken og 8 °C i 200 m kl. 06, og 14 °C ved bakken kl. 15. Kan også koble til stabilitet fra C3.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td><strong>1<\/strong><\/td>\n<td>Beskriver at det er kaldt nær bakken om natta og varmere om dagen, uten mekanismer, eller bruker bare ett av begrepene riktig.<\/td>\n<\/tr>\n<tr>\n<td><strong>2<\/strong><\/td>\n<td>Forklarer én av situasjonene med riktig mekanisme: natt (a og b) <em>eller<\/em> dag (c og d). Den andre situasjonen mangler eller er beskrevet uten mekanisme. Svar som tar med begge situasjonene, men bytter om eller blander begrepene, havner også her. Et eksempel er konveksjon som forklaring på avkjølingen om natta.<\/td>\n<\/tr>\n<tr>\n<td><strong>3<\/strong><\/td>\n<td>Begge situasjonene er forklart med riktig mekanisme (a–d), og alle tre begrepene er brukt presist. Svaret skiller mellom langbølget utstråling om natta og kortbølget innstråling om dagen, og viser til figuren (e).<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Kald luft stiger.<\/li>\n<li>Inversjonen kommer fordi sola ikke skinner, uten at utstråling fra bakken nevnes.<\/li>\n<li>Stråling og konduksjon blandes sammen.<\/li>\n<li>Inversjonen forklares med adveksjon av kald luft.<\/li>\n<li>Kl. 15 blir lufta varm fordi sola varmer lufta direkte, uten at bakken nevnes.<\/li>\n<\/ul>"}, {"n": 19, "title": "Oppgave D1", "group": "D", "pts": 1.0, "kap": 6, "type": "choice", "prompt": "<p>Omtrent hvor mye vanndamp inneholder lufta?<\/p>", "opts": [{"t": "Ca. 9 g/m³", "ok": true, "ex": "Riktig. Metningsmengden ved 25 °C er omtrent 23 g/m³, og 40 % av dette er omtrent 9 g/m³."}, {"t": "Ca. 14 g/m³", "ok": false, "ex": "Feil. 14 g/m³ er omtrent 60 % av metningsmengden ved 25 °C, ikke 40 %."}, {"t": "Ca. 16 g/m³", "ok": false, "ex": "Feil. 16 g/m³ er omtrent 70 % av metningsmengden ved 25 °C, ikke 40 %."}, {"t": "Ca. 23 g/m³", "ok": false, "ex": "Feil. 23 g/m³ er metningsmengden ved 25 °C, altså det lufta kan inneholde ved 100 % relativ fuktighet."}], "multi": false, "sec": "del2"}, {"n": 20, "title": "Oppgave D2", "group": "D", "pts": 1.0, "kap": 7, "type": "choice", "prompt": "<p>Bruk figuren til å finne duggpunktet, og regn ut omtrent hvor skybasen ligger hvis en luftpakke løftes.<\/p>", "opts": [{"t": "Ca. 1000 m", "ok": false, "ex": "Feil. Dette svaret får du hvis du bruker et duggpunkt på ca. 17 °C. Det hører til ca. 14 g/m³, ikke 9 g/m³."}, {"t": "Ca. 1300 m", "ok": false, "ex": "Feil. Dette svaret får du hvis du leser av duggpunktet til ca. 15 °C. Det hører til ca. 13 g/m³, ikke 9 g/m³."}, {"t": "Ca. 1950 m", "ok": true, "ex": "Riktig. Duggpunktet er ca. 9–10 °C, og LCL = (25 − 9,5) · 125 ≈ 1940 m, altså ca. 1950 m. Om du leser av 9 °C får du 2000 m, og med 9,7 °C får du ca. 1910 m. Alle disse ligger nærmest 1950 m."}, {"t": "Ca. 3100 m", "ok": false, "ex": "Feil. Dette får du hvis du bruker lufttemperaturen (25 °C) i stedet for temperaturforskjellen T − Td i formelen."}], "multi": false, "sec": "del2"}, {"n": 21, "title": "Oppgave E1", "group": "E", "pts": 2.0, "kap": 5, "type": "inline", "text": "<p>Ozon dannes når {0} spalter {1} til oksygenatomer. Oksygenatomene reagerer så med O₂ og danner O₃. Når ozon absorberer {2}, spaltes molekylet igjen. Frie radikaler bryter ned ozon svært effektivt fordi de {3}.<\/p>", "fields": [[{"t": "energirik UV-stråling", "ok": true, "ex": "Riktig. Bare energirik UV-stråling (bølgelengde under ca. 240 nm) har nok energi til å spalte O₂."}, {"t": "langbølget stråling", "ok": false, "ex": "Feil. Langbølget stråling har for lite energi til å spalte molekyler."}, {"t": "synlig lys", "ok": false, "ex": "Feil. Synlig lys har ikke nok energi til å spalte O₂."}], [{"t": "oksygenmolekyler (O₂)", "ok": true, "ex": "Riktig. O₂ spaltes til to oksygenatomer (O)."}, {"t": "ozonmolekyler (O₃)", "ok": false, "ex": "Feil. Det er ozon som skal dannes i denne reaksjonen, ikke spaltes."}, {"t": "vannmolekyler (H₂O)", "ok": false, "ex": "Feil. Vannmolekyler er ikke en del av ozondannelsen."}], [{"t": "UV-B-stråling", "ok": true, "ex": "Riktig. Ozonlaget absorberer det meste av UV-B-strålingen, og ozonmolekylet spaltes samtidig."}, {"t": "infrarød stråling", "ok": false, "ex": "Feil. Infrarød stråling absorberes av klimagasser, ikke i ozonlaget."}, {"t": "UV-A-stråling", "ok": false, "ex": "Feil. UV-A passerer stort sett ozonlaget og når bakken. Det er UV-B som absorberes."}], [{"t": "ikke forbrukes i reaksjonen", "ok": true, "ex": "Riktig. Frie radikaler frigjøres igjen og kan reagere på nytt (katalytisk prosess), så ett radikal kan bryte ned mange ozonmolekyler."}, {"t": "er tyngre enn ozon", "ok": false, "ex": "Feil. Hvor tunge radikalene er, har ikke noe å si for hvor effektive de er."}, {"t": "absorberer UV-stråling", "ok": false, "ex": "Feil. Frie radikaler bryter ned ozon ved kjemiske reaksjoner, ikke ved å absorbere UV-stråling."}]], "sec": "del2"}, {"n": 22, "title": "Oppgave E2", "group": "E", "pts": 1.0, "kap": 5, "type": "choice", "prompt": "<p>Hvorfor er ozonkonsentrasjonen høyest i stratosfæren, og ikke høyere oppe eller lenger nede i atmosfæren?<\/p>", "opts": [{"t": "Høyere oppe er det rikelig med energirik UV-stråling, men for lite oksygen til at oksygenatomene møter O₂-molekyler. Lenger nede er mye av den energirike UV-strålingen allerede absorbert.", "ok": true, "ex": "Riktig. Høyere oppe er det mye UV, men for lite oksygen. Lenger ned er det nok oksygen, men den energirike UV-strålingen er allerede absorbert. I stratosfæren er begge deler til stede."}, {"t": "Ozon er tyngre enn luft og synker ned til stratosfæren, der den blir liggende på toppen av troposfæren.", "ok": false, "ex": "Feil. Ozon dannes i stratosfæren, det synker ikke dit. Hvor tunge molekylene er, avgjør ikke hvor ozonlaget ligger."}, {"t": "Det er kaldest i stratosfæren, og ozon dannes bare ved lave temperaturer.", "ok": false, "ex": "Feil. Temperaturen i stratosfæren øker med høyden på grunn av ozonet. Ozondannelsen styres av UV-stråling og oksygen, ikke av lav temperatur."}, {"t": "Det kommer ozon opp fra troposfæren, men den stoppes av tropopausen.", "ok": false, "ex": "Feil. Det er lite ozon i troposfæren, og det som finnes der, dannes av luftforurensning. Ozonlaget dannes i stratosfæren."}], "multi": false, "sec": "del2"}, {"n": 23, "title": "Oppgave F1", "group": "F", "pts": 1.0, "kap": 4, "type": "choice", "prompt": "<p>Hvilken temperatur gir modellen ved jordoverflaten når ε = 0, altså uten atmosfære?<\/p>", "opts": [{"t": "Ca. −19 °C", "ok": true, "ex": "Riktig. Uten atmosfære er det ingen drivhuseffekt, og modellen gir omtrent −19 °C."}, {"t": "Ca. 0 °C", "ok": false, "ex": "Feil. 0 °C er frysepunktet, men ikke det modellen gir uten atmosfære."}, {"t": "Ca. +14 °C", "ok": false, "ex": "Feil. +14 °C er temperaturen modellen gir med ε = 0,77, altså med atmosfære."}, {"t": "Ca. −32 °C", "ok": false, "ex": "Feil. −32 °C er temperaturen i atmosfærelaget i ettlagsmodellen, ikke ved bakken uten atmosfære."}], "multi": false, "sec": "del2"}, {"n": 24, "title": "Oppgave F2", "group": "F", "pts": 1.0, "kap": 4, "type": "fill", "prompt": "<p>Med ε = 0,77 er bakken varmere enn uten atmosfære. Hvor mange grader varmere? Svar: <span class=\"blank\">___<\/span> °C<\/p>", "answer": 33.0, "tol": 1, "expl": "<p>Les av grafen: ca. 14 °C ved ε = 0,77 og ca. −19 °C ved ε = 0. Forskjellen er 14 − (−19) = <strong>33 °C<\/strong>. Det er drivhuseffekten i modellen, og det er samme størrelse som boka oppgir for drivhuseffekten. Svar mellom 32 og 34 godtas, siden figuren leses av med litt usikkerhet.<\/p>", "sec": "del2"}, {"n": 25, "title": "Oppgave F3", "group": "F", "pts": 3.0, "kap": 4, "type": "open", "prompt": "<p>Bruk figuren og det du har lært om energibalansemodellene til å forklare hvordan drivhuseffekten virker, og hvorfor jorda uten atmosfære ville vært mye kaldere. Bruk begrepene kortbølget stråling, langbølget stråling, absorpsjon, emisjon og emissivitet.<\/p>", "model": "<p>Sola sender ut kortbølget stråling som atmosfæren stort sett slipper gjennom. Jordoverflaten absorberer den delen som ikke reflekteres, i gjennomsnitt (1 − α) · Ω / 4, altså omtrent 236 W/m². Uten atmosfære må bakken sende ut like mye langbølget stråling for å få energibalanse, og det gir en temperatur på omtrent −19 °C.<\/p>\n<p>Med atmosfære absorberer drivhusgassene mye av den langbølgede strålingen fra bakken (emissiviteten forteller hvor mye). Atmosfæren emitterer så selv langbølget stråling, både ut mot verdensrommet og ned mot bakken. Bakken får derfor energi både fra sola og fra atmosfæren, og må bli varmere for at utstrålingen skal balansere. Utstrålingen til verdensrommet fra toppen av atmosfæren er mindre enn utstrålingen fra bakken, fordi atmosfæren er kaldere. Det er denne reduksjonen som er drivhuseffekten. Figuren viser at høyere emissivitet, altså flere drivhusgasser, gir en varmere bakke.<\/p>", "sec": "del2", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<th>Innhold<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>a) Kortbølget inn<\/td>\n<td>Atmosfæren slipper kortbølget solstråling stort sett gjennom, og bakken absorberer det som ikke reflekteres.<\/td>\n<\/tr>\n<tr>\n<td>b) Langbølget ut<\/td>\n<td>Bakken emitterer langbølget stråling, og mengden avhenger av temperaturen.<\/td>\n<\/tr>\n<tr>\n<td>c) Uten atmosfære<\/td>\n<td>All langbølget stråling går rett ut. Balanse ved ca. −19 °C (avlest i figuren ved ε = 0).<\/td>\n<\/tr>\n<tr>\n<td>d) Med atmosfære<\/td>\n<td>Drivhusgasser absorberer langbølget stråling og emitterer både opp og ned. Bakken får ekstra energi og må bli varmere for å komme i balanse.<\/td>\n<\/tr>\n<tr>\n<td>e) Emissivitet<\/td>\n<td>ε er andelen langbølget stråling atmosfæren absorberer og sender ut. Høyere ε gir varmere bakke, som figuren viser.<\/td>\n<\/tr>\n<tr>\n<td>f) Figur<\/td>\n<td>Bruker verdiene: −19 °C ved ε = 0 og 14 °C ved ε = 0,77, som gir en forskjell på ca. 33 °C.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td><strong>1<\/strong><\/td>\n<td>Beskriver drivhuseffekten som at gasser «holder på» eller «fanger» varmen, eller leser av figuren (−19 °C og 14 °C) uten å forklare mekanismen. Få av begrepene er brukt.<\/td>\n<\/tr>\n<tr>\n<td><strong>2<\/strong><\/td>\n<td>Forklarer mekanismen med kortbølget stråling inn og langbølget stråling ut, og at drivhusgasser absorberer langbølget stråling og emitterer noe tilbake mot bakken (a, b, d). Koblingen til emissivitet og figuren mangler, <em>eller<\/em> det er uklart hvorfor jorda uten atmosfære blir kaldere.<\/td>\n<\/tr>\n<tr>\n<td><strong>3<\/strong><\/td>\n<td>Hele kjeden (a–e) med alle fem begrepene brukt presist. Svaret forklarer hvorfor bakken må bli varmere for å komme i balanse, forklarer emissivitet som andelen langbølget stråling som absorberes og emitteres, og bruker figuren aktivt (f).<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Drivhusgassene reflekterer strålingen tilbake. Det er absorpsjon og emisjon, ikke refleksjon.<\/li>\n<li>Drivhusgassene stopper solstrålingen.<\/li>\n<li>Ozonlaget eller ozonhullet blandes inn som forklaring.<\/li>\n<li>Kortbølget og langbølget stråling byttes om.<\/li>\n<li>Atmosfæren blir beskrevet som et lokk eller en isolasjon uten noen strålingsmekanisme.<\/li>\n<\/ul>"}]};
+const KEY = "geofag2-prove-k1-8-v1";
+const fmt = n => (Math.round(n * 100) / 100).toString().replace(".", ",");
+let S = { a: {}, done: {}, self: {}, seed: Math.floor(Math.random() * 1e9) };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+save();
+
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function shuffled(arr, salt) { const r = rng(S.seed + salt * 7919); const a = arr.map((v, i) => [v, i]); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const el = (tag, attrs = {}, html = "") => { const e = document.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
+const TYPE = { choice: "Flervalg", inline: "Velg fra liste", match: "Finn par", fill: "Fyll inn tall", open: "Åpen skriveoppgave" };
+const groups = Object.fromEntries(DATA.groups.map(g => [g.id, g]));
+const qById = Object.fromEntries(DATA.qs.map(q => [q.n, q]));
+
+function scoreOf(q) {
+  const a = S.a[q.n];
+  if (q.type === "open") return S.self[q.n] ?? null;
+  if (a == null) return 0;
+  if (q.type === "choice") {
+    if (!q.multi) return q.opts[a]?.ok ? q.pts : 0;
+    const sel = new Set(a); const n = q.opts.length;
+    if (sel.size === 0 || sel.size === n) return 0;
+    return q.opts.reduce((s, o, i) => s + ((sel.has(i) === o.ok) ? q.pts / n : 0), 0);
+  }
+  if (q.type === "inline") return q.fields.reduce((s, f, i) => s + (f[a[i]]?.ok ? q.pts / q.fields.length : 0), 0);
+  if (q.type === "match") return q.pairs.reduce((s, p, i) => s + (a[i] === i ? q.pts / q.pairs.length : 0), 0);
+  if (q.type === "fill") { const v = parseNum(a); return v != null && Math.abs(v - q.answer) <= q.tol + 1e-9 ? q.pts : 0; }
+  return 0;
+}
+function parseNum(s) { if (s == null) return null; const t = String(s).replace(/−/g, "-").replace(/,/g, ".").replace(/°\s*c|grader|m\b/gi, "").replace(/\s+/g, "").replace(/^\+/, ""); if (!/^-?\d+(\.\d+)?$/.test(t)) return null; return parseFloat(t); }
+
+function render() {
+  const root = document.getElementById("quiz");
+  let sec = null, grp = null;
+  DATA.qs.forEach(q => {
+    if (q.sec !== sec) {
+      sec = q.sec;
+      const h = el("div", { class: "part-head" });
+      h.innerHTML = sec === "del1"
+        ? "<h2>Del 1: Grunnleggende forståelse</h2><p>Enkeltstående oppgaver om begreper og prosesser fra kapittel 1–8.</p>"
+        : "<h2>Del 2: Sammensatte oppgaver</h2><p>Seks temaer, A–F. Hvert tema starter med en situasjonsbeskrivelse, ofte med en figur. Deloppgavene bygger på hverandre.</p>";
+      root.appendChild(h);
+    }
+    let showFigAgain = false;
+    if (q.group && q.group !== grp) {
+      grp = q.group; const g = groups[grp];
+      const gd = el("section", { class: "group", id: "tema-" + g.id });
+      gd.innerHTML = `<span class="tag">Oppgave ${g.id}</span><h3>${g.title}</h3>${g.stem || ""}` +
+        (g.img ? `<figure><img src="fig/${g.img}" alt="${g.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure>` : "");
+      root.appendChild(gd);
+    } else if (q.group) { showFigAgain = !!groups[q.group].img; }
+    root.appendChild(renderQ(q, showFigAgain));
+  });
+}
+
+function renderQ(q, figAgain) {
+  const card = el("article", { class: "q", id: "q" + q.n });
+  const title = q.group ? `${q.title} – ${groups[q.group].title}` : q.title;
+  card.innerHTML = `<div class="q-head"><span class="q-num">${q.n}</span><h3>${title}</h3><span class="q-meta">${TYPE[q.type]} · ${fmt(q.pts)} poeng · kap. ${q.kap}</span></div>`;
+  const body = el("div", { class: "q-body" });
+  if (figAgain) { const g = groups[q.group]; body.innerHTML += `<details class="fig"><summary>Vis figuren igjen</summary><figure><img src="fig/${g.img}" alt="${g.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure></details>`; }
+  if (q.img) { const fig = `<figure style="margin:0 0 12px"><img src="fig/${q.img}" alt="${q.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure>`; const k = q.prompt.indexOf("</p>") + 4; body.innerHTML += q.prompt.slice(0, k) + fig + q.prompt.slice(k); body.dataset.p = 1; }
+  card.appendChild(body);
+  const area = el("div"); card.appendChild(area);
+  const actions = el("div", { class: "actions" }); card.appendChild(actions);
+  const fb = el("div"); card.appendChild(fb);
+  const draw = () => build(q, body, area, actions, fb);
+  draw();
+  return card;
+}
+
+function build(q, body, area, actions, fb) {
+  area.innerHTML = ""; actions.innerHTML = ""; fb.innerHTML = "";
+  const done = !!S.done[q.n];
+  const a = S.a[q.n];
+  if (q.type === "choice") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const box = el("div", { class: "opts", role: q.multi ? "group" : "radiogroup" });
+    shuffled(q.opts, q.n).forEach(([o, i]) => {
+      const id = `q${q.n}o${i}`;
+      const checked = q.multi ? (a || []).includes(i) : a === i;
+      const lab = el("label", { class: "opt", for: id });
+      lab.innerHTML = `<input type="${q.multi ? "checkbox" : "radio"}" name="q${q.n}" id="${id}" ${checked ? "checked" : ""} ${done ? "disabled" : ""}><span>${done ? `<span class="mark">${o.ok ? "✔" : "✘"}</span>` : ""}${o.t}</span>` + (done && (o.ok || checked) ? `<span class="ex">${o.ex}</span>` : "");
+      if (done) lab.classList.add(o.ok ? "is-ok" : (checked ? "is-bad" : "x"));
+      lab.querySelector("input").addEventListener("change", e => {
+        if (q.multi) { const s = new Set(S.a[q.n] || []); e.target.checked ? s.add(i) : s.delete(i); S.a[q.n] = [...s]; }
+        else S.a[q.n] = i;
+        save(); syncBtn();
+      });
+      box.appendChild(lab);
+    });
+    if (q.multi) area.insertAdjacentHTML("beforeend", `<p class="note">Velg alle riktige svar. Poengene fordeles likt på alle alternativene: du får poeng både for å krysse av riktige og for å la gale stå uten kryss.</p>`);
+    area.appendChild(box);
+    if (done) fb.insertAdjacentHTML("beforeend", `<p class="note">Forklaringen står under alternativet du valgte og under det riktige svaret.</p>`);
+  }
+  if (q.type === "inline") {
+    let html = q.text;
+    q.fields.forEach((f, fi) => {
+      const sel = (a || [])[fi];
+      const opts = shuffled(f, q.n * 10 + fi).map(([o, i]) => `<option value="${i}" ${sel === i ? "selected" : ""}>${o.t}</option>`).join("");
+      const cls = done ? (f[sel]?.ok ? "is-ok" : "is-bad") : "";
+      html = html.replace(`{${fi}}`, `<select id="q${q.n}f${fi}" data-f="${fi}" class="${cls}" aria-label="Felt ${fi + 1}" ${done ? "disabled" : ""}><option value="">Velg …</option>${opts}</select>`);
+    });
+    area.appendChild(el("div", { class: "inline-text" }, html));
+    area.querySelectorAll("select").forEach(s => s.addEventListener("change", () => {
+      const arr = S.a[q.n] || []; arr[+s.dataset.f] = s.value === "" ? null : +s.value; S.a[q.n] = arr; save(); syncBtn();
+    }));
+    if (done) {
+      const ul = el("ul", { class: "fexpl" });
+      q.fields.forEach((f, fi) => {
+        const sel = (a || [])[fi]; const right = f.findIndex(o => o.ok);
+        let li = `<b>Felt ${fi + 1}:</b> `;
+        if (f[sel]?.ok) li += `<span class="f-ok">✔ ${f[sel].t}.</span> ${f[sel].ex.replace(/^Riktig\.\s*/, "")}`;
+        else li += (sel != null ? `<span class="f-bad">✘ ${f[sel].t}.</span> ${f[sel].ex} ` : `<span class="f-bad">Ikke besvart.</span> `) + `Riktig svar er <b>${f[right].t}</b>.`;
+        ul.appendChild(el("li", {}, li));
+      });
+      fb.appendChild(ul);
+    }
+  }
+  if (q.type === "match") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const box = el("div", { class: "match" });
+    const rights = shuffled(q.pairs, q.n * 31);
+    shuffled(q.pairs, q.n * 17).forEach(([p, i]) => {
+      const sel = (a || [])[i];
+      const row = el("div", { class: "row" });
+      const cls = done ? (sel === i ? "is-ok" : "is-bad") : "";
+      row.innerHTML = `<div><label for="q${q.n}m${i}">${p.left}</label></div><div><select id="q${q.n}m${i}" data-i="${i}" class="${cls}" ${done ? "disabled" : ""}><option value="">Velg …</option>${rights.map(([r, j]) => `<option value="${j}" ${sel === j ? "selected" : ""}>${r.right}</option>`).join("")}</select></div>` +
+        (done ? `<div class="ex">${sel === i ? '<span class="f-ok">✔</span>' : `<span class="f-bad">✘</span> Riktig: <b>${p.right}</b>.`} ${p.expl.replace(/^[^.]+\.\s*/, "")}</div>` : "");
+      box.appendChild(row);
+    });
+    area.appendChild(box);
+    area.querySelectorAll("select").forEach(s => s.addEventListener("change", () => {
+      const arr = S.a[q.n] || []; arr[+s.dataset.i] = s.value === "" ? null : +s.value; S.a[q.n] = arr; save(); syncBtn();
+    }));
+  }
+  if (q.type === "fill") {
+    const id = `q${q.n}in`;
+    const ok = done && scoreOf(q) > 0;
+    const p = q.prompt.replace('<span class="blank">___</span>', `<input id="${id}" inputmode="decimal" autocomplete="off" aria-label="Svar" class="${done ? (ok ? "is-ok" : "is-bad") : ""}" ${done ? "disabled" : ""}>`);
+    area.appendChild(el("div", { class: "fill" }, p));
+    const inp = area.querySelector("input"); inp.value = a ?? "";
+    inp.addEventListener("input", () => { S.a[q.n] = inp.value; save(); syncBtn(); });
+    area.insertAdjacentHTML("beforeend", `<p class="note">Skriv bare tallet.</p>`);
+    if (done) fb.appendChild(el("div", { class: "explain" }, q.expl));
+  }
+  if (q.type === "open") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const id = `q${q.n}txt`;
+    area.innerHTML = `<label class="note" for="${id}">Skriv svaret ditt her. Bruk hele setninger og begrepene som er nevnt i oppgaven.</label><textarea id="${id}"></textarea><div class="count" id="${id}c"></div>`;
+    const ta = area.querySelector("textarea"); ta.value = a ?? "";
+    const cnt = area.querySelector(".count");
+    const upd = () => { const w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0; cnt.textContent = w + " ord"; };
+    upd();
+    ta.addEventListener("input", () => { S.a[q.n] = ta.value; save(); upd(); syncBtn(); });
+  }
+  // knapper
+  const check = el("button", { class: "btn", type: "button" }, q.type === "open" ? "Vis forslag og vurdering" : "Sjekk svar");
+  const retry = el("button", { class: "btn-ghost", type: "button" }, q.type === "open" ? "Skjul og skriv videre" : "Prøv igjen");
+  const res = el("span", { class: "result", "aria-live": "polite" });
+  function syncBtn() {
+    const v = S.a[q.n];
+    let ready = v != null && !(Array.isArray(v) && v.filter(x => x != null).length === 0) && v !== "";
+    if (q.type === "open") ready = (v || "").trim().split(/\s+/).filter(Boolean).length >= 15;
+    check.disabled = !ready;
+    if (q.type === "open" && !ready && !done) res.textContent = "Skriv minst 15 ord før du ser forslaget.";
+    else if (!done) res.textContent = "";
+  }
+  if (!done) { actions.appendChild(check); actions.appendChild(res); syncBtn(); }
+  else {
+    if (q.type !== "open") {
+      const s = scoreOf(q);
+      res.textContent = `${fmt(s)} av ${fmt(q.pts)} poeng`;
+      res.className = "result " + (s >= q.pts - 1e-9 ? "ok" : s > 0 ? "part" : "bad");
+      actions.appendChild(res);
+    }
+    actions.appendChild(retry);
+  }
+  check.addEventListener("click", () => { S.done[q.n] = true; save(); build(q, body, area, actions, fb); refresh(); });
+  retry.addEventListener("click", () => {
+    S.done[q.n] = false;
+    if (q.type !== "open") delete S.a[q.n];
+    save(); build(q, body, area, actions, fb); refresh();
+  });
+  if (q.type === "open" && done) {
+    area.querySelector("textarea").readOnly = true;
+    const r = el("div", { class: "rubric" });
+    const opts = []; for (let v = 0; v <= q.pts; v += 0.5) opts.push(`<option value="${v}" ${S.self[q.n] === v ? "selected" : ""}>${fmt(v)}</option>`);
+    r.innerHTML = `<div class="model"><h4>Forslag til svar</h4>${q.model}</div>
+      <div><h4>Faglige momenter</h4><div class="tbl">${q.moment}</div></div>
+      <div><h4>Poengtrapp</h4><div class="tbl">${q.trapp}</div></div>
+      <div><h4>Typiske feil</h4>${q.feil}</div>
+      <div class="self"><p>Sammenlign svaret ditt med momentene og poengtrappen. Hvor mange poeng ville du gitt deg selv?</p>
+      <label for="q${q.n}self" class="note">Mine poeng</label>
+      <select id="q${q.n}self"><option value="">–</option>${opts.join("")}</select><span class="note">av ${fmt(q.pts)}</span></div>`;
+    fb.appendChild(r);
+    r.querySelector("select").addEventListener("change", e => {
+      if (e.target.value === "") delete S.self[q.n]; else S.self[q.n] = parseFloat(e.target.value);
+      save(); refresh();
+    });
+  }
+}
+
+function status(q) {
+  if (q.type === "open") return S.self[q.n] != null ? "self" : "";
+  if (!S.done[q.n]) return "";
+  const s = scoreOf(q); return s >= q.pts - 1e-9 ? "ok" : s > 0 ? "part" : "bad";
+}
+
+function refresh() {
+  let auto = 0, self = 0, done = 0;
+  const lost = {};
+  DATA.qs.forEach(q => {
+    if (q.type === "open") { if (S.self[q.n] != null) { self += S.self[q.n]; done++; lost[q.kap] = (lost[q.kap] || 0) + q.pts - S.self[q.n]; } }
+    else if (S.done[q.n]) { const s = scoreOf(q); auto += s; done++; lost[q.kap] = (lost[q.kap] || 0) + q.pts - s; }
+  });
+  document.getElementById("s-auto").textContent = `${fmt(auto)} / 24`;
+  document.getElementById("s-self").textContent = `${fmt(self)} / 13`;
+  document.getElementById("s-done").textContent = `${done} / 25`;
+  document.getElementById("s-prog").style.width = (done / 25 * 100) + "%";
+  ["1", "2"].forEach(d => {
+    const c = document.getElementById("chips-" + d); c.innerHTML = "";
+    DATA.qs.filter(q => q.sec === "del" + d).forEach(q => {
+      const a = el("a", { class: "chip", href: "#q" + q.n, "data-s": status(q), "aria-label": `Oppgave ${q.n}` }, String(q.n));
+      c.appendChild(a);
+    });
+  });
+  const weak = Object.entries(lost).filter(([k, v]) => v > 0.01).sort((x, y) => y[1] - x[1]);
+  const sum = document.getElementById("summary");
+  sum.innerHTML = `<h2 id="sum-h">Resultat så langt</h2>
+    <p class="note">Poengene for de automatiske oppgavene følger de samme reglene som i itslearning. Poengene på de åpne oppgavene er din egen vurdering.</p>
+    <div class="sumgrid">
+      <div><span>Totalt</span><b class="big">${fmt(auto + self)}</b> / 37</div>
+      <div><span>Rettet automatisk</span><b class="big">${fmt(auto)}</b> / 24</div>
+      <div><span>Egenvurdert</span><b class="big">${fmt(self)}</b> / 13</div>
+    </div>
+    ${done === 0 ? `<p>Når du har sjekket noen oppgaver, ser du her hvilke kapitler du bør lese mer i.</p>` :
+      weak.length ? `<p><b>Her mistet du flest poeng:</b></p><ul class="kaps">${weak.slice(0, 4).map(([k, v]) => `<li>Kapittel ${k} i Jordens puls: ${fmt(v)} poeng tapt</li>`).join("")}</ul>` :
+      `<p>Du har full score på alt du har sjekket så langt.</p>`}`;
+}
+
+function bindReset() { document.getElementById("reset").addEventListener("click", () => {
+  const w = document.getElementById("reset-wrap");
+  w.innerHTML = `<span class="confirm">Slette alle svarene? <button class="btn-ghost" id="r-yes" type="button">Ja, start på nytt</button><button class="btn-ghost" id="r-no" type="button">Avbryt</button></span>`;
+  document.getElementById("r-yes").onclick = () => { S = { a: {}, done: {}, self: {}, seed: Math.floor(Math.random() * 1e9) }; save(); location.reload(); };
+  document.getElementById("r-no").onclick = () => { w.innerHTML = `<button class="btn-ghost" id="reset" type="button">Start på nytt</button>`; bindReset(); };
+}); }
+bindReset();
+
+render(); refresh();
+</script>
+
+</body>
+</html>
