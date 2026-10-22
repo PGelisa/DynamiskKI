@@ -1,0 +1,1302 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Fra måling til varsel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: én lesekolonne med brede «laboratorier» (interaktive modeller) innimellom; klebrig stegnavigasjon øverst. Farger hentet fra værkartets konvensjoner. */
+:root{
+  --paper:#eef2f4; --surface:#f9fbfc; --ink:#14212c; --muted:#56687a; --line:#c9d4dc; --grid:#dfe6eb;
+  --warm:#c33a2f; --cold:#2458b3; --occl:#7a3d9e; --accent:#0d6f67; --rain:#3b9657; --land:#d8d0bf; --sea:#c6d9e5; --amber:#c98a06;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0d151c; --surface:#142029; --ink:#e2e9ef; --muted:#94a6b6; --line:#2c3c49; --grid:#1b2934;
+  --warm:#ff7466; --cold:#78a9ff; --occl:#c895f0; --accent:#4ec4b7; --rain:#6fcf8a; --land:#3b3a32; --sea:#15303f; --amber:#f2b33d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0d151c; --surface:#142029; --ink:#e2e9ef; --muted:#94a6b6; --line:#2c3c49; --grid:#1b2934;
+  --warm:#ff7466; --cold:#78a9ff; --occl:#c895f0; --accent:#4ec4b7; --rain:#6fcf8a; --land:#3b3a32; --sea:#15303f; --amber:#f2b33d; color-scheme:dark}
+
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.1;margin:0}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Hero */
+.hero{padding-block:56px 36px}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero h1{font-size:clamp(42px,8vw,88px);font-weight:800;letter-spacing:-.025em;margin-top:14px;max-width:12ch}
+.hero h1 .arrow{color:var(--accent)}
+.lede{font-size:clamp(18px,2.2vw,21px);max-width:60ch;margin-top:20px;color:var(--ink)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* Navigasjon */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:thin}
+.nav a{flex:none;text-decoration:none;color:var(--muted);font-size:14px;padding:6px 11px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.nav a b{font-family:var(--mono);font-weight:500;color:var(--accent);margin-right:6px}
+.nav a:hover{color:var(--ink);border-color:var(--line)}
+.nav a.on{color:var(--ink);border-color:var(--line);background:var(--surface)}
+
+/* Seksjoner */
+main{padding-block:12px 80px}
+.step{padding-block:52px 8px;border-top:1px solid var(--line);scroll-margin-top:70px}
+.step:first-child{border-top:0}
+.head{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:baseline}
+.num{font-family:var(--display);font-weight:800;font-size:56px;line-height:.9;color:var(--accent);grid-row:span 2}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.step h2{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.015em}
+.prose{max-width:68ch;margin-top:20px;display:grid;gap:14px}
+.prose strong{font-weight:600}
+.term{font-weight:600;border-bottom:2px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+.def{max-width:68ch;margin-top:20px;padding:14px 18px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0}
+.def h3{font-size:15px;font-family:var(--mono);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+
+/* Laboratorium */
+.lab{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:14px}
+.lab-title{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.lab-title h3{font-size:20px;font-weight:700}
+.lab-title span{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lab canvas{display:block;width:100%;border-radius:6px;touch-action:manipulation}
+.controls{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end}
+.ctl{display:grid;gap:4px;min-width:180px;flex:1 1 200px}
+.ctl label{font-size:13.5px;color:var(--muted)}
+.ctl label output{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;margin-left:6px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+button,.btn{font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.check{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);cursor:pointer}
+.check input{accent-color:var(--accent);width:16px;height:16px}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);min-width:0}
+.stat small{display:block;font-size:12.5px;color:var(--muted)}
+.stat b{font-family:var(--mono);font-weight:500;font-size:19px;font-variant-numeric:tabular-nums}
+.note{font-size:15px;color:var(--muted);max-width:75ch}
+.info{padding:12px 14px;border-radius:8px;background:var(--paper);border:1px solid var(--line);font-size:15.5px;display:grid;gap:6px}
+.info h4{margin:0;font-family:var(--display);font-size:18px}
+.info dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:4px 12px}
+.info dt{color:var(--muted);font-size:14px}
+.info dd{margin:0;min-width:0}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:3px;border-radius:2px;display:inline-block}
+.sw.dash{background:none!important;border-top:2px dashed currentColor;height:0}
+.key svg{flex:none}
+
+.think{max-width:68ch;margin-top:22px;padding:14px 18px;border:1px dashed var(--line);border-radius:10px}
+.think h3{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.think ol{margin:0;padding-left:20px;display:grid;gap:6px}
+
+/* Verifikasjon */
+.days{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;max-width:520px}
+.day{aspect-ratio:1;border-radius:3px;background:var(--grid);transition:background .25s}
+.day.rain{background:var(--cold)}
+@media (max-width:460px){.days{grid-template-columns:repeat(10,1fr)}}
+
+/* Prosesskjede */
+.chain{list-style:none;padding:0;margin:24px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;counter-reset:c}
+.chain li{position:relative;padding:12px 14px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;counter-increment:c}
+.chain li::before{content:counter(c);font-family:var(--mono);font-size:12px;color:var(--accent)}
+.chain b{display:block;font-family:var(--display);font-size:18px;margin:2px 0 4px}
+.chain p{font-size:14.5px;color:var(--muted);line-height:1.45}
+.chain li.side{border-style:dashed}
+.chain li.side::before{content:"↺ eller snarvei"}
+
+/* Quiz */
+.quiz{display:grid;gap:14px;margin-top:20px;max-width:760px}
+.q{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.q p.qt{font-weight:600;margin-bottom:10px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--paper)}
+.q .opts button.right{border-color:var(--rain);box-shadow:inset 3px 0 0 var(--rain)}
+.q .opts button.wrong{border-color:var(--warm);box-shadow:inset 3px 0 0 var(--warm)}
+.q .fb{margin-top:10px;font-size:15px;color:var(--muted)}
+.score{font-family:var(--mono);font-size:14px;color:var(--muted)}
+
+/* Globalt kart */
+.globwrap{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:10px;align-items:start}
+.latcol{min-width:0}
+.latcap{font-size:12px;color:var(--muted);line-height:1.3;margin-top:4px}
+@media (max-width:640px){.globwrap{grid-template-columns:1fr}}
+/* Rekkefølge */
+.order{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.order li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--paper)}
+.order li .on{font-family:var(--mono);color:var(--muted);width:1.5em;text-align:center}
+.order li b{display:block;font-family:var(--display);font-size:17px}
+.order li small{color:var(--muted);font-size:14px}
+.order li .mv{display:flex;gap:4px}
+.order li .mv button{padding:5px 10px}
+.order li.ok{border-color:var(--rain);box-shadow:inset 3px 0 0 var(--rain)}
+.order li.bad{border-color:var(--warm);box-shadow:inset 3px 0 0 var(--warm)}
+.stack{display:grid;gap:12px;align-content:start}
+.stack .ctl{min-width:0}
+.steps4 button b{font-family:var(--mono);font-weight:500;margin-right:4px;opacity:.7}
+.stepbox p+p{margin-top:6px}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.35}
+.trust-label{font-size:14px;color:var(--muted);margin-bottom:6px}
+.trust{display:flex;height:30px;border-radius:7px;overflow:hidden;border:1px solid var(--line);font-size:13.5px;font-weight:600}
+.trust span{display:flex;align-items:center;padding:0 10px;white-space:nowrap;overflow:hidden;transition:width .25s}
+#asTrO{background:var(--warm);color:var(--paper)}
+#asTrB{background:var(--muted);color:var(--paper);justify-content:flex-end}
+.trust-text{font-size:14.5px;margin-top:6px;max-width:75ch}
+.extra{margin-top:24px;border:1px dashed var(--line);border-radius:12px;padding:4px 16px 16px;background:var(--surface)}
+.extra summary{cursor:pointer;padding:12px 0;font-family:var(--display);font-weight:700;font-size:18px;list-style-position:outside;display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
+.extra summary::-webkit-details-marker{display:none}
+.extra summary::after{content:"Vis";margin-left:auto;font-family:var(--body);font-weight:500;font-size:14px;color:var(--accent);border:1px solid var(--line);border-radius:7px;padding:4px 10px;background:var(--paper)}
+.extra[open] summary::after{content:"Skjul"}
+.extra .lab{background:var(--paper)}
+.tag{font-family:var(--mono);font-weight:500;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--occl);border:1px solid currentColor;border-radius:999px;padding:2px 8px}
+.frame{margin-top:28px;padding:22px 22px 24px;border:1px solid var(--line);border-radius:14px;background:var(--surface);scroll-margin-top:70px}
+.frame-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.frame h2{font-size:clamp(24px,3.4vw,32px);font-weight:700;letter-spacing:-.01em}
+.frame-meta{display:flex;flex-wrap:wrap;gap:6px}
+.frame-meta span{font-size:13.5px;padding:4px 10px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.frame-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;margin-top:18px}
+@media (max-width:820px){.frame-grid{grid-template-columns:1fr}}
+.frame h3{font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+.frame h3:not(:first-child){margin-top:20px}
+.frame p{font-size:16px}
+.recipe{margin:0;padding:0;list-style:none;counter-reset:r;display:grid;gap:10px}
+.recipe li{counter-increment:r;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:16px;line-height:1.5}
+.recipe li::before{content:counter(r);font-family:var(--display);font-weight:800;font-size:20px;color:var(--accent);line-height:1.2}
+.recipe b{font-weight:600}
+.frame-extra{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.logq{padding:16px 18px;border-radius:10px;background:var(--paper);border:1px solid var(--line);align-self:start}
+.logq dl{margin:0;display:grid;gap:10px}
+.logq dt{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
+.logq dd{margin:0;font-size:15.5px;line-height:1.45}
+.logq .note{margin-top:14px;font-size:13.5px}
+[hidden]{display:none!important}
+button:disabled{opacity:.4;cursor:default}
+#cvMeteo{margin-top:8px}
+footer{border-top:1px solid var(--line);padding-block:28px 40px;color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="wrap hero">
+  <p class="eyebrow">Geofag 2 · Jordens puls · kapittel 14 Værvarsling</p>
+  <h1>Fra måling <span class="arrow">→</span> til varsel</h1>
+  <p class="lede">Værvarslet på mobilen er siste ledd i en lang kjede: millioner av målinger, en datamodell som løser fysikkens likninger på en superdatamaskin, og meteorologer som tolker resultatet. Her kan du prøve de viktigste leddene selv.</p>
+  <div class="hero-meta"><span>14 interaktive modeller</span><span>Quiz til slutt</span><span>Bygget på kapittel 14 i Jordens puls</span></div>
+</header>
+
+<nav class="nav" aria-label="Innhold"><div class="wrap" id="navlinks">
+  <a href="#slik"><b>→</b>Slik jobber du</a>
+  <a href="#observasjoner"><b>1</b>Observasjoner</a>
+  <a href="#assimilasjon"><b>2</b>Dataassimilasjon</a>
+  <a href="#rutenett"><b>3</b>Modell og rutenett</a>
+  <a href="#kaos"><b>4</b>Kaos</a>
+  <a href="#ensemble"><b>5</b>Ensemble</a>
+  <a href="#vaerkart"><b>6</b>Værkart</a>
+  <a href="#profil"><b>7</b>Vertikalprofiler</a>
+  <a href="#varsel"><b>8</b>Fra modell til varsel</a>
+  <a href="#skala"><b>9</b>Ulike skalaer</a>
+  <a href="#oppsummering"><b>10</b>Oppsummering</a>
+</div></nav>
+
+<main class="wrap">
+<section class="frame" id="slik" aria-labelledby="slikH">
+  <div class="frame-head">
+    <h2 id="slikH">Slik jobber du med ressursen</h2>
+    <p class="frame-meta"><span>Arbeid i par, én skjerm</span><span>Ca. 2 × 45 minutter</span><span>Ha loggboka klar</span></p>
+  </div>
+  <div class="frame-grid">
+    <div>
+      <h3>Målet ditt</h3>
+      <p>Når du er ferdig, skal du kunne forklare hele veien fra observasjoner til værvarsel, og bruke værkart og vertikalprofiler til å si noe om været framover. Det er dette du trenger i værvarslingsuka.</p>
+      <h3>Fremgangsmåte</h3>
+      <ol class="recipe">
+        <li><span><b>Før du starter (3 min).</b> Skriv i loggen: Hvordan tror du værvarselet på Yr blir laget? Du skal sammenligne med dette til slutt.</span></li>
+        <li><span><b>Jobb deg gjennom del 1–3 og 6–8 i rekkefølge.</b> Les teksten først, og prøv så modellen. Bytt på hvem som styrer.</span></li>
+        <li><span><b>Gjør oppdragene underveis:</b> «Test deg selv» på verdenskartet, steg 4 i dataassimilasjonen, «Varsle selv» før du åpner meteogrammet, og «Vis hva som faktisk skjedde» i nowcastingen.</span></li>
+        <li><span><b>Svar på spørsmålene til loggen</b> etter hver del, med egne ord.</span></li>
+        <li><span><b>Avslutt med del 10:</b> Sett kjeden i riktig rekkefølge og ta quizen.</span></li>
+        <li><span><b>Forklar for makkeren din (2 min hver):</b> Fortell hvordan et værvarsel blir til, uten å se på skjermen. Sammenlign med det du skrev i punkt 1.</span></li>
+      </ol>
+      <p class="frame-extra"><span class="tag">Tilvalgsstoff</span> <span>Er du ferdig før tiden? Åpne boksene i del 4 (kaos) og 5 (ensemble), og se på del 9 om hvor godt vi kan varsle ulike værfenomener.</span></p>
+    </div>
+    <div class="logq">
+      <h3>Spørsmål til loggen</h3>
+      <dl>
+        <dt>1 Observasjoner</dt><dd>Hvor i verden er det størst hull i observasjonene, og hvorfor er det slik?</dd>
+        <dt>2 Dataassimilasjon</dt><dd>Hvorfor kan ikke modellen bare starte fra målingene?</dd>
+        <dt>3 Rutenett</dt><dd>Hvorfor er en byge vanskeligere å varsle enn et lavtrykk?</dd>
+        <dt>6 Værkart</dt><dd>Hva skjer med trykk, vind og nedbør i punktet ditt når frontene passerer?</dd>
+        <dt>7 Vertikalprofiler</dt><dd>Hva er forskjellen på en stabil og en ustabil atmosfære, og hva slags vær gir de?</dd>
+        <dt>8 Fra modell til varsel</dt><dd>Hva kan nowcasting ikke varsle? Og hvorfor kan du ikke vurdere et varsel på 30 % regn ut fra én dag?</dd>
+      </dl>
+      <p class="note">Modellene på siden er forenklet for å vise prinsippene. Tallene er ikke ekte værdata.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- 1 OBSERVASJONER -->
+<section class="step" id="observasjoner">
+  <div class="head"><span class="num">1</span><p class="kicker">Utgangspunktet</p><h2>Observere været akkurat nå</h2></div>
+  <div class="prose">
+    <p>For å si noe om været i morgen må vi vite nøyaktig hvordan atmosfæren er i dag. Innsamling av værdata på faste tider kalles <span class="term">synoptiske observasjoner</span> (SYNOP). Synoptisk betyr å se alt samtidig: målet er et øyeblikksbilde av været over et stort område.</p>
+    <p>Ingen målemetode ser hele atmosfæren alene. Bakkestasjoner måler bare ved bakken, radiosonder gir profiler oppover fra noen få steder, og satellitter ser alt ovenfra, men måler stråling og ikke temperatur direkte. Velg et instrument for å se hvilken del av atmosfæren det dekker.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-title"><h3>Hvem måler hvor?</h3><span>Atmosfæresøyle 0–35 km</span></div>
+    <div class="seg" id="instrBtns" role="group" aria-label="Velg instrument"></div>
+    <canvas id="cvColumn" aria-label="Atmosfæresøyle som viser hvilke høyder hvert instrument måler"></canvas>
+    <div class="info" id="instrInfo" aria-live="polite"></div>
+  </div>
+
+
+  <div class="lab" id="globLab">
+    <div class="lab-title"><h3>Hvor i verden måles været?</h3><span>Fordeling av observasjoner globalt</span></div>
+    <div class="seg" id="gLayers" role="group" aria-label="Velg observasjonstyper"></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Utsnitt">
+        <button id="gzW" aria-pressed="true">Hele verden</button>
+        <button id="gzE" aria-pressed="false">Nord-Atlanteren og Europa</button>
+      </div>
+      <label class="check"><input type="checkbox" id="gGap">Vis datahull</label>
+      <button id="gChal">Test deg selv</button>
+    </div>
+    <div class="globwrap">
+      <canvas id="cvGlob" aria-label="Verdenskart med observasjonspunkter" style="cursor:crosshair"></canvas>
+      <div class="latcol"><canvas id="cvLat" aria-label="Antall observasjoner per breddegradsbånd"></canvas><p class="latcap">Observasjoner per areal, per 10° bredde</p></div>
+    </div>
+    <div class="legend" id="gLegend"></div>
+    <div class="legend" id="gGapLegend" hidden><span><i class="sw" style="background:var(--warm);opacity:.15;height:10px"></i>300 km</span><span><i class="sw" style="background:var(--warm);opacity:.35;height:10px"></i>1000 km</span><span><i class="sw" style="background:var(--warm);opacity:.6;height:10px"></i>over 1800 km til nærmeste måling</span></div>
+    <div class="readout">
+      <div class="stat"><small>Punkter vist</small><b id="gN">–</b></div>
+      <div class="stat"><small>På nordlige halvkule</small><b id="gNH">–</b></div>
+      <div class="stat"><small>Over hav</small><b id="gSea">–</b></div>
+    </div>
+    <div class="info" id="globInfo" aria-live="polite"><h4>Klikk i kartet</h4><p>Klikk et sted for å se hvor langt det er til nærmeste observasjon av hver type. Slå på «Vis datahull» for å se hvor analysen må stole mest på forrige modellvarsel.</p></div>
+    <p class="note">Kartet er en skjematisk gjengivelse av mønstrene i ECMWF sine oversiktskart over SYNOP-stasjoner, bøyer og radiosonder (se figurene i kapittelet). Punktene er ikke de virkelige stasjonene, bortsett fra de norske radiosondestasjonene. Antall punkter er nedskalert, men forholdet mellom områdene er beholdt.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3>Geostasjonær eller polarbane?</h3><span>Dekning i løpet av et døgn</span></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Satellitttype">
+        <button id="orbGeo" aria-pressed="true">Geostasjonær</button>
+        <button id="orbPol" aria-pressed="true">Polarbane</button>
+      </div>
+      <div class="ctl"><label for="orbT">Tid siden start <output id="orbTo">6 t</output></label><input type="range" id="orbT" min="0" max="24" step="0.25" value="6"></div>
+      <button id="orbPlay">Spill av døgnet</button>
+    </div>
+    <canvas id="cvOrbit" aria-label="Kart over satellittdekning"></canvas>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent);height:10px;opacity:.5"></i>Geostasjonær (Meteosat over 0° lengde): samme utsnitt, nytt bilde hvert 10.–15. minutt</span>
+      <span><i class="sw" style="background:var(--cold);height:10px;opacity:.5"></i>Polarbane: én stripe per passering, ca. 101 minutter per runde</span>
+    </div>
+    <p class="note">Kartet viser bare lengde- og breddegrader. Mens polarbanesatellitten går én runde, roterer jorden omtrent 25° under den, så neste stripe havner lenger vest. Etter et døgn er hele kloden skannet. Den geostasjonære satellitten ser aldri polene godt.</p>
+  </div>
+
+  <aside class="think"><h3>Tenk selv</h3><ol>
+    <li>En meteorolog vil vite om det er fare for turbulens i 10 000 meters høyde over Nordsjøen. Hvilke instrumenter kan hjelpe?</li>
+    <li>Hvorfor trenger vi fortsatt værstasjoner på bakken når satellittene ser hele kloden?</li>
+  </ol></aside>
+</section>
+
+<!-- 2 DATAASSIMILASJON -->
+<section class="step" id="assimilasjon">
+  <div class="head"><span class="num">2</span><p class="kicker">Observasjon og analyse</p><h2>Dataassimilasjon: fra spredte målinger til et helt bilde</h2></div>
+  <div class="prose">
+    <p>Målingene ligger ikke i punktene i modellens rutenett, de inneholder feil, og over hav og i polarstrøk er det få av dem. Derfor kan de ikke brukes direkte som startverdier. I stedet kombineres de med forrige modellvarsel, som kalles <span class="term">bakgrunnen</span>.</p>
+  </div>
+  <div class="def"><h3>Dataassimilasjon</h3><p>Metoden for å kombinere observasjoner med et tidligere modellvarsel til en best mulig beskrivelse av atmosfæren akkurat nå. Resultatet kalles en <strong>analyse</strong>, og det er startverdiene modellen regner videre fra. Metoden tar hensyn til hvor usikre både observasjonene og det forrige varselet er.</p></div>
+
+  <div class="lab">
+    <div class="lab-title"><h3>Lag din egen analyse</h3><span>Temperatur langs en strekning på 1000 km</span></div>
+    <div class="seg steps4" id="asSteps" role="group" aria-label="Steg">
+      <button data-s="1" aria-pressed="true"><b>1</b> Forrige varsel</button>
+      <button data-s="2" aria-pressed="false"><b>2</b> Målingene</button>
+      <button data-s="3" aria-pressed="false"><b>3</b> Analysen</button>
+      <button data-s="4" aria-pressed="false"><b>4</b> Prøv selv</button>
+    </div>
+    <div class="info stepbox" id="asText" aria-live="polite"></div>
+    <canvas id="cvAssim" aria-label="Graf med sann temperatur, forrige varsel, målinger og analyse"></canvas>
+    <div class="legend" id="asLegend">
+      <span data-from="1"><i class="sw dash" style="color:var(--ink)"></i>Sann temperatur (kjenner vi ikke i virkeligheten)</span>
+      <span data-from="1"><i class="sw" style="background:var(--muted)"></i>Forrige varsel (bakgrunnen)</span>
+      <span data-from="2"><i class="sw" style="background:var(--warm);height:8px;width:8px;border-radius:50%"></i>Måling, med strek som viser usikkerheten</span>
+      <span data-from="3"><i class="sw" style="background:var(--accent);height:4px"></i>Analysen (startverdiene til neste varsel)</span>
+      <span><i class="sw" style="background:var(--muted);opacity:.3;height:10px"></i>Skyggelagt felt: hvor mye <em id="asShadeLab" style="font-style:normal">forrige varsel</em> bommer</span>
+    </div>
+
+    <div id="asTrustWrap" hidden>
+      <p class="trust-label">Der det finnes en måling, stoler analysen</p>
+      <div class="trust" aria-hidden="true"><span id="asTrO"></span><span id="asTrB"></span></div>
+      <p class="trust-text" id="asTrText"></p>
+    </div>
+
+    <div class="controls" id="asCtlSigma" hidden>
+      <div class="ctl"><label for="asO">Hvor nøyaktige er målingene? <output id="asOo"></output></label><input type="range" id="asO" min="0.1" max="3" step="0.1" value="0.5"><small class="hint">Lav verdi: gode instrumenter. Høy verdi: usikre målinger.</small></div>
+      <div class="ctl"><label for="asB">Hvor godt pleier forrige varsel å treffe? <output id="asBo"></output></label><input type="range" id="asB" min="0.2" max="3" step="0.1" value="1.5"><small class="hint">Lav verdi: varselet treffer godt. Høy verdi: varselet bommer ofte.</small></div>
+    </div>
+    <div class="controls" id="asCtlFree" hidden>
+      <div class="ctl"><label for="asN">Antall faste målestasjoner <output id="asNo"></output></label><input type="range" id="asN" min="0" max="14" value="5"><small class="hint">Klikk i grafen for å sette ut egne stasjoner (svart ring).</small></div>
+      <label class="check"><input type="checkbox" id="asBad">Neste klikk gir en målefeil (5 °C for høyt)</label>
+      <label class="check"><input type="checkbox" id="asTruth" checked>Vis sann temperatur</label>
+      <button id="asClear">Fjern egne stasjoner</button>
+    </div>
+
+    <div class="readout" id="asResult" hidden>
+      <div class="stat"><small>Forrige varsel bommet i snitt med</small><b id="asRb">–</b></div>
+      <div class="stat"><small>Analysen bommer i snitt med</small><b id="asRa">–</b></div>
+      <div class="stat"><small>Resultat</small><b id="asRi" style="font-size:16px;font-family:var(--body);font-weight:600">–</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 RUTENETT -->
+<section class="step" id="rutenett">
+  <div class="head"><span class="num">3</span><p class="kicker">Modellkjøring</p><h2>Fysikkens lover i et rutenett</h2></div>
+  <div class="prose">
+    <p>En værvarslingsmodell deler atmosfæren inn i et tredimensjonalt rutenett. I hvert punkt beregner modellen vind, temperatur, trykk, fuktighet, skyer og nedbør, og hvordan luft, energi og vann utveksles mellom cellene. Den regner steg for steg framover i tid ved hjelp av syv likninger: tre bevegelseslikninger (Navier–Stokes), energibalansen, vannbalansen, massebevaring og tilstandslikningen for gass, som knytter trykk, tetthet og temperatur sammen.</p>
+    <p>Rutenettet setter en grense for hva modellen kan «se». Under ser du et snitt fra havet og innover fjordlandskapet på Vestlandet. Modellen kjenner bare gjennomsnittshøyden i hver rute. Fenomener som er mindre enn noen få ruter, som byger, må tilnærmes med forenklede regler. Det kalles <span class="term">parametrisering</span>.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-title"><h3>Hva ser modellen av landskapet?</h3><span>Snitt fra kysten og 160 km innover</span></div>
+    <div class="seg" id="resBtns" role="group" aria-label="Velg oppløsning"></div>
+    <canvas id="cvGrid" aria-label="Terrengprofil og modellens forenklede terreng"></canvas>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--land);height:10px"></i>Virkelig terreng</span>
+      <span><i class="sw" style="background:var(--accent);height:3px"></i>Modellens terreng (snitt per rute)</span>
+      <span><i class="sw" style="background:var(--sea);height:10px"></i>Hav og fjord</span>
+    </div>
+    <div class="readout">
+      <div class="stat"><small>Høyeste fjell, virkelig</small><b id="grReal">–</b></div>
+      <div class="stat"><small>Høyeste fjell i modellen</small><b id="grMod">–</b></div>
+      <div class="stat"><small>Bygen (ca. 4 km bred)</small><b id="grCloud">–</b></div>
+      <div class="stat"><small>Regnekraft sammenlignet med 9 km</small><b id="grCost">–</b></div>
+    </div>
+    <p class="note">Regnekraften øker med omtrent tredje potens: halverer du rutene, får du fire ganger så mange ruter i et plan, og modellen må ta kortere tidssteg. Et fenomen må som tommelfingerregel være minst 4–5 ruter bredt for at modellen skal beskrive det godt.</p>
+  </div>
+  <div class="prose">
+    <p><strong>Globale modeller</strong>, som ECMWF sin HRES-modell, dekker hele kloden med rutenett på omtrent 9 km. <strong>Regionale modeller</strong>, som MetCoOp/AROME for Norden og AROME-Arctic for nordområdene, dekker et mindre område med omtrent 2,5 km mellom punktene, og fanger opp fjell og fjorder mye bedre. De regionale modellene får verdiene langs kanten av området sitt fra en global modell.</p>
+  </div>
+</section>
+
+<!-- 4 KAOS -->
+<section class="step" id="kaos">
+  <div class="head"><span class="num">4</span><p class="kicker">Grensen for varsling</p><h2>Kaos: små feil vokser</h2></div>
+  <div class="prose">
+    <p>Atmosfæren er et <span class="term">kaotisk system</span>. Det betyr at små feil i startverdiene vokser over tid. Tenk deg to papirbåter som slippes ut i en bekk nesten på samme sted. I starten flyter de side om side, men etter en stund havner de på helt ulike steder.</p>
+    <p>Startverdiene i en værmodell har alltid litt feil, fordi målingene har usikkerhet og ikke dekker hele kloden. Derfor er detaljerte varsler brukbare noen dager fram, og grensen for å varsle været en bestemt dag er omtrent to uker, uansett hvor gode modellene blir.</p>
+  </div>
+  <details class="extra">
+  <summary><span class="tag">Tilvalgsstoff</span>Se kaos i en enkel modell</summary>
+  <div class="prose" style="margin-top:12px">
+    <p>Meteorologen Edward Lorenz oppdaget rundt 1961 at en liten avrunding av startverdiene i en enkel værmodell ga et helt annet resultat etter en stund. Under kjører vi modellen hans to ganger, med en bitte liten forskjell i startverdien. Modellen er sterkt forenklet, men oppfører seg på samme måte som atmosfæren.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3>To nesten like modellkjøringer</h3><span>Lorenz-modellen (1963)</span></div>
+    <div class="controls">
+      <div class="ctl"><label for="chD">Forskjell i startverdi <output id="chDo">0,001</output></label><input type="range" id="chD" min="1" max="10" step="1" value="3"></div>
+    </div>
+    <canvas id="cvChaos" aria-label="To modellkjøringer som skiller lag over tid"></canvas>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent)"></i>Kjøring A</span>
+      <span><i class="sw" style="background:var(--warm)"></i>Kjøring B, med litt endret startverdi</span>
+      <span><i class="sw" style="background:var(--muted)"></i>Avstand mellom kjøringene (logaritmisk skala)</span>
+    </div>
+    <div class="readout">
+      <div class="stat"><small>Kjøringene skilles etter</small><b id="chT">–</b></div>
+      <div class="stat"><small>Startfeilen 10 ganger mindre gir</small><b id="chGain">–</b></div>
+    </div>
+    <p class="note">Legg merke til den nederste grafen: avstanden vokser omtrent som en rett linje på logaritmisk skala, altså eksponentielt. Gjør du startfeilen ti ganger mindre, vinner du bare et fast stykke tid. Derfor hjelper bedre målinger, men de flytter grensen lite. For ekte vær er grensen for å varsle enkeltværsituasjoner omtrent to uker.</p>
+  </div>
+  </details>
+</section>
+
+<!-- 5 ENSEMBLE -->
+<section class="step" id="ensemble">
+  <div class="head"><span class="num">5</span><p class="kicker">Usikkerhet</p><h2>Ensembleprognoser og spaghettiplott</h2></div>
+  <div class="prose">
+    <p>Siden vi aldri kjenner startverdiene helt nøyaktig, kjører meteorologene modellen mange ganger med litt ulike startverdier. Spredningen mellom varslene viser hvor usikkert været er.</p>
+    <p>Varslene tegnes ofte som et <span class="term">spaghettiplott</span>, der hvert varsel er en linje. Ligger linjene tett, er varselet sikkert. Sprer de seg, er det usikkert. Av og til deler linjene seg i to grupper. Da er to ulike værscenarioer mulige. Det var dette som skjedde med 17. mai-varselet for Vestlandet i 2024.</p>
+  </div>
+  <div class="def"><h3>Ensembleprognose</h3><p>Et sett med mange varsler fra samme modell, der hvert varsel starter med litt ulike startverdier. Holder varslene seg samlet, er værutviklingen sikker. Sprer de seg, er den usikker. Fra et ensemble kan man regne ut sannsynligheter.</p></div>
+
+  <details class="extra">
+  <summary><span class="tag">Tilvalgsstoff</span>Kjør et ensemble selv</summary>
+  <div class="lab">
+    <div class="lab-title"><h3>Kjør et ensemble</h3><span>Lorenz-modellen med to «værregimer»</span></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Værsituasjon">
+        <button id="enSafe" aria-pressed="false">Rolig værsituasjon</button>
+        <button id="enUnsafe" aria-pressed="true">Usikker værsituasjon</button>
+        <button id="enNew">Nye forstyrrelser</button>
+      </div>
+      <div class="ctl"><label for="enM">Antall medlemmer <output id="enMo">51</output></label><input type="range" id="enM" min="5" max="51" value="51"></div>
+      <div class="ctl"><label for="enS">Usikkerhet i analysen <output id="enSo">0,30</output></label><input type="range" id="enS" min="0.02" max="1.5" step="0.02" value="0.3"></div>
+    </div>
+    <canvas id="cvEns" aria-label="Spaghettiplott med ensemblemedlemmer"></canvas>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent);opacity:.6"></i>Ensemblemedlemmer</span>
+      <span><i class="sw" style="background:var(--warm);height:3px"></i>Hovedkjøring (uforstyrret analyse)</span>
+      <span><i class="sw" style="background:var(--ink);height:3px"></i>Ensemblesnitt</span>
+      <span><i class="sw" style="background:var(--cold);height:10px;opacity:.6"></i>Andel medlemmer i scenario B</span>
+    </div>
+    <div class="two">
+      <div class="ctl"><label for="enT">Les av varselet ved tid <output id="enTo">5,0</output></label><input type="range" id="enT" min="0" max="10" step="0.1" value="5">
+        <div class="readout" style="margin-top:8px">
+          <div class="stat"><small>Scenario A: høytrykk, tørt</small><b id="enPA">–</b></div>
+          <div class="stat"><small>Scenario B: lavtrykk, regn</small><b id="enPB">–</b></div>
+          <div class="stat"><small>Spredning (standardavvik)</small><b id="enSd">–</b></div>
+        </div>
+      </div>
+      <div><canvas id="cvHist" aria-label="Histogram over ensemblemedlemmene ved valgt tid"></canvas>
+        <p class="note" id="enMsg" style="margin-top:6px"></p></div>
+    </div>
+    <p class="note">Modellen har to «værregimer»: verdier over null kaller vi scenario A og under null scenario B. Når ensemblet deler seg i to grupper, er begge scenarioene mulige. Det kalles <strong>multimodalitet</strong>. Da gir snittet av ensemblet et misvisende bilde, fordi det havner midt mellom to scenarioer som hver for seg er mer sannsynlige. Dette er det samme som skjedde med 17. mai-varselet for Vestlandet i 2024, der kald luft fra Grønland kunne gi to helt ulike værutfall.</p>
+  </div>
+  </details>
+  <aside class="think"><h3>Tenk selv</h3><ol>
+    <li>Hva forteller det deg som bruker hvis spaghettiplottet for temperaturen om fem dager spriker mye?</li>
+    <li>Varselet på Yr viser bare ett symbol. Hvilken informasjon går tapt når ensemblet er multimodalt?</li>
+  </ol></aside>
+</section>
+
+<!-- 6 VÆRKART -->
+<section class="step" id="vaerkart">
+  <div class="head"><span class="num">6</span><p class="kicker">Tolking</p><h2>Analysekart og prognosekart</h2></div>
+  <div class="prose">
+    <p>Et <strong>analysekart</strong> oppsummerer værsituasjonen på et bestemt tidspunkt, basert på observasjoner fra samme tidspunkt sammen med modelldata. Et <strong>prognosekart</strong> viser hvordan modellen og meteorologen tror værsituasjonen blir framover. Det kan ikke inneholde observasjoner, fordi det er en prognose.</p>
+    <p>Kartet under er skjematisk, med et lavtrykk som utvikler seg etter den norske syklonmodellen fra Bergensskolen. Flytt tiden framover, og trykk eller klikk hvor som helst i kartet for å lese av lufttrykk og vind.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3 id="mapTitle">Analysekart 00 UTC</h3><span>Skjematisk utsnitt av Nord-Atlanteren, ca. 5000 km bredt</span></div>
+    <div class="controls">
+      <div class="ctl" style="flex:2 1 260px"><label for="mapT">Tid <output id="mapTo">analyse</output></label><input type="range" id="mapT" min="0" max="36" step="0.5" value="0"></div>
+      <button id="mapPlay">Spill av</button>
+      <label class="check"><input type="checkbox" id="mapRain" checked>Nedbør</label>
+      <label class="check"><input type="checkbox" id="mapWind">Vindpiler</label>
+    </div>
+    <canvas id="cvMap" aria-label="Værkart med isobarer, fronter, lavtrykk og høytrykk" style="cursor:crosshair"></canvas>
+    <div class="readout">
+      <div class="stat"><small>Lufttrykk i punktet</small><b id="mpP">–</b></div>
+      <div class="stat"><small>Vind fra</small><b id="mpDir">–</b></div>
+      <div class="stat"><small>Vind ved bakken, beregnet</small><b id="mpV">–</b></div>
+      <div class="stat"><small>Beaufort</small><b id="mpBf">–</b></div>
+    </div>
+    <div class="legend key">
+      <span><svg width="34" height="14" aria-hidden="true"><path d="M2 10H32" stroke="var(--warm)" stroke-width="2.5"/><path d="M9 10a5 5 0 0 1 10 0z" fill="var(--warm)"/><path d="M22 10a5 5 0 0 1 10 0z" fill="var(--warm)"/></svg>Varmfront</span>
+      <span><svg width="34" height="14" aria-hidden="true"><path d="M2 11H32" stroke="var(--cold)" stroke-width="2.5"/><path d="M8 11l5 -8l5 8z" fill="var(--cold)"/><path d="M21 11l5 -8l5 8z" fill="var(--cold)"/></svg>Kaldfront</span>
+      <span><svg width="34" height="14" aria-hidden="true"><path d="M2 11H32" stroke="var(--occl)" stroke-width="2.5"/><path d="M6 11l5 -8l5 8z" fill="var(--occl)"/><path d="M19 11a5 5 0 0 1 10 0z" fill="var(--occl)"/></svg>Okklusjonsfront</span>
+      <span><i class="sw" style="background:var(--ink);height:1.5px"></i>Isobarer hver 4. hPa</span>
+      <span><i class="sw" style="background:var(--rain);height:10px;opacity:.55"></i>Nedbør</span>
+      <span><svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="3.2" fill="none" stroke="var(--ink)" stroke-width="1.3"/></svg>Observasjon (bare i analysen)</span>
+    </div>
+
+    <div class="info" id="meteoBox">
+      <h4>Varsle selv før du ser fasiten</h4>
+      <p>Klikk et punkt i kartet mens det viser analysen. Hva tror du skjer med lufttrykket, vinden og nedbøren der de neste 36 timene? Lag varselet ditt, og sjekk det så mot meteogrammet.</p>
+      <div><button id="meteoBtn">Vis meteogram for punktet</button></div>
+      <canvas id="cvMeteo" hidden aria-label="Meteogram med lufttrykk, vind og nedbør for valgt punkt"></canvas>
+    </div>
+    <p class="note">Vinden er beregnet fra trykkgradienten som geostrofisk vind, og deretter dreid inn mot lavtrykket og svekket for å ta hensyn til friksjon ved bakken. Legg merke til at vinden blåser nesten langs isobarene, med lavtrykket til venstre når du står med vinden i ryggen, og at den er sterkest der isobarene ligger tettest.</p>
+  </div>
+  <aside class="think"><h3>Tolk kartet systematisk</h3><ol>
+    <li>Finn lavtrykk og høytrykk. Hvor er det trolig skyer og nedbør, og hvor er det klart?</li>
+    <li>Studer isobarene. Hvor er trykkgradienten størst, og hvilken vei blåser vinden?</li>
+    <li>Finn frontene. Hvilken vei beveger de seg, og hva slags vær gir de?</li>
+    <li>Sammenlign analysen med prognosene. Hvordan flytter lavtrykket seg, når okkluderer det, og når begynner det å fylles opp?</li>
+  </ol></aside>
+</section>
+
+
+<!-- 7 VERTIKALPROFILER -->
+<section class="step" id="profil">
+  <div class="head"><span class="num">7</span><p class="kicker">Atmosfæren i høyden</p><h2>Vertikalprofiler og stabilitet</h2></div>
+  <div class="prose">
+    <p>Værkartene viser været ved bakken. For å vurdere skyer, byger og torden må meteorologen vite hvordan temperatur og fuktighet endrer seg oppover. Det viser en <span class="term">vertikalprofil</span>, fra radiosonder eller fra en modell. Meteorologisk institutt viser den som et Skew-T-diagram.</p>
+    <p>I modellen under løfter vi en luftpakke fra bakken. Den kjøles etter tørradiabaten (ca. 10 °C per km) til den blir mettet. Der dannes skyen, og videre kjøles den langsommere etter fuktigadiabaten. Er pakken varmere enn luften rundt, fortsetter den å stige: atmosfæren er ustabil.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3>Bygg en vertikalprofil</h3><span>Temperatur mot høyde</span></div>
+    <div class="seg" role="group" aria-label="Eksempelsituasjoner" id="prPresets">
+      <button data-p="stab" aria-pressed="true">Stabil høstdag med lavt skydekke</button>
+      <button data-p="byge" aria-pressed="false">Kald luft over varmt hav</button>
+      <button data-p="tord" aria-pressed="false">Sommerdag med tordenfare</button>
+      <button data-p="taake" aria-pressed="false">Inversjon og tåke</button>
+    </div>
+    <div class="two">
+      <canvas id="cvProf" aria-label="Vertikalprofil med temperatur, duggpunkt og løftet luftpakke"></canvas>
+      <div class="stack">
+        <div class="ctl"><label for="prT">Temperatur ved bakken <output id="prTo"></output></label><input type="range" id="prT" min="-10" max="32" step="0.5"></div>
+        <div class="ctl"><label for="prD">Duggpunktsdifferanse ved bakken <output id="prDo"></output></label><input type="range" id="prD" min="0" max="20" step="0.5"></div>
+        <div class="ctl"><label for="prG1">Temperaturfall 0–2 km <output id="prG1o"></output></label><input type="range" id="prG1" min="2" max="10" step="0.5"></div>
+        <div class="ctl"><label for="prG2">Temperaturfall over 2 km <output id="prG2o"></output></label><input type="range" id="prG2" min="3" max="9" step="0.5"></div>
+        <div class="ctl"><label for="prK">Tørr luft i høyden <output id="prKo"></output></label><input type="range" id="prK" min="0" max="8" step="0.5"></div>
+        <label class="check"><input type="checkbox" id="prInv">Inversjon i høyden</label>
+        <div class="ctl"><label for="prZi">Inversjonen starter i <output id="prZio"></output></label><input type="range" id="prZi" min="0" max="4" step="0.1"></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--warm);height:3px"></i>Temperatur</span>
+      <span><i class="sw dash" style="color:var(--cold)"></i>Duggpunkt</span>
+      <span><i class="sw dash" style="color:var(--ink)"></i>Løftet luftpakke</span>
+      <span><i class="sw" style="background:var(--warm);opacity:.3;height:10px"></i>Pakken varmere enn omgivelsene (ustabilt)</span>
+      <span><i class="sw" style="background:var(--muted);opacity:.35;height:10px"></i>Mettet luft, skyer</span>
+    </div>
+    <div class="readout">
+      <div class="stat"><small>Skybase for løftet luft</small><b id="prLcl">–</b></div>
+      <div class="stat"><small>Energi for konveksjon (CAPE)</small><b id="prCape">–</b></div>
+      <div class="stat"><small>Skytopp ved konveksjon</small><b id="prEl">–</b></div>
+    </div>
+    <div class="info" id="prInfo" aria-live="polite"></div>
+    <p class="note">Diagrammet har rette akser og er derfor ikke skjevt som et Skew-T-diagram, men det leses på samme måte: Ligger temperatur og duggpunkt nær hverandre, er luften mettet. CAPE er et mål på hvor mye energi en luftpakke kan få fra oppdrift. Over omtrent 1000 J/kg er det fare for kraftige tordenbyger.</p>
+  </div>
+</section>
+
+<!-- 8 FRA MODELL TIL VARSEL -->
+<section class="step" id="varsel">
+  <div class="head"><span class="num">8</span><p class="kicker">Etterbehandling, formidling og verifikasjon</p><h2>Fra modellresultat til varselet på Yr</h2></div>
+  <div class="prose">
+    <p>Modellresultatet er ikke det samme som varselet du ser. På veien skjer flere ting:</p>
+    <p><strong>Etterbehandling.</strong> Modellene har systematiske feil, for eksempel at de er for kalde i en bestemt dal. Statistikk fra tidligere varsler og målinger brukes til å korrigere verdiene for hvert sted.</p>
+    <p><strong>Nowcasting.</strong> For de nærmeste timene venter man ikke på modellen. Yr lager et nedbørvarsel for de neste 90 minuttene direkte fra radarbilder, ved å flytte nedbørområdene videre i samme retning som de har beveget seg. Det fungerer bare der det er radardekning.</p>
+    <p><strong>Meteorologens vurdering.</strong> Meteorologen sammenligner modeller og ensembler, vurderer hva som er troverdig og sender ut farevarsler med gult, oransje eller rødt nivå.</p>
+    <p><strong>Verifikasjon.</strong> Når været har inntruffet, sammenlignes varselet med observasjonene. Et sannsynlighetsvarsel kan ikke vurderes ut fra én dag. Det må vurderes over mange dager.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-title"><h3>Nowcasting: får du regn om en halvtime?</h3><span>Radarbilder 120 × 80 km</span></div>
+    <div class="controls">
+      <div class="ctl" style="flex:2 1 260px"><label for="ncT">Tid <output id="ncTo">nå</output></label><input type="range" id="ncT" min="-60" max="90" step="5" value="0"></div>
+      <button id="ncPlay">Spill av</button>
+      <label class="check"><input type="checkbox" id="ncReal">Vis hva som faktisk skjedde</label>
+    </div>
+    <canvas id="cvNow" aria-label="Radarkart med nedbørceller" style="cursor:crosshair"></canvas>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--rain);opacity:.4;height:10px"></i>Svak</span>
+      <span><i class="sw" style="background:var(--rain);height:10px"></i>Moderat</span>
+      <span><i class="sw" style="background:var(--amber);height:10px"></i>Kraftig</span>
+      <span><i class="sw" style="background:var(--warm);height:10px"></i>Svært kraftig</span>
+      <span><i class="sw dash" style="color:var(--ink)"></i>Faktisk nedbør (når den vises)</span>
+    </div>
+    <canvas id="cvNowTs" aria-label="Nedbør over tid der du er"></canvas>
+    <div class="readout">
+      <div class="stat"><small>Nowcast: regn starter</small><b id="ncStart">–</b></div>
+      <div class="stat"><small>Nowcast: kraftigste regn</small><b id="ncMax">–</b></div>
+      <div class="stat"><small>Faktisk: regn startet</small><b id="ncReal1">skjult</b></div>
+    </div>
+    <p class="note">Klikk i kartet for å flytte deg. Fram til «nå» ser du observerte radarbilder. Etter «nå» flyttes nedbøren videre med den farten og retningen den har hatt den siste tiden. Slå på «Vis hva som faktisk skjedde» og se etter hva nowcasten ikke klarer: nye byger som dannes, byger som dør ut, og at bevegelsen gradvis endrer seg.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3>Var varselet godt?</h3><span>Verifikasjon av sannsynlighetsvarsel</span></div>
+    <div class="controls">
+      <div class="ctl"><label for="vfP">Varslet sannsynlighet for regn <output id="vfPo">30 %</output></label><input type="range" id="vfP" min="0" max="100" step="10" value="30"></div>
+      <div class="seg" role="group" aria-label="Modell">
+        <button id="vfGood" aria-pressed="true">Pålitelig modell</button>
+        <button id="vfBad" aria-pressed="false">Overselvsikker modell</button>
+      </div>
+      <button class="primary" id="vfRun">Simuler 100 dager</button>
+    </div>
+    <div class="days" id="vfDays" aria-label="100 dager, blå betyr at det regnet"></div>
+    <div class="readout">
+      <div class="stat"><small>Dager med samme varsel</small><b>100</b></div>
+      <div class="stat"><small>Dager det faktisk regnet</small><b id="vfR">–</b></div>
+      <div class="stat"><small>Vurdering</small><b id="vfV" style="font-size:16px">–</b></div>
+    </div>
+    <p class="note">Hvis modellen er pålitelig, skal det regne på omtrent 30 av 100 dager når den sier 30 %. At det ikke regnet én bestemt dag, betyr ikke at varselet var feil. Den overselvsikre modellen sier for høye tall når den tror det blir regn, og for lave når den tror det blir tørt.</p>
+  </div>
+
+  <div class="two" style="margin-top:22px">
+    <div class="info"><h4>Sesongvarsel</h4><p>Gir sannsynligheter for at de neste tre månedene blir varmere, kaldere, våtere eller tørrere enn normalt, ikke været en bestemt dag. Meteorologisk institutt bygger på ECMWF sitt ensemble med 51 scenarioer. Langsomme drivere som El Niño (ENSO), QBO og den stratosfæriske polarvirvelen gjør det mulig, men for Norge er sesongvarslene usikre fordi lavtrykkene som styrer været vårt lever omtrent en uke.</p></div>
+    <div class="info"><h4>KI-baserte værmodeller</h4><p>Modeller som GraphCast, Pangu-Weather og AIFS lærer mønstre fra flere tiår med historiske analyser i stedet for å løse likningene. De lager varsler mye raskere, men de er trent på analyser fra dataassimilasjon og trenger en god startanalyse. De kan også ha problemer med sjeldne, ekstreme hendelser, fordi det finnes lite av dem i treningsdataene.</p></div>
+  </div>
+</section>
+
+<!-- 8 SKALA -->
+<section class="step" id="skala">
+  <div class="head"><span class="num">9</span><p class="kicker">Kraftig vær</p><h2>Hvor godt kan vi varsle ulike fenomener?</h2></div>
+  <div class="prose">
+    <p>Jo mindre og mer kortvarig et fenomen er, jo vanskeligere er det å varsle hvor og når det kommer. Det er tre grunner: rutenettet er for grovt, små systemer kan oppstå mellom målepunktene, og små feil vokser raskere for små systemer. Klikk på et fenomen i diagrammet.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-title"><h3>Størrelse og levetid</h3><span>Begge akser er logaritmiske</span></div>
+    <canvas id="cvScale" aria-label="Diagram over værfenomeners størrelse og levetid" style="cursor:pointer"></canvas>
+    <div class="info" id="scInfo" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- 9 OPPSUMMERING -->
+<section class="step" id="oppsummering">
+  <div class="head"><span class="num">10</span><p class="kicker">Hele kjeden</p><h2>Værvarsling som prosess</h2></div>
+
+  <div class="lab">
+    <div class="lab-title"><h3>Sett kjeden i riktig rekkefølge</h3><span>Bruk pilene</span></div>
+    <ol class="order" id="orderList"></ol>
+    <div class="controls"><button class="primary" id="orderCheck">Sjekk rekkefølgen</button><button id="orderShuffle">Bland på nytt</button><button id="orderShow">Vis fasit</button></div>
+    <p class="note" id="orderMsg" aria-live="polite"></p>
+  </div>
+  <h3 style="font-size:24px;margin-top:36px">Hele kjeden</h3>
+  <ol class="chain">
+    <li><b>Observasjoner</b><p>Stasjoner, radiosonder, radar, fly, bøyer og satellitter måler atmosfæren.</p></li>
+    <li><b>Dataassimilasjon</b><p>Målinger og forrige varsel blir til en analyse med startverdier.</p></li>
+    <li><b>Modellkjøring</b><p>Fysikkens likninger løses steg for steg i et rutenett, gjerne som ensemble.</p></li>
+    <li><b>Etterbehandling og tolking</b><p>Statistisk korreksjon, værkart og meteorologens vurdering.</p></li>
+    <li><b>Formidling</b><p>Varsel med usikkerhet, sannsynligheter og eventuelt farevarsel.</p></li>
+    <li><b>Verifikasjon</b><p>Varselet sammenlignes med det som faktisk skjedde.</p></li>
+    <li class="side"><b>Nowcasting</b><p>Snarvei fra radarbilder direkte til varsel for de neste 90 minuttene.</p></li>
+  </ol>
+
+  <h3 style="font-size:24px;margin-top:40px">Sjekk forståelsen din</h3>
+  <p class="score" id="quizScore" style="margin-top:6px">0 av 6 besvart</p>
+  <div class="quiz" id="quiz"></div>
+</section>
+</main>
+
+<footer><div class="wrap">Innholdet bygger på kapittel 14 «Værvarsling» i læreboka Jordens puls (Geofag 2, REA3043) av Elisabeth Engum. Modellene på siden er forenklede undervisningsmodeller: Lorenz-modellen, et skjematisk trykkfelt og et konstruert terrengsnitt. De viser prinsippene, ikke ekte værdata.</div></footer>
+
+<script>
+(function(){
+"use strict";
+const root=document.documentElement;
+const T=n=>getComputedStyle(root).getPropertyValue(n).trim();
+const pal=()=>({paper:T('--paper'),surface:T('--surface'),ink:T('--ink'),muted:T('--muted'),line:T('--line'),grid:T('--grid'),warm:T('--warm'),cold:T('--cold'),occl:T('--occl'),accent:T('--accent'),rain:T('--rain'),land:T('--land'),sea:T('--sea'),amber:T('--amber')});
+const MONO="'IBM Plex Mono', ui-monospace, monospace", SANS="'IBM Plex Sans', system-ui, sans-serif";
+const $=id=>document.getElementById(id);
+const nf=(x,d)=>x.toFixed(d).replace('.',',');
+function fit(cv,ratio,minH,maxH){const w=cv.clientWidth||300;let h=Math.round(w*ratio);if(minH)h=Math.max(minH,h);if(maxH)h=Math.min(maxH,h);const d=window.devicePixelRatio||1;cv.width=Math.round(w*d);cv.height=Math.round(h*d);cv.style.height=h+'px';const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);return{c,w,h};}
+const draws=[];function reg(f){draws.push(f);f();}
+function redrawAll(){draws.forEach(f=>f());}
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(redrawAll,120)});
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}catch(e){}
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redrawAll);
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+function gauss(r){let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r());}
+function press(btns,on){btns.forEach(b=>b.setAttribute('aria-pressed',b===on?'true':'false'));}
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- 1. Atmosfæresøyle ---------- */
+const INSTR=[
+ {name:'Automatisk værstasjon',short:'Stasjon',lo:0,hi:0.25,ground:'land',measures:'Lufttrykk, temperatur, luftfuktighet, vindretning og vindhastighet, nedbørmengde og snødybde.',note:'Tett nett av målinger ved bakken over land, men få over havet og i polare strøk. Bare godkjente stasjoner er kvalitetssikret nok til å brukes direkte, men Yr bruker også private stasjoner til å forbedre temperaturvarslene.'},
+ {name:'Visuelle observasjoner',short:'Observatør',lo:0,hi:12,look:true,ground:'land',measures:'Sikt, skymengde, skyhøyde, skytype, nedbørform og nedbørintensitet.',note:'Observatøren vurderer selv det som er vanskelig å måle med instrumenter. Øyet «ser» skyer helt opp mot toppen av troposfæren.'},
+ {name:'Radiosonde',short:'Sonde',lo:0,hi:30,ground:'land',measures:'Temperatur, fuktighet og lufttrykk fra bakken og oppover. Vinden beregnes fra hvordan værballongen driver.',note:'I Norge sendes radiosonder opp til faste tider fra Sola, Ørlandet, Bodø, Jan Mayen og Bjørnøya. Ballongen sprekker vanligvis rundt 30 km høyde.'},
+ {name:'Værradar',short:'Radar',lo:0,hi:10,ground:'land',measures:'Hvor det er nedbør, hvor kraftig den er og hvor raskt nedbørområdene beveger seg.',note:'Radardata er grunnlaget for nowcasting, nedbørvarselet for de neste 90 minuttene på Yr.'},
+ {name:'Målinger fra fly',short:'Fly',lo:0,hi:12,focus:[9,12],ground:'land',measures:'Temperatur og vind i marsjhøyde, og vertikale profiler under avgang og landing.',note:'Rutefly gir mange målinger der det ellers er lite data, særlig over havet i 9–12 km høyde.'},
+ {name:'Bøyer og skip',short:'Bøye',lo:0,hi:0.25,ground:'sea',measures:'Lufttrykk, temperatur og vind ved havoverflaten.',note:'Noen bøyer driver med strømmen, andre er forankret. De fyller hull over havet, men det er fortsatt få data fra polare strøk.'},
+ {name:'Geostasjonær satellitt',short:'Geo-sat',sat:'≈ 35 800 km',ground:'sea',measures:'Reflektert sollys og stråling som jorden og atmosfæren sender ut. Gir skybilder og informasjon om vanndamp.',note:'Henger over samme punkt over ekvator og følger værsystemene kontinuerlig. Ser dårlig mot polene. Passive instrumenter som måler reflektert sollys fungerer bare om dagen.'},
+ {name:'Polarbanesatellitt',short:'Polar-sat',sat:'≈ 800 km',ground:'sea',measures:'Stråling på mange bølgelengder, profiler av temperatur og fuktighet, og med radar havoverflaten. Radaren ser gjennom skyer og kan gi vind over havet.',note:'Går fra pol til pol, skanner hele kloden i løpet av et døgn og gir mer detaljerte bilder enn de geostasjonære.'}
+];
+let instrSel=2;
+const ib=$('instrBtns');
+INSTR.forEach((d,i)=>{const b=document.createElement('button');b.textContent=d.name;b.setAttribute('aria-pressed',i===instrSel);b.onclick=()=>{instrSel=i;updInstr();};ib.appendChild(b);});
+function updInstr(){[...ib.children].forEach((b,i)=>b.setAttribute('aria-pressed',i===instrSel?'true':'false'));const d=INSTR[instrSel];
+ const range=d.sat?'Ser ned gjennom hele atmosfæren fra '+d.sat:(d.hi<1?'Ved bakken eller havoverflaten':'Fra bakken til ca. '+d.hi+' km');
+ $('instrInfo').innerHTML=`<h4>${d.name}</h4><dl><dt>Dekker</dt><dd>${range}</dd><dt>Måler</dt><dd>${d.measures}</dd><dt>Verdt å vite</dt><dd>${d.note}</dd></dl>`;drawColumn();}
+let colGeom=null;
+function drawColumn(){const cv=$('cvColumn');const {c,w,h}=fit(cv,0.42,280,380);const P=pal();
+ const L=38,R=w-8,top=40,gH=18,bot=h-22-gH;const yk=k=>bot-(k/35)*(bot-top);
+ c.fillStyle=P.grid;c.fillRect(L,yk(11),R-L,bot-yk(11));
+ c.strokeStyle=P.muted;c.setLineDash([4,4]);c.beginPath();c.moveTo(L,yk(11));c.lineTo(R,yk(11));c.stroke();c.setLineDash([]);
+ c.font=`11px ${MONO}`;c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='middle';
+ [0,10,20,30].forEach(k=>{c.fillText(k+' km',L-4,yk(k));c.strokeStyle=P.line;c.beginPath();c.moveTo(L,yk(k));c.lineTo(L+4,yk(k));c.stroke();});
+ c.textAlign='left';c.fillText('Troposfæren',L+6,yk(5.5));c.fillText('Stratosfæren',L+6,yk(20));c.fillText('Tropopausen ~11 km',L+6,yk(11)-8);
+ const n=INSTR.length,cw=(R-L-110)/n,x0=L+110>R-200?L+20:L+110;const cw2=(R-x0)/n;
+ colGeom={x0,cw:cw2,n};
+ INSTR.forEach((d,i)=>{const cx=x0+cw2*(i+.5),bw=Math.max(8,Math.min(22,cw2*.4));const sel=i===instrSel;
+  c.fillStyle=d.ground==='sea'?P.sea:P.land;c.fillRect(x0+cw2*i,bot,cw2,gH);
+  const col=sel?P.accent:P.line;
+  if(d.sat){const g=c.createLinearGradient(0,top,0,bot);g.addColorStop(0,col);g.addColorStop(1,'transparent');c.globalAlpha=sel?.35:.5;c.fillStyle=g;c.beginPath();c.moveTo(cx-3,top);c.lineTo(cx+bw*1.1,bot);c.lineTo(cx-bw*1.1,bot);c.closePath();c.fill();c.globalAlpha=1;
+   c.fillStyle=sel?P.accent:P.muted;c.fillRect(cx-4,top-14,8,8);c.fillRect(cx-12,top-12,6,4);c.fillRect(cx+6,top-12,6,4);
+   c.textAlign='center';c.font=`10px ${MONO}`;c.fillText('↑ '+d.sat.replace('≈ ',''),cx,top-24);}
+  else{const y1=yk(d.hi),y0=bot;const hh=Math.max(4,y0-y1);
+   if(d.look){c.strokeStyle=col;c.lineWidth=2;c.setLineDash([3,4]);c.beginPath();c.moveTo(cx,y0);c.lineTo(cx,y0-hh);c.stroke();c.setLineDash([]);c.lineWidth=1;}
+   else{c.globalAlpha=d.focus?.45:1;c.fillStyle=col;c.fillRect(cx-bw/2,y0-hh,bw,hh);c.globalAlpha=1;
+    if(d.focus){c.fillStyle=col;c.fillRect(cx-bw/2,yk(d.focus[1]),bw,yk(d.focus[0])-yk(d.focus[1]));}}}
+  c.fillStyle=sel?P.ink:P.muted;c.font=`${sel?600:400} ${cw2<56?10:11.5}px ${SANS}`;c.textAlign='center';c.textBaseline='alphabetic';c.fillText(d.short,cx,h-5);c.textBaseline='middle';
+ });
+ if(x0>L+60){c.fillStyle=P.muted;c.font=`11px ${SANS}`;c.textAlign='left';c.fillText('Bakken',L+6,bot+gH/2);}
+}
+$('cvColumn').addEventListener('click',e=>{if(!colGeom)return;const r=e.target.getBoundingClientRect();const i=Math.floor((e.clientX-r.left-colGeom.x0)/colGeom.cw);if(i>=0&&i<colGeom.n){instrSel=i;updInstr();}});
+updInstr();draws.push(drawColumn);
+
+/* Satellittdekning */
+let orbGeo=true,orbPol=true,orbT=6,orbAnim=null;
+function drawOrbit(){const cv=$('cvOrbit');const {c,w,h}=fit(cv,0.5,180,520);const P=pal();
+ const X=lon=>(lon+180)/360*w,Y=lat=>(90-lat)/180*h;
+ c.fillStyle=P.paper;c.fillRect(0,0,w,h);
+ if(orbGeo){const s=4;c.fillStyle=P.accent;c.globalAlpha=.28;
+  for(let y=0;y<h;y+=s)for(let x=0;x<w;x+=s){const lat=(90-(y+s/2)/h*180)*Math.PI/180,lon=((x+s/2)/w*360-180)*Math.PI/180;if(Math.acos(Math.cos(lat)*Math.cos(lon))<70*Math.PI/180)c.fillRect(x,y,s,s);}
+  c.globalAlpha=1;}
+ if(orbPol){const per=101/60,n=orbT/per;const full=Math.floor(n),frac=n-full;c.fillStyle=P.cold;
+  const pass=(lon0,asc,f)=>{const pts=[];const N=40;const latS=asc?-82:82,latE=asc?82:-82;const steps=Math.max(1,Math.round(N*f));
+   const L=[],Rr=[];for(let k=0;k<=steps;k++){const lat=latS+(latE-latS)*k/N;const cl=lon0-12.6*k/N;const hw=Math.min(170,13/Math.max(.08,Math.cos(lat*Math.PI/180)));L.push([cl-hw,lat]);Rr.push([cl+hw,lat]);}
+   const poly=L.concat(Rr.reverse());
+   for(const off of[-360,0,360]){c.beginPath();poly.forEach((p,i)=>{const x=X(p[0]+off),y=Y(p[1]);i?c.lineTo(x,y):c.moveTo(x,y);});c.closePath();c.fill();}
+   const head=asc?[lon0-12.6*steps/N,latS+(latE-latS)*steps/N]:null;return [lon0-12.6*steps/N,latS+(latE-latS)*steps/N];};
+  c.save();c.beginPath();c.rect(0,0,w,h);c.clip();c.globalAlpha=.16;let head=null;
+  const wrap=l=>((l+180)%360+360)%360-180;
+  for(let i=0;i<=full;i++){const f=i<full?1:frac;const lonA=wrap(20-25.3*i);
+   if(f<=.5){head=pass(lonA,true,f*2);}else{pass(lonA,true,1);head=pass(wrap(lonA-12.6+180),false,(f-.5)*2);}}
+  c.globalAlpha=1;c.restore();
+  if(head&&orbT>0){c.fillStyle=P.cold;c.beginPath();c.arc(X(wrap(head[0])),Y(head[1]),5,0,7);c.fill();}
+ }
+ c.strokeStyle=P.line;c.lineWidth=1;c.font=`10px ${MONO}`;c.fillStyle=P.muted;
+ for(let lon=-180;lon<=180;lon+=30){c.beginPath();c.moveTo(X(lon),0);c.lineTo(X(lon),h);c.stroke();}
+ for(let lat=-60;lat<=60;lat+=30){c.beginPath();c.moveTo(0,Y(lat));c.lineTo(w,Y(lat));c.stroke();c.fillText((lat>0?lat+'°N':lat<0?(-lat)+'°S':'Ekvator'),4,Y(lat)-4);}
+ if(orbGeo){c.fillStyle=P.accent;c.beginPath();c.arc(X(0),Y(0),5,0,7);c.fill();c.fillStyle=P.ink;c.font=`600 11px ${SANS}`;c.fillText('Meteosat',X(0)+8,Y(0)+14);}
+ c.strokeStyle=P.line;c.strokeRect(.5,.5,w-1,h-1);
+ const n=Math.floor(orbT/(101/60));$('orbTo').textContent=nf(orbT,orbT%1?2:0).replace(',00','')+' t · '+n+' runder';
+}
+$('orbT').oninput=e=>{orbT=+e.target.value;drawOrbit();};
+$('orbGeo').onclick=e=>{orbGeo=!orbGeo;e.target.setAttribute('aria-pressed',orbGeo);drawOrbit();};
+$('orbPol').onclick=e=>{orbPol=!orbPol;e.target.setAttribute('aria-pressed',orbPol);drawOrbit();};
+$('orbPlay').onclick=()=>{if(orbAnim){cancelAnimationFrame(orbAnim);orbAnim=null;$('orbPlay').textContent='Spill av døgnet';return;}
+ if(orbT>=24)orbT=0;$('orbPlay').textContent='Pause';let last=performance.now();
+ const step=now=>{orbT=Math.min(24,orbT+(now-last)/1000*2.4);last=now;$('orbT').value=orbT;drawOrbit();if(orbT<24)orbAnim=requestAnimationFrame(step);else{orbAnim=null;$('orbPlay').textContent='Spill av døgnet';}};orbAnim=requestAnimationFrame(step);};
+reg(drawOrbit);
+
+/* ---------- 2. Dataassimilasjon ---------- */
+const TWO=2*Math.PI;
+const truth=x=>8+3*Math.sin(TWO*1.3*x)+1.6*Math.sin(TWO*3.2*x+1);
+const bgf=x=>8.7+3*Math.sin(TWO*1.3*(x-0.05))+0.7*Math.sin(TWO*3.2*x+1.7);
+const UOBS=[],uR=rng(77);const ar=rng(7);const OBS=[];{const base=[0.5,0.18,0.82,0.33,0.66,0.05,0.95,0.42,0.25,0.58,0.74,0.12,0.88,0.5+0.04];base.forEach(b=>OBS.push({x:Math.min(.98,Math.max(.02,b+(ar()-.5)*.04)),z:gauss(ar)}));}
+function solve(A,b){const n=b.length;A=A.map(r=>r.slice());b=b.slice();for(let i=0;i<n;i++){let p=i;for(let k=i+1;k<n;k++)if(Math.abs(A[k][i])>Math.abs(A[p][i]))p=k;[A[i],A[p]]=[A[p],A[i]];[b[i],b[p]]=[b[p],b[i]];for(let k=i+1;k<n;k++){const f=A[k][i]/A[i][i];for(let j=i;j<n;j++)A[k][j]-=f*A[i][j];b[k]-=f*b[i];}}const x=new Array(n).fill(0);for(let i=n-1;i>=0;i--){let s=b[i];for(let j=i+1;j<n;j++)s-=A[i][j]*x[j];x[i]=s/A[i][i];}return x;}
+let asStep=1;
+const AS_TXT={
+1:'<h4>Steg 1: Modellen har allerede et varsel for nå</h4><p>Varselet modellen laget for noen timer siden gjelder for akkurat nå. Det kalles <b>bakgrunnen</b> (grå linje). Den stiplede linjen er den sanne temperaturen. Den kjenner vi ikke i virkeligheten, men her kan du se den.</p><p>Se hvor bakgrunnen bommer. Hvis modellen starter fra den, tar den med seg feilene videre inn i varselet.</p>',
+2:'<h4>Steg 2: Målingene viser hvor varselet bommer</h4><p>Fem målestasjoner (røde prikker) måler temperaturen. Den loddrette streken på hver prikk viser <b>usikkerheten</b> i målingen: den sanne verdien ligger trolig innenfor streken.</p><p>Målingene treffer godt der de står, men mellom dem vet vi ingenting. Vi kan derfor ikke bare bruke målingene alene.</p>',
+3:'<h4>Steg 3: Analysen kombinerer begge</h4><p>Analysen (grønn linje) trekkes mot målingene der det finnes målinger, og følger bakgrunnen der det ikke finnes noen. Hvor hardt den trekkes, avhenger av hvem vi stoler mest på. Det styrer du med de to skyvebrytrene.</p><p>Prøv: Gjør målingene veldig usikre. Gjør så forrige varsel veldig usikkert. Se hvordan fordelingen i stolpen endrer seg.</p>',
+4:'<h4>Steg 4: Prøv selv</h4><p><b>Klikk i grafen</b> for å sette ut en ny målestasjon. Hvor gjør den mest nytte: der det allerede er målinger, eller i et hull mellom dem?</p><p>Prøv også å legge inn en målefeil. Hva skjer med analysen, og hvorfor er det viktig å kvalitetssjekke målingene?</p>'};
+function setAsStep(n){asStep=n;[...document.querySelectorAll('#asSteps button')].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===n?'true':'false'));
+ if(n<=3){$('asN').value=5;UOBS.length=0;$('asBad').checked=false;$('asTruth').checked=true;}
+ if(n<3){$('asO').value=0.5;$('asB').value=1.5;}
+ $('asText').innerHTML=AS_TXT[n];$('asCtlSigma').hidden=n<3;$('asCtlFree').hidden=n<4;$('asTrustWrap').hidden=n<3;$('asResult').hidden=n<3;
+ [...document.querySelectorAll('#asLegend span[data-from]')].forEach(sp=>sp.hidden=+sp.dataset.from>n);
+ $('cvAssim').style.cursor=n===4?'crosshair':'default';drawAssim();}
+document.querySelectorAll('#asSteps button').forEach(b=>b.onclick=()=>setAsStep(+b.dataset.s));
+function drawAssim(){const cv=$('cvAssim');const {c,w,h}=fit(cv,0.42,240,400);const P=pal();
+ const N=asStep>=2?+$('asN').value:0,so=+$('asO').value,sb=+$('asB').value,Lc=0.07;
+ $('asNo').textContent=N;$('asOo').textContent='± '+nf(so,1)+' °C';$('asBo').textContent='± '+nf(sb,1)+' °C';
+ const obs=OBS.slice(0,N).map(o=>({x:o.x,y:truth(o.x)+so*o.z})).concat(UOBS.map(o=>({x:o.x,y:truth(o.x)+(o.bad?5:so*o.z),bad:o.bad,u:1})));
+ const C=(a,b)=>Math.exp(-((a-b)**2)/(2*Lc*Lc));
+ let wv=[];if(obs.length){const A=obs.map(a=>obs.map(b=>sb*sb*C(a.x,b.x)));obs.forEach((o,i)=>A[i][i]+=so*so);wv=solve(A,obs.map(o=>o.y-bgf(o.x)));}
+ const an=x=>bgf(x)+obs.reduce((s,o,i)=>s+sb*sb*C(x,o.x)*wv[i],0);
+ const L=40,R=w-(w>520?104:10),Tp=12,B=h-30,ymin=1,ymax=15;const X=x=>L+x*(R-L),Y=v=>B-(v-ymin)/(ymax-ymin)*(B-Tp);
+ c.font=`11px ${MONO}`;c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='middle';c.strokeStyle=P.grid;
+ for(let v=2;v<=14;v+=4){c.beginPath();c.moveTo(L,Y(v));c.lineTo(R,Y(v));c.stroke();c.fillText(v+'°',L-6,Y(v));}
+ c.textAlign='center';c.textBaseline='top';for(let k=0;k<=1000;k+=(w>520?200:500))c.fillText(k+' km',Math.min(R-20,Math.max(L+16,X(k/1000))),B+8);
+ const showTruth=$('asTruth').checked,showAn=asStep>=3;
+ if(showAn&&showTruth){c.fillStyle=P.accent;c.globalAlpha=.12;c.beginPath();for(let i=0;i<=200;i++){const x=i/200;i?c.lineTo(X(x),Y(an(x))):c.moveTo(X(x),Y(an(x)));}for(let i=200;i>=0;i--){const x=i/200;c.lineTo(X(x),Y(truth(x)));}c.closePath();c.fill();c.globalAlpha=1;}
+ else if(showTruth){c.fillStyle=P.muted;c.globalAlpha=.14;c.beginPath();for(let i=0;i<=200;i++){const x=i/200;i?c.lineTo(X(x),Y(bgf(x))):c.moveTo(X(x),Y(bgf(x)));}for(let i=200;i>=0;i--){const x=i/200;c.lineTo(X(x),Y(truth(x)));}c.closePath();c.fill();c.globalAlpha=1;}
+ const line=(f,col,lw,dash)=>{c.strokeStyle=col;c.lineWidth=lw;c.setLineDash(dash||[]);c.beginPath();for(let i=0;i<=200;i++){const x=i/200;i?c.lineTo(X(x),Y(f(x))):c.moveTo(X(x),Y(f(x)));}c.stroke();c.setLineDash([]);c.lineWidth=1;};
+ if(showTruth)line(truth,P.ink,1.6,[5,4]);
+ line(bgf,P.muted,2.2);if(showAn)line(an,P.accent,3.4);
+ obs.forEach(o=>{if(o.u){c.strokeStyle=P.ink;c.lineWidth=1.5;c.beginPath();c.arc(X(o.x),Y(o.y),8,0,7);c.stroke();if(o.bad){c.fillStyle=P.ink;c.font=`600 11px ${SANS}`;c.textAlign='center';c.textBaseline='bottom';c.fillText('målefeil',X(o.x),Y(o.y+so)-4);}}c.strokeStyle=P.warm;c.lineWidth=1.5;c.beginPath();c.moveTo(X(o.x),Y(o.y-so));c.lineTo(X(o.x),Y(o.y+so));c.moveTo(X(o.x)-4,Y(o.y-so));c.lineTo(X(o.x)+4,Y(o.y-so));c.moveTo(X(o.x)-4,Y(o.y+so));c.lineTo(X(o.x)+4,Y(o.y+so));c.stroke();c.fillStyle=P.warm;c.beginPath();c.arc(X(o.x),Y(o.y),4.5,0,7);c.fill();});
+ if(w>520){const labs=[];if(showTruth)labs.push(['Sann',truth(1),P.ink]);labs.push(['Forrige varsel',bgf(1),P.muted]);if(showAn)labs.push(['Analyse',an(1),P.accent]);
+  labs.sort((a,b)=>b[1]-a[1]);let last=-1e9;c.font=`600 12px ${SANS}`;c.textAlign='left';c.textBaseline='middle';labs.forEach(l=>{let y=Y(l[1]);if(y-last<15)y=last+15;last=y;c.fillStyle=l[2];c.fillText(l[0],R+8,y);});}
+ let eb=0,ea=0;for(let i=0;i<=200;i++){const x=i/200;eb+=(bgf(x)-truth(x))**2;ea+=(an(x)-truth(x))**2;}eb=Math.sqrt(eb/201);ea=Math.sqrt(ea/201);
+ $('asShadeLab').textContent=showAn?'analysen':'forrige varsel';$('asRb').textContent=nf(eb,1)+' °C';$('asRa').textContent=nf(ea,1)+' °C';
+ const pc=Math.round(Math.abs(1-ea/eb)*100);$('asRi').textContent=ea<=eb?`${pc} % mindre feil enn forrige varsel`:`${pc} % større feil enn forrige varsel`;
+ const wo=sb*sb/(sb*sb+so*so),po=Math.round(wo*100);$('asTrO').style.width=po+'%';$('asTrB').style.width=(100-po)+'%';
+ $('asTrO').textContent=po>=14?`${po} % på målingen`:'';$('asTrB').textContent=(100-po)>=14?`${100-po} % på forrige varsel`:'';
+ $('asTrText').textContent=wo>0.8?'Målingene er mye mer nøyaktige enn varselet, så analysen følger målingene nesten helt.':wo<0.2?'Varselet er mye mer pålitelig enn målingene, så analysen endrer seg nesten ikke.':'Begge er omtrent like pålitelige, så analysen legger seg et sted mellom målingen og forrige varsel.';
+}
+
+['asN','asO','asB','asTruth'].forEach(id=>$(id).addEventListener('input',drawAssim));$('asTruth').addEventListener('change',drawAssim);
+$('cvAssim').addEventListener('click',e=>{if(asStep!==4)return;const r=e.target.getBoundingClientRect();const x=(e.clientX-r.left-40)/(r.width-40-(r.width>520?104:10));if(x<0||x>1)return;UOBS.push({x,z:gauss(uR),bad:$('asBad').checked});drawAssim();});
+$('asClear').onclick=()=>{UOBS.length=0;drawAssim();};
+draws.push(drawAssim);setAsStep(1);
+
+/* ---------- 3. Rutenett ---------- */
+const RES=[{dx:25,lab:'25 km',who:'Grov globalmodell'},{dx:9,lab:'9 km',who:'ECMWF HRES'},{dx:2.5,lab:'2,5 km',who:'MetCoOp/AROME'},{dx:0.5,lab:'0,5 km',who:'Forskningsmodell'}];
+let resSel=1;const rb=$('resBtns');
+RES.forEach((r,i)=>{const b=document.createElement('button');b.innerHTML=`${r.lab} <span style="opacity:.7">· ${r.who}</span>`;b.setAttribute('aria-pressed',i===resSel);b.onclick=()=>{resSel=i;[...rb.children].forEach((x,j)=>x.setAttribute('aria-pressed',j===i?'true':'false'));drawGrid();};rb.appendChild(b);});
+const terr=x=>{const base=1450/(1+Math.exp(-(x-70)/16));const d=230*Math.sin(x/3.1)+170*Math.sin(x/1.7+1)+90*Math.sin(x/0.83+2)+60*Math.sin(x/0.37);
+ let hh=base+d*(base/1450*0.9+0.18)-120;
+ if(x<30)hh=Math.min(hh,80*Math.max(0,Math.sin(x/1.9))*Math.max(0,Math.sin(x/5.3+1))-25);
+ [[52,2.4],[88,2.0],[118,2.6],[140,1.8]].forEach(([cx,s])=>{hh-=1500*Math.exp(-(((x-cx)/s)**2));});return hh;};
+const XKM=160,TS=[];for(let i=0;i<=3200;i++)TS.push(terr(i/3200*XKM));
+function drawGrid(){const cv=$('cvGrid');const {c,w,h}=fit(cv,0.4,240,380);const P=pal();const dx=RES[resSel].dx;
+ const L=46,R=w-8,Tp=16,B=h-26,zmin=-700,zmax=2300;const X=k=>L+k/XKM*(R-L),Y=z=>B-(z-zmin)/(zmax-zmin)*(B-Tp);
+ c.font=`11px ${MONO}`;c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='middle';
+ [0,1000,2000].forEach(z=>{c.strokeStyle=P.grid;c.beginPath();c.moveTo(L,Y(z));c.lineTo(R,Y(z));c.stroke();c.fillText(z+' m',L-6,Y(z));});
+ c.textAlign='center';c.textBaseline='top';[0,40,80,120,160].forEach(k=>c.fillText(k+' km',Math.min(R-18,Math.max(L+14,X(k))),B+8));
+ c.fillStyle=P.sea;c.fillRect(L,Y(0),R-L,B-Y(0));
+ c.fillStyle=P.land;c.beginPath();c.moveTo(X(0),B);TS.forEach((z,i)=>c.lineTo(X(i/3200*XKM),Y(Math.max(z,zmin))));c.lineTo(X(XKM),B);c.closePath();c.fill();
+ c.fillStyle=P.sea;c.beginPath();let inW=false;TS.forEach((z,i)=>{});
+ c.save();c.beginPath();c.moveTo(X(0),Y(0));TS.forEach((z,i)=>c.lineTo(X(i/3200*XKM),Y(Math.min(0,Math.max(z,zmin)))));c.lineTo(X(XKM),Y(0));c.closePath();c.fill();c.restore();
+ // byge
+ const cxB=104,cwB=4;const resolved=dx*4.5<=cwB;
+ c.fillStyle=P.muted;c.globalAlpha=resolved?.6:.3;c.beginPath();c.ellipse(X(cxB),Y(1900),(X(cwB/2)-X(0)),(Y(1500)-Y(2150)),0,0,7);c.fill();c.globalAlpha=1;
+ c.font=`600 11px ${SANS}`;c.fillStyle=P.ink;c.textAlign='center';c.textBaseline='bottom';c.fillText('Byge',X(cxB),Y(2200));
+ // modellterreng
+ let modMax=-1e9;c.strokeStyle=P.accent;c.lineWidth=2.4;c.beginPath();let first=true;
+ for(let a=0;a<XKM-1e-9;a+=dx){const b=Math.min(XKM,a+dx);let s=0,n=0;for(let i=Math.floor(a/XKM*3200);i<=Math.ceil(b/XKM*3200)&&i<=3200;i++){s+=TS[i];n++;}const m=s/n;modMax=Math.max(modMax,m);const y=Y(Math.max(m,zmin));
+  if(first){c.moveTo(X(a),y);first=false;}else c.lineTo(X(a),y);c.lineTo(X(b),y);}
+ c.stroke();c.lineWidth=1;
+ if(dx>=2.5){c.strokeStyle=P.accent;c.globalAlpha=.25;for(let a=0;a<=XKM;a+=dx){c.beginPath();c.moveTo(X(a),Tp);c.lineTo(X(a),B);c.stroke();}c.globalAlpha=1;}
+ const realMax=Math.max(...TS);
+ $('grReal').textContent=Math.round(realMax/10)*10+' m';$('grMod').textContent=Math.round(modMax/10)*10+' m';
+ $('grCloud').textContent=resolved?'Beskrives':'Parametriseres';
+ const cost=(9/dx)**3;$('grCost').textContent=cost<1?'× '+nf(cost,2):'× '+Math.round(cost).toLocaleString('nb-NO');
+}
+reg(drawGrid);
+
+/* ---------- Lorenz ---------- */
+const SG=10,RH=28,BT=8/3;
+function step(s,h){const f=(x,y,z)=>[SG*(y-x),x*(RH-z)-y,x*y-BT*z];const[x,y,z]=s;const k1=f(x,y,z),k2=f(x+h/2*k1[0],y+h/2*k1[1],z+h/2*k1[2]),k3=f(x+h/2*k2[0],y+h/2*k2[1],z+h/2*k2[2]),k4=f(x+h*k3[0],y+h*k3[1],z+h*k3[2]);
+ return[x+h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),y+h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]),z+h/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2])];}
+function run(s,T,dt,every){const out=[s[0]];let n=Math.round(T/dt);for(let i=1;i<=n;i++){s=step(s,dt);if(i%every===0)out.push(s[0]);}return out;}
+let S0=[1,1,1];for(let i=0;i<1500;i++)S0=step(S0,0.01);
+
+/* 4. Kaos */
+function sepTime(d){const a=run(S0.slice(),40,0.01,1),b=run([S0[0]+d,S0[1],S0[2]],40,0.01,1);for(let i=0;i<a.length;i++)if(Math.abs(a[i]-b[i])>5)return i*0.01;return 40;}
+function drawChaos(){const cv=$('cvChaos');const {c,w,h}=fit(cv,0.5,280,460);const P=pal();
+ const e=+$('chD').value,d=Math.pow(10,-e);$('chDo').textContent=d>=0.01?nf(d,e):'10⁻'+String(e).split('').map(ch=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[ch]).join('');
+ const TT=30,dt=0.01,ev=2;const a=run(S0.slice(),TT,dt,ev),b=run([S0[0]+d,S0[1],S0[2]],TT,dt,ev);
+ const L=44,R=w-10,top1=10,bot1=h*0.6,top2=bot1+28,bot2=h-24;
+ const X=t=>L+t/TT*(R-L),Y1=v=>top1+(1-(v+22)/44)*(bot1-top1),Y2=lg=>top2+(1-(lg+11)/13)*(bot2-top2);
+ c.font=`11px ${MONO}`;c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='middle';c.strokeStyle=P.grid;
+ [-20,0,20].forEach(v=>{c.beginPath();c.moveTo(L,Y1(v));c.lineTo(R,Y1(v));c.stroke();c.fillText(v,L-6,Y1(v));});
+ [-10,-5,0].forEach(v=>{c.beginPath();c.moveTo(L,Y2(v));c.lineTo(R,Y2(v));c.stroke();c.fillText(v===0?'1':'10'+(v===-5?'⁻⁵':'⁻¹⁰'),L-6,Y2(v));});
+ c.textAlign='center';c.textBaseline='top';for(let t=0;t<=TT;t+=5)c.fillText(t,X(t),bot2+6);
+ c.textAlign='right';c.fillText('modelltid',X(30)-14,bot2+6);
+ let ts=null;for(let i=0;i<a.length;i++)if(Math.abs(a[i]-b[i])>5){ts=i*dt*ev;break;}
+ if(ts!==null){c.fillStyle=P.grid;c.fillRect(X(ts),top1,R-X(ts),bot1-top1);c.fillStyle=P.muted;c.textAlign='left';c.textBaseline='top';c.font=`11px ${SANS}`;if(R-X(ts)>130)c.fillText('Varselet er ubrukelig her',X(ts)+6,top1+4);}
+ const pl=(arr,col,lw)=>{c.strokeStyle=col;c.lineWidth=lw;c.beginPath();arr.forEach((v,i)=>{const x=X(i*dt*ev),y=Y1(v);i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();};
+ pl(a,P.accent,2);pl(b,P.warm,1.6);c.lineWidth=1;
+ c.strokeStyle=P.muted;c.lineWidth=1.6;c.beginPath();a.forEach((v,i)=>{const lg=Math.log10(Math.max(1e-12,Math.abs(v-b[i])));const x=X(i*dt*ev),y=Y2(Math.max(-11,Math.min(2,lg)));i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.lineWidth=1;
+ if(ts!==null){c.strokeStyle=P.ink;c.setLineDash([3,3]);c.beginPath();c.moveTo(X(ts),top1);c.lineTo(X(ts),bot2);c.stroke();c.setLineDash([]);}
+ c.fillStyle=P.muted;c.font=`11px ${SANS}`;c.textAlign='left';c.textBaseline='bottom';c.fillText('Avstand mellom kjøringene',L+4,top2-4);
+ $('chT').textContent=ts===null?'over '+TT:nf(ts,1)+' tidsenheter';
+ const t1=sepTime(d),t2=sepTime(d/10);$('chGain').textContent='+ '+nf(Math.max(0,t2-t1),1)+' tidsenheter';
+}
+$('chD').oninput=drawChaos;reg(drawChaos);
+
+/* 5. Ensemble */
+const ENT=10,ENDT=0.01,ENEV=4;
+let cand=[];{let s=S0.slice();for(let k=0;k<130;k++){for(let i=0;i<37;i++)s=step(s,0.01);cand.push(s.slice());}}
+function splitTime(s0){const r=rng(11);const M=12,mem=[];for(let m=0;m<M;m++)mem.push([s0[0]+0.3*gauss(r),s0[1]+0.3*gauss(r),s0[2]+0.3*gauss(r)]);
+ for(let i=1;i<=ENT/ENDT;i++){for(let m=0;m<M;m++)mem[m]=step(mem[m],ENDT);if(i%10===0){const f=mem.filter(s=>s[0]<0).length/M;if(Math.min(f,1-f)>=0.3)return i*ENDT;}}return 99;}
+const splits=cand.map(splitTime);
+let safeIdx=0,unsafeIdx=0,best=-1,bestU=1e9;splits.forEach((t,i)=>{if(t>best){best=t;safeIdx=i;}const dd=Math.abs(t-3.2);if(t>1.5&&dd<bestU){bestU=dd;unsafeIdx=i;}});
+let enState=cand[unsafeIdx],enSeed=3,ensData=null;
+function computeEns(){const M=+$('enM').value,sd=+$('enS').value;const r=rng(enSeed);const mem=[];
+ for(let m=0;m<M;m++){const s=[enState[0]+sd*gauss(r),enState[1]+sd*gauss(r),enState[2]+sd*gauss(r)];mem.push(run(s,ENT,ENDT,ENEV));}
+ const ctrl=run(enState.slice(),ENT,ENDT,ENEV);ensData={mem,ctrl};}
+function drawEns(){if(!ensData)computeEns();const cv=$('cvEns');const {c,w,h}=fit(cv,0.48,280,440);const P=pal();
+ const {mem,ctrl}=ensData,M=mem.length,K=ctrl.length;$('enMo').textContent=M;$('enSo').textContent=nf(+$('enS').value,2);
+ const L=40,R=w-10,top=10,bot=h-70,pT=bot+14,pB=h-24;const X=i=>L+i/(K-1)*(R-L),Y=v=>top+(1-(v+22)/44)*(bot-top);
+ c.fillStyle=P.muted;c.font=`11px ${MONO}`;c.textAlign='right';c.textBaseline='middle';c.strokeStyle=P.grid;
+ [-20,-10,0,10,20].forEach(v=>{c.beginPath();c.moveTo(L,Y(v));c.lineTo(R,Y(v));c.stroke();c.fillText(v,L-6,Y(v));});
+ c.textAlign='left';c.font=`11px ${SANS}`;c.fillText('Scenario A',L+4,Y(18));c.fillText('Scenario B',L+4,Y(-18));
+ c.strokeStyle=P.line;c.beginPath();c.moveTo(L,Y(0));c.lineTo(R,Y(0));c.stroke();
+ c.strokeStyle=P.accent;c.globalAlpha=Math.max(.2,Math.min(.6,8/M));c.lineWidth=1.2;
+ mem.forEach(a=>{c.beginPath();a.forEach((v,i)=>i?c.lineTo(X(i),Y(v)):c.moveTo(X(i),Y(v)));c.stroke();});c.globalAlpha=1;
+ const mean=ctrl.map((_,i)=>mem.reduce((s,a)=>s+a[i],0)/M);
+ c.lineWidth=2.6;c.strokeStyle=P.warm;c.beginPath();ctrl.forEach((v,i)=>i?c.lineTo(X(i),Y(v)):c.moveTo(X(i),Y(v)));c.stroke();
+ c.strokeStyle=P.ink;c.beginPath();mean.forEach((v,i)=>i?c.lineTo(X(i),Y(v)):c.moveTo(X(i),Y(v)));c.stroke();c.lineWidth=1;
+ // sannsynlighetsstripe
+ c.fillStyle=P.grid;c.fillRect(L,pT,R-L,pB-pT);c.fillStyle=P.cold;c.globalAlpha=.6;c.beginPath();c.moveTo(L,pB);
+ for(let i=0;i<K;i++){const f=mem.filter(a=>a[i]<0).length/M;c.lineTo(X(i),pB-f*(pB-pT));}c.lineTo(R,pB);c.closePath();c.fill();c.globalAlpha=1;
+ c.fillStyle=P.muted;c.textAlign='right';c.font=`10px ${MONO}`;c.fillText('100 %',L-4,pT+3);c.fillText('0',L-4,pB-2);
+ c.textAlign='center';c.textBaseline='top';c.font=`11px ${MONO}`;for(let t=0;t<=ENT;t+=2)c.fillText(t,X(t/ENT*(K-1)),pB+5);
+ const tt=+$('enT').value,ii=Math.round(tt/ENT*(K-1));$('enTo').textContent=nf(tt,1);
+ c.strokeStyle=P.ink;c.setLineDash([4,3]);c.beginPath();c.moveTo(X(ii),top);c.lineTo(X(ii),pB);c.stroke();c.setLineDash([]);
+ const vals=mem.map(a=>a[ii]);const fB=vals.filter(v=>v<0).length/M;const mu=vals.reduce((a,b)=>a+b,0)/M;const sdv=Math.sqrt(vals.reduce((s,v)=>s+(v-mu)**2,0)/M);
+ $('enPA').textContent=Math.round((1-fB)*100)+' %';$('enPB').textContent=Math.round(fB*100)+' %';$('enSd').textContent=nf(sdv,1);
+ drawHist(vals,mu,P);
+ let msg;if(sdv<2)msg='Medlemmene ligger samlet. Varselet er sikkert.';else if(fB>0.15&&fB<0.85)msg='Ensemblet har delt seg i to grupper. Begge scenarioene er mulige, og snittet havner i et område der nesten ingen medlemmer er.';else msg='Spredningen er stor, men de fleste medlemmene er i samme scenario.';$('enMsg').textContent=msg;
+}
+function drawHist(vals,mu,P){const cv=$('cvHist');const {c,w,h}=fit(cv,0.42,130,170);const nb=16,bins=new Array(nb).fill(0);vals.forEach(v=>{const k=Math.max(0,Math.min(nb-1,Math.floor((v+22)/44*nb)));bins[k]++;});
+ const mx=Math.max(...bins,1),L=8,R=w-8,B=h-20,Tp=6,bw=(R-L)/nb;
+ bins.forEach((n,k)=>{const x=L+k*bw,hh=n/mx*(B-Tp);c.fillStyle=(k<nb/2)?P.cold:P.accent;c.globalAlpha=.75;c.fillRect(x+1,B-hh,bw-2,hh);});c.globalAlpha=1;
+ const xm=L+(mu+22)/44*(R-L);c.strokeStyle=P.ink;c.lineWidth=2;c.beginPath();c.moveTo(xm,Tp);c.lineTo(xm,B);c.stroke();c.lineWidth=1;
+ c.strokeStyle=P.line;c.beginPath();c.moveTo(L,B);c.lineTo(R,B);c.stroke();
+ c.fillStyle=P.muted;c.font=`11px ${SANS}`;c.textBaseline='top';c.textAlign='left';c.fillText('Scenario B',L,B+4);c.textAlign='right';c.fillText('Scenario A',R,B+4);c.textAlign='center';c.fillStyle=P.ink;c.fillText('snitt',Math.max(L+14,Math.min(R-14,xm)),B+4);}
+const enB=[$('enSafe'),$('enUnsafe')];
+$('enSafe').onclick=()=>{enState=cand[safeIdx];press(enB,$('enSafe'));computeEns();drawEns();};
+$('enUnsafe').onclick=()=>{enState=cand[unsafeIdx];press(enB,$('enUnsafe'));computeEns();drawEns();};
+$('enNew').onclick=()=>{enSeed++;computeEns();drawEns();};
+$('enM').oninput=()=>{computeEns();drawEns();};$('enS').oninput=()=>{computeEns();drawEns();};$('enT').oninput=drawEns;
+reg(drawEns);
+
+/* ---------- 6. Værkart ---------- */
+const MH=0.62;let mapT=0,mapPt=[0.6,0.33],mapAnim=null;
+function lerp(arr,t){const i=Math.min(arr.length-2,Math.floor(t/12));const f=(t-i*12)/12;return arr[i]+(arr[i+1]-arr[i])*f;}
+function lowState(t){const f=t/36;return{u:0.27+0.30*f,v:0.38-0.16*f,dep:lerp([25,34,39,33],t),r:0.13+0.04*f,occ:lerp([0,0.045,0.10,0.15],t)};}
+function fronts(t){const L=lowState(t);const C=[L.u,L.v];const Tp=[C[0]+L.occ*0.6,C[1]+L.occ*0.8];
+ const occ=[];if(L.occ>0.004)for(let k=0;k<=10;k++){const s=k/10;occ.push([C[0]+(Tp[0]-C[0])*s+0.8*0.02*Math.sin(Math.PI*s),C[1]+(Tp[1]-C[1])*s-0.6*0.02*Math.sin(Math.PI*s)]);}
+ const warm=[],cold=[];for(let k=0;k<=14;k++){const s=k/14;warm.push([Tp[0]+0.24*s,Tp[1]+0.04*s+0.05*s*s]);}
+ for(let k=0;k<=16;k++){const s=k/16;cold.push([Tp[0]-0.13*s+0.05*Math.sin(Math.PI*s),Tp[1]+0.30*s]);}
+ return{L,occ,warm,cold};}
+const MV=[0.7,-0.7];
+function segDist(p,poly){let best=1e9,side=0;for(let i=0;i<poly.length-1;i++){const a=poly[i],b=poly[i+1];const dx=b[0]-a[0],dy=b[1]-a[1];const l2=dx*dx+dy*dy;let t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));const qx=a[0]+t*dx,qy=a[1]+t*dy;const d=Math.hypot(p[0]-qx,p[1]-qy);
+ if(d<best){best=d;let nx=-dy,ny=dx;if(nx*MV[0]+ny*MV[1]<0){nx=-nx;ny=-ny;}side=Math.sign((p[0]-qx)*nx+(p[1]-qy)*ny);}}return{d:best,side};}
+function pAt(u,v,F){const L=F.L;let p=1011+7*(v-0.3);
+ p+=17*Math.exp(-((u-0.12)**2+(v-0.66)**2)/(2*0.2*0.2));p+=11*Math.exp(-((u-0.95)**2+(v-0.5)**2)/(2*0.16*0.16));
+ p-=L.dep*Math.exp(-((u-L.u)**2+(v-L.v)**2)/(2*L.r*L.r));
+ const dl=[F.warm,F.cold,F.occ].filter(x=>x.length).map(pl=>segDist([u,v],pl).d);const dm=Math.min(...dl);
+ const near=Math.exp(-(((u-L.u)**2+(v-L.v)**2))/(2*0.25*0.25));p-=3.2*near*Math.exp(-((dm/0.028)**2));return p;}
+function rainAt(u,v,F){const L=F.L;let I=0.9*Math.exp(-((u-L.u)**2+(v-L.v)**2)/(2*0.05*0.05));
+ const w=segDist([u,v],F.warm);if(w.side>0)I=Math.max(I,Math.exp(-((w.d/0.07)**2)));else I=Math.max(I,Math.exp(-((w.d/0.015)**2)));
+ const cd=segDist([u,v],F.cold);I=Math.max(I,0.9*Math.exp(-((cd.d/0.022)**2)));
+ if(F.occ.length){const o=segDist([u,v],F.occ);I=Math.max(I,Math.exp(-((o.d/0.05)**2)));}
+ const ll=Math.hypot(u-L.u,v-L.v);return I*Math.exp(-Math.max(0,ll-0.3)/0.08);}
+const ST=[];{const r=rng(21);for(let i=0;i<46;i++){const u=r(),v=r()*MH;ST.push([u,v]);}}
+function msq(g,nx,ny,step,lev){const S=[];for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){const a=g[j*nx+i],b=g[j*nx+i+1],c=g[(j+1)*nx+i+1],d=g[(j+1)*nx+i];
+ const id=(a>lev?8:0)|(b>lev?4:0)|(c>lev?2:0)|(d>lev?1:0);if(id===0||id===15)continue;const x=i*step,y=j*step;
+ const tp=()=>[x+step*(lev-a)/(b-a),y],rt=()=>[x+step,y+step*(lev-b)/(c-b)],bt=()=>[x+step*(lev-d)/(c-d),y+step],lf=()=>[x,y+step*(lev-a)/(d-a)];
+ switch(id){case 1:case 14:S.push([lf(),bt()]);break;case 2:case 13:S.push([bt(),rt()]);break;case 3:case 12:S.push([lf(),rt()]);break;case 4:case 11:S.push([tp(),rt()]);break;case 6:case 9:S.push([tp(),bt()]);break;case 7:case 8:S.push([tp(),lf()]);break;case 5:S.push([tp(),lf()],[bt(),rt()]);break;case 10:S.push([tp(),rt()],[lf(),bt()]);break;}}return S;}
+function frontPx(c,poly,w,type,P){if(poly.length<2)return;const pts=poly.map(p=>[p[0]*w,p[1]*w]);const col=type==='warm'?P.warm:type==='cold'?P.cold:P.occl;
+ c.strokeStyle=col;c.lineWidth=2.6;c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();c.lineWidth=1;c.fillStyle=col;
+ const seg=[];let tot=0;for(let i=0;i<pts.length-1;i++){const l=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);seg.push(l);tot+=l;}
+ let k=0;for(let pos=14;pos<tot-6;pos+=26,k++){let acc=0,i=0;while(i<seg.length-1&&acc+seg[i]<pos){acc+=seg[i];i++;}const f=(pos-acc)/seg[i];const a=pts[i],b=pts[i+1];const px=a[0]+(b[0]-a[0])*f,py=a[1]+(b[1]-a[1])*f;
+  const tx=(b[0]-a[0])/seg[i],ty=(b[1]-a[1])/seg[i];let nx=-ty,ny=tx;if(nx*MV[0]+ny*MV[1]<0){nx=-nx;ny=-ny;}
+  const semi=type==='warm'||(type==='occl'&&k%2===1);c.beginPath();
+  if(semi){const an=Math.atan2(ny,nx);c.arc(px,py,6,an-Math.PI/2,an+Math.PI/2);c.closePath();}
+  else{c.moveTo(px-tx*6.5,py-ty*6.5);c.lineTo(px+tx*6.5,py+ty*6.5);c.lineTo(px+nx*10,py+ny*10);c.closePath();}c.fill();}}
+function windAt(u,v,F){const e=0.003;const dpu=(pAt(u+e,v,F)-pAt(u-e,v,F))/(2*e),dpv=(pAt(u,v+e,F)-pAt(u,v-e,F))/(2*e);
+ const M=5e6;const gu=dpu*100/M,gv=dpv*100/M;const g=Math.hypot(gu,gv);const Vg=Math.min(45,g/(1.25*1.2e-4));
+ if(g===0)return{V:0,sx:0,sy:0};let ex=dpv,ny=-dpu;let n=Math.hypot(ex,ny);ex/=n;ny/=n; // screen x, screen y of geostrophic
+ const lx=-dpu/Math.hypot(dpu,dpv),ly=-dpv/Math.hypot(dpu,dpv);const a=25*Math.PI/180;let sx=Math.cos(a)*ex+Math.sin(a)*lx,sy=Math.cos(a)*ny+Math.sin(a)*ly;n=Math.hypot(sx,sy);
+ return{V:0.7*Vg,sx:sx/n,sy:sy/n};}
+const BF=[0.3,1.6,3.4,5.5,8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7],BFN=['Stille','Flau vind','Svak vind','Lett bris','Laber bris','Frisk bris','Liten kuling','Stiv kuling','Sterk kuling','Liten storm','Full storm','Sterk storm','Orkan'];
+const DIRS=['nord','nordøst','øst','sørøst','sør','sørvest','vest','nordvest'];
+function drawMap(){const cv=$('cvMap');const {c,w,h}=fit(cv,MH,220,700);const P=pal();const F=fronts(mapT);
+ c.fillStyle=P.paper;c.fillRect(0,0,w,h);
+ const step=Math.max(4,Math.round(w/180));const nx=Math.ceil(w/step)+1,ny=Math.ceil(h/step)+1;const g=new Float32Array(nx*ny);
+ for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)g[j*nx+i]=pAt(i*step/w,j*step/w,F);
+ if($('mapRain').checked){const rs=Math.max(6,step*2);c.fillStyle=P.rain;for(let y=0;y<h;y+=rs)for(let x=0;x<w;x+=rs){const I=rainAt((x+rs/2)/w,(y+rs/2)/w,F);if(I>0.3){c.globalAlpha=Math.min(.5,(I-.3)*.9);c.fillRect(x,y,rs,rs);}}c.globalAlpha=1;}
+ c.strokeStyle=P.grid;for(let k=1;k<6;k++){c.beginPath();c.moveTo(k*w/6,0);c.lineTo(k*w/6,h);c.stroke();}for(let k=1;k<4;k++){c.beginPath();c.moveTo(0,k*h/4);c.lineTo(w,k*h/4);c.stroke();}
+ c.strokeStyle=P.ink;c.lineWidth=1.1;c.globalAlpha=.75;const labels=[];
+ for(let lev=960;lev<=1040;lev+=4){const S=msq(g,nx,ny,step,lev);if(!S.length)continue;c.beginPath();let bestS=null,bx=-1;S.forEach(s=>{c.moveTo(s[0][0],s[0][1]);c.lineTo(s[1][0],s[1][1]);const mx=(s[0][0]+s[1][0])/2,my=(s[0][1]+s[1][1])/2;if(my>h*.1&&my<h*.9&&mx<w-24&&mx>bx&&(lev%8===0)){bx=mx;bestS=[mx,my];}});c.stroke();if(bestS)labels.push([lev,bestS]);}
+ c.globalAlpha=1;c.font=`10px ${MONO}`;c.textAlign='center';c.textBaseline='middle';labels.forEach(([lev,[x,y]])=>{const t=String(lev);const tw=c.measureText(t).width+6;c.fillStyle=P.paper;c.fillRect(x-tw/2,y-7,tw,14);c.fillStyle=P.ink;c.fillText(t,x,y);});
+ frontPx(c,F.occ,w,'occl',P);frontPx(c,F.warm,w,'warm',P);frontPx(c,F.cold,w,'cold',P);
+ if($('mapWind').checked){c.strokeStyle=P.muted;c.fillStyle=P.muted;c.lineWidth=1.3;const sp=Math.max(36,w/18);
+  for(let y=sp/2;y<h;y+=sp)for(let x=sp/2;x<w;x+=sp){const W=windAt(x/w,y/w,F);const len=Math.min(sp*.8,4+W.V*1.1);const x2=x+W.sx*len,y2=y+W.sy*len;c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();const a=Math.atan2(W.sy,W.sx);c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-6*Math.cos(a-.45),y2-6*Math.sin(a-.45));c.lineTo(x2-6*Math.cos(a+.45),y2-6*Math.sin(a+.45));c.closePath();c.fill();}c.lineWidth=1;}
+ if(mapT===0){c.strokeStyle=P.ink;c.lineWidth=1.3;ST.forEach(([u,v])=>{c.beginPath();c.arc(u*w,v*w,3.2,0,7);c.stroke();});c.lineWidth=1;}
+ const fs=Math.max(22,w/26);c.font=`800 ${fs}px 'Bricolage Grotesque', system-ui, sans-serif`;c.textAlign='center';c.textBaseline='middle';
+ const L=F.L;c.fillStyle=P.warm;c.fillText('L',L.u*w,L.v*w);c.fillStyle=P.cold;c.fillText('H',0.12*w,Math.min(h-fs*.6,0.66*w));c.fillText('H',Math.min(w-fs*.6,0.95*w),0.5*w);
+ c.font=`600 11px ${MONO}`;c.fillStyle=P.warm;c.fillText(Math.round(pAt(L.u,L.v,F)),L.u*w,L.v*w+fs*.65);c.fillStyle=P.cold;c.fillText(Math.round(pAt(0.12,0.62,F)),0.12*w,Math.min(h-fs*.6,0.66*w)+fs*.65>h-6?Math.min(h-fs*.6,0.66*w)-fs*.65:Math.min(h-fs*.6,0.66*w)+fs*.65);
+ // målepunkt
+ const [pu,pv]=mapPt;const W=windAt(pu,pv,F);const px=pu*w,py=pv*w;c.strokeStyle=P.ink;c.lineWidth=2;c.beginPath();c.arc(px,py,7,0,7);c.stroke();
+ const len=18+Math.min(30,W.V*1.4);c.strokeStyle=P.accent;c.fillStyle=P.accent;c.lineWidth=2.6;c.beginPath();c.moveTo(px,py);c.lineTo(px+W.sx*len,py+W.sy*len);c.stroke();const a=Math.atan2(W.sy,W.sx),x2=px+W.sx*len,y2=py+W.sy*len;c.beginPath();c.moveTo(x2+3*Math.cos(a),y2+3*Math.sin(a));c.lineTo(x2-8*Math.cos(a-.5),y2-8*Math.sin(a-.5));c.lineTo(x2-8*Math.cos(a+.5),y2-8*Math.sin(a+.5));c.closePath();c.fill();c.lineWidth=1;
+ c.strokeStyle=P.line;c.strokeRect(.5,.5,w-1,h-1);
+ const p=pAt(pu,pv,F);$('mpP').textContent=nf(p,1)+' hPa';
+ const deg=(Math.atan2(-W.sx,W.sy)*180/Math.PI+360)%360; // vind fra: motsatt av bevegelse; nord = -sy
+ $('mpDir').textContent=W.V<0.3?'–':DIRS[Math.round(deg/45)%8];
+ $('mpV').textContent=Math.round(W.V)+' m/s';let b=0;while(b<BF.length&&W.V>=BF[b])b++;$('mpBf').textContent=b+' · '+BFN[b];
+ $('mapTitle').textContent=mapT===0?'Analysekart 00 UTC':'Prognosekart +'+Math.round(mapT)+' t';$('mapTo').textContent=mapT===0?'analyse 00 UTC':'+'+nf(mapT,mapT%1?1:0)+' t';
+}
+$('mapT').oninput=e=>{mapT=+e.target.value;drawMap();};
+['mapRain','mapWind'].forEach(id=>$(id).onchange=drawMap);
+$('cvMap').addEventListener('pointerdown',e=>{const r=e.target.getBoundingClientRect();mapPt=[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.width];drawMap();});
+$('mapPlay').onclick=()=>{if(mapAnim){cancelAnimationFrame(mapAnim);mapAnim=null;$('mapPlay').textContent='Spill av';return;}if(mapT>=36)mapT=0;$('mapPlay').textContent='Pause';let last=performance.now();
+ const st=now=>{mapT=Math.min(36,mapT+(now-last)/1000*4);last=now;$('mapT').value=mapT;drawMap();if(mapT<36)mapAnim=requestAnimationFrame(st);else{mapAnim=null;$('mapPlay').textContent='Spill av';}};mapAnim=requestAnimationFrame(st);};
+reg(drawMap);
+
+/* ---------- 7. Verifikasjon ---------- */
+const days=$('vfDays');for(let i=0;i<100;i++){const d=document.createElement('div');d.className='day';days.appendChild(d);}
+let vfModel='good',vfR=rng(99);
+function vfUpd(){$('vfPo').textContent=$('vfP').value+' %';}
+function vfRun(){const p=+$('vfP').value/100;const actual=vfModel==='good'?p:0.5+(p-0.5)*0.45;let n=0;
+ [...days.children].forEach(d=>{const r=vfR()<actual;d.classList.toggle('rain',r);if(r)n++;});
+ $('vfR').textContent=n;const diff=n-p*100;
+ $('vfV').textContent=Math.abs(diff)<=10?'Stemmer godt over tid':(diff>0?'Varslet for lite regn':'Varslet for mye regn');}
+$('vfP').oninput=vfUpd;$('vfRun').onclick=vfRun;
+const vfB=[$('vfGood'),$('vfBad')];$('vfGood').onclick=()=>{vfModel='good';press(vfB,$('vfGood'));vfRun();};$('vfBad').onclick=()=>{vfModel='bad';press(vfB,$('vfBad'));vfRun();};
+vfUpd();vfRun();
+
+/* ---------- 8. Skala ---------- */
+const PH=[
+ {n:'Ekstratropisk lavtrykk',s:[700e3,3000e3],l:[2*86400,7*86400],size:'ca. 1000 km',life:'dager',what:'Bane og utvikling, flere dager fram.',tool:'Globale modeller og ensemble',why:'Store og langlivede systemer som globale modeller fanger opp godt. Lavtrykk som utdyper seg ekstremt raskt («bombesykloner») er likevel en utfordring.',col:'cold'},
+ {n:'Tropisk syklon',s:[200e3,1000e3],l:[3*86400,21*86400],size:'flere hundre km',life:'dager til uker',what:'Banen flere dager fram. Styrken er vanskeligere.',tool:'Globale modeller, ensemble og satellitt',why:'Banen styres av store vindsystemer som modellene beskriver godt. Styrken avhenger av små prosesser i og nær øyeveggen og av utvekslingen mellom hav og luft.',col:'warm'},
+ {n:'Polart lavtrykk',s:[150e3,600e3],l:[12*3600,2*86400],size:'150–600 km',life:'ofte et døgn eller to',what:'At det er fare for polare lavtrykk, men ikke alltid hvor og når de dannes.',tool:'Høyoppløselige regionale modeller (AROME-Arctic) og satellitt',why:'Dannes over hav med få observasjoner, og avhenger av varmeutveksling mellom hav og kald luft og latent varme i byger, som modellene må tilnærme.',col:'occl'},
+ {n:'Tordenbyge og supercelle',s:[1e3,50e3],l:[30*60,6*3600],size:'kilometer til titalls km',life:'under en time til noen timer',what:'Områder med fare for kraftige tordenbyger.',tool:'Regionale modeller, radar og nowcasting',why:'Krever ustabil atmosfære og vindskjær, som kan leses av i modeller og Skew-T-diagram, men selve bygen er for liten og kortvarig til å varsles på et bestemt sted.',col:'accent'},
+ {n:'Tornado',s:[20,500],l:[60,3600],size:'titalls til noen hundre meter',life:'minutter til rundt en time',what:'Forhold som kan gi tornado, ikke enkelttornadoer.',tool:'Radar og observasjoner fra bakken',why:'Langt mindre enn en rute i selv de fineste værmodellene, og varer bare noen minutter.',col:'warm'}];
+let scSel=0,scBoxes=[];
+function drawScale(){const cv=$('cvScale');const {c,w,h}=fit(cv,0.55,300,480);const P=pal();
+ const L=56,R=w-10,Tp=10,B=h-34;const lx0=1,lx1=7,ly0=Math.log10(60),ly1=Math.log10(3e6);
+ const X=m=>L+(Math.log10(m)-lx0)/(lx1-lx0)*(R-L),Y=s=>B-(Math.log10(s)-ly0)/(ly1-ly0)*(B-Tp);
+ c.fillStyle=P.grid;c.fillRect(L,Tp,X(40e3)-L,B-Tp);
+ c.font=`11px ${MONO}`;c.fillStyle=P.muted;c.strokeStyle=P.line;c.textAlign='center';c.textBaseline='top';
+ [[10,'10 m'],[100,'100 m'],[1e3,'1 km'],[1e4,'10 km'],[1e5,'100 km'],[1e6,'1000 km'],[1e7,'10 000 km']].forEach(([m,t],i)=>{c.beginPath();c.moveTo(X(m),B);c.lineTo(X(m),B+4);c.stroke();if(w>520||i%2===0)c.fillText(t,Math.min(R-28,X(m)),B+7);});
+ c.textAlign='right';c.textBaseline='middle';[[60,'1 min'],[3600,'1 time'],[86400,'1 døgn'],[604800,'1 uke'],[2.6e6,'1 mnd']].forEach(([s,t])=>{c.strokeStyle=P.grid;c.beginPath();c.moveTo(L,Y(s));c.lineTo(R,Y(s));c.stroke();c.fillText(t,L-6,Y(s));});
+ c.strokeStyle=P.line;c.beginPath();c.moveTo(L,Tp);c.lineTo(L,B);c.lineTo(R,B);c.stroke();
+ const vline=(m,t1)=>{c.strokeStyle=P.ink;c.setLineDash([4,4]);c.beginPath();c.moveTo(X(m),Tp);c.lineTo(X(m),B);c.stroke();c.setLineDash([]);c.save();c.translate(X(m)+4,Tp+4);c.rotate(Math.PI/2);c.fillStyle=P.ink;c.textAlign='left';c.textBaseline='bottom';c.font=`11px ${SANS}`;c.fillText(t1,0,0);c.restore();};
+ vline(40e3,'Minste globalmodell (9 km) beskriver godt, ca. 40 km');vline(11e3,'Regional modell (2,5 km), ca. 11 km');
+ c.fillStyle=P.muted;c.font=`11px ${SANS}`;c.textAlign='left';c.textBaseline='bottom';c.fillText('For lite for globalmodellen',L+6,B-6);
+ scBoxes=[];PH.forEach((p,i)=>{const x1=X(p.s[0]),x2=X(p.s[1]),y1=Y(p.l[1]),y2=Y(p.l[0]);scBoxes.push([x1,y1,x2,y2]);const col=P[p.col];
+  c.fillStyle=col;c.globalAlpha=i===scSel?.42:.2;c.beginPath();c.roundRect?c.roundRect(x1,y1,x2-x1,y2-y1,8):c.rect(x1,y1,x2-x1,y2-y1);c.fill();c.globalAlpha=1;c.strokeStyle=col;c.lineWidth=i===scSel?2.5:1.2;c.stroke();c.lineWidth=1;
+  c.fillStyle=P.ink;c.font=`${i===scSel?700:500} 12px ${SANS}`;c.textAlign='center';c.textBaseline='middle';const words=p.n.split(' ');const cx=(x1+x2)/2,cy=(y1+y2)/2;
+  if(c.measureText(p.n).width<x2-x1-6||words.length===1)c.fillText(p.n,cx,cy);else{c.fillText(words[0],cx,cy-8);c.fillText(words.slice(1).join(' '),cx,cy+8);}});
+ c.save();c.translate(12,(Tp+B)/2);c.rotate(-Math.PI/2);c.fillStyle=P.muted;c.font=`11px ${SANS}`;c.textAlign='center';c.fillText('Levetid',0,0);c.restore();
+ c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='bottom';c.fillText('Størrelse →',R,h-2);
+ const p=PH[scSel];$('scInfo').innerHTML=`<h4>${p.n}</h4><dl><dt>Størrelse</dt><dd>${p.size}</dd><dt>Levetid</dt><dd>${p.life}</dd><dt>Kan varsles</dt><dd>${p.what}</dd><dt>Viktigste verktøy</dt><dd>${p.tool}</dd><dt>Hvorfor</dt><dd>${p.why}</dd></dl>`;}
+$('cvScale').addEventListener('click',e=>{const r=e.target.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let hit=-1,area=1e12;scBoxes.forEach((b,i)=>{if(x>=b[0]-4&&x<=b[2]+4&&y>=b[1]-4&&y<=b[3]+4){const a=(b[2]-b[0])*(b[3]-b[1]);if(a<area){area=a;hit=i;}}});if(hit>=0){scSel=hit;drawScale();}});
+reg(drawScale);
+
+/* ---------- 9. Quiz ---------- */
+const Q=[
+ {q:'Hva betyr «synoptiske observasjoner»?',o:['Målinger gjort med satellitt','Målinger fra mange steder på samme tidspunkt, som gir et øyeblikksbilde','Målinger som bare gjøres ved bakken','Målinger fra private værstasjoner'],a:1,f:'Synoptisk betyr å se alt samtidig. Målingene gjøres på faste tider, slik at de til sammen gir et øyeblikksbilde av været over et stort område.'},
+ {q:'Hva er resultatet av dataassimilasjon?',o:['Et prognosekart','En ensembleprognose','En analyse, altså startverdiene modellen regner fra','En verifikasjon av forrige varsel'],a:2,f:'Dataassimilasjon kombinerer observasjoner med forrige modellvarsel til en analyse, som er startverdiene for neste modellkjøring.'},
+ {q:'Hvorfor kan vi ikke varsle konkret vær mer enn omtrent to uker fram?',o:['Superdatamaskinene er ikke raske nok','Atmosfæren er kaotisk, så små feil i startverdiene vokser','Vi mangler likninger for atmosfæren','Satellittene ser bare et døgn fram'],a:1,f:'Atmosfæren er et kaotisk system. Små feil i startverdiene vokser eksponentielt, og det setter en grense uansett hvor gode modellene blir.'},
+ {q:'Spaghettiplottet for temperaturen om fem dager spriker mye. Hva betyr det?',o:['Modellen har en feil og må kjøres på nytt','Det blir store temperatursvingninger','Værutviklingen er usikker','Det blir sikkert ekstremvær'],a:2,f:'Stor spredning mellom ensemblemedlemmene betyr at værutviklingen er usikker. Det sier ikke i seg selv noe om hvor stor variasjonen i været blir.'},
+ {q:'Du skal varsle været til et orienteringsløp i Jotunheimen i morgen. Hvilken modell bør du stole mest på?',o:['En global modell med 9 km rutenett','En regional modell med 2,5 km rutenett','En klimamodell','Et sesongvarsel'],a:1,f:'Den regionale modellen har finere rutenett og fanger bedre opp effekten av fjell og daler på et lokalt varsel for de nærmeste døgnene.'},
+ {q:'Varselet sa 30 % sannsynlighet for regn, og det ble ikke regn. Hva kan du si om varselet?',o:['Det var feil','Det var riktig','Ingenting ut fra én dag. Det må vurderes over mange dager med samme varsel','At modellen er overselvsikker'],a:2,f:'Et sannsynlighetsvarsel er pålitelig hvis det regner på omtrent 30 % av dagene med varselet 30 %. Det må vurderes over tid.'}];
+let answered=0,correct=0;const qz=$('quiz');
+Q.forEach((it,qi)=>{const d=document.createElement('div');d.className='q';d.innerHTML=`<p class="qt">${qi+1}. ${it.q}</p><div class="opts"></div><p class="fb" hidden></p>`;
+ const op=d.querySelector('.opts');it.o.forEach((t,oi)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{if(d.dataset.done)return;d.dataset.done=1;answered++;if(oi===it.a)correct++;
+  [...op.children].forEach((x,k)=>{if(k===it.a)x.classList.add('right');else if(k===oi)x.classList.add('wrong');x.disabled=true;});
+  const fb=d.querySelector('.fb');fb.hidden=false;fb.textContent=(oi===it.a?'Riktig. ':'Ikke helt. ')+it.f;$('quizScore').textContent=`${correct} av ${answered} riktige · ${Q.length-answered} igjen`;};op.appendChild(b);});qz.appendChild(d);});
+
+
+/* ---------- Globalt observasjonskart ---------- */
+const LAND=[[-59.5,-80,-60,-80.5,-60,-81,-62.5,-81,-64.5,-81,-65.5,-80.5,-66.5,-80.5,-64,-80.5,-62,-80.5,-61,-80,-60.5,-79.5,-59.5,-80],[-159,-79.5,-161,-79.5,-162.5,-79.5,-163,-79,-163.5,-78.5,-163,-78,-161,-78.5,-160,-78.5,-159.5,-79,-159,-79.5],[-45,-78,-44,-78.5,-43.5,-79,-43.5,-79.5,-43.5,-80,-45,-80.5,-46.5,-80.5,-48.5,-81,-50.5,-81,-53,-81,-54,-80.5,-54,-80,-52,-80,-51,-79.5,-50.5,-79,-50,-79,-49.5,-78.5,-48.5,-78,-48,-78,-46.5,-78,-45,-78],[-121,-73.5,-120,-73.5,-118.5,-73.5,-119.5,-74,-120,-74,-121.5,-74,-122.5,-73.5,-121,-73.5],[-125.5,-73.5,-124,-74,-124.5,-74,-126,-73.5,-127.5,-73.5,-126.5,-73,-125.5,-73.5],[-99,-72,-98,-72,-97,-72,-96,-72.5,-97,-72.5,-98,-72.5,-99.5,-72.5,-101,-72.5,-102,-72.5,-102.5,-72,-101.5,-71.5,-100.5,-72,-99,-72],[-68.5,-71,-68.5,-71.5,-68.5,-72,-69,-72,-70,-72.5,-71,-72.5,-72.5,-72.5,-72,-72,-73,-72,-74,-72.5,-75,-72,-75,-71.5,-74,-71.5,-73,-71,-72,-71,-72,-70.5,-71.5,-70.5,-71.5,-69.5,-71,-69,-70.5,-69,-69.5,-69.5,-69,-70,-68.5,-70.5,-68.5,-71],[-180,-84.5,-179,-84,-177.5,-84.5,-177,-84.5,-176.5,-84,-176,-84,-174.5,-84.5,-173,-84,-170,-84,-169,-84,-168.5,-84,-167,-84.5,-164,-85,-162,-85,-158,-85.5,-155,-85,-151,-85.5,-148.5,-85.5,-146,-85.5,-143,-85,-143,-84.5,-147,-84.5,-150,-84.5,-151,-84,-153.5,-83.5,-153.5,-83,-153,-83,-152.5,-82.5,-153,-82,-154.5,-82,-155.5,-81.5,-157,-81,-154.5,-81,-152,-81,-150.5,-81.5,-149,-81,-147,-80.5,-146.5,-80.5,-147,-80,-148,-79.5,-149.5,-79.5,-151.5,-79.5,-153.5,-79,-155.5,-79,-156,-78.5,-157.5,-78.5,-158,-78,-158.5,-77,-158,-77,-157,-77.5,-155.5,-77,-153.5,-77,-153,-77.5,-151.5,-77.5,-150,-77,-148.5,-77,-147.5,-76.5,-146,-76.5,-146,-76,-146.5,-75.5,-146,-75.5,-145,-75,-144.5,-75.5,-143,-75.5,-141.5,-75,-140,-75,-139,-75,-137.5,-74.5,-136.5,-74.5,-135,-74.5,-134.5,-74.5,-133.5,-74.5,-132.5,-74.5,-131,-74.5,-129.5,-74.5,-128,-74.5,-127,-74.5,-125.5,-74.5,-124,-74.5,-122.5,-74.5,-121,-74.5,-119.5,-74.5,-118.5,-74,-117.5,-74,-116,-74,-115,-74,-114,-73.5,-113.5,-74,-113,-74.5,-112.5,-74.5,-111.5,-74.5,-110,-75,-108.5,-75,-107.5,-75,-106,-75,-105,-75,-103.5,-75,-102,-75,-100.5,-75.5,-100,-75,-101,-74.5,-101.5,-74,-102.5,-74,-103,-73.5,-103.5,-73.5,-103.5,-72.5,-103,-73,-101.5,-73,-100.5,-73,-99,-73,-98,-73,-97.5,-73.5,-96.5,-73.5,-95,-73.5,-93.5,-73.5,-92.5,-73,-91.5,-73.5,-90,-73.5,-89,-72.5,-88.5,-73,-87.5,-73,-86,-73,-85,-73.5,-84,-73.5,-82.5,-73.5,-81.5,-74,-80.5,-73.5,-80.5,-73,-79.5,-73.5,-78,-73.5,-77,-73.5,-76,-74,-75,-74,-74,-73.5,-73,-73.5,-71.5,-73.5,-70,-73,-69,-73,-68,-73,-67.5,-72.5,-67,-72,-67.5,-71.5,-67.5,-71,-68,-71,-68,-70.5,-68.5,-70,-68.5,-69.5,-68,-69,-67.5,-68.5,-67.5,-68,-67.5,-67.5,-67.5,-67,-66.5,-66.5,-66,-66,-65.5,-66,-64.5,-65.5,-64,-65,-63.5,-65,-63,-64.5,-62,-64.5,-61.5,-64.5,-60.5,-64,-60,-64,-59,-63.5,-58.5,-63.5,-58,-63.5,-57,-63.5,-57.5,-64,-58.5,-64,-59,-64.5,-60,-64,-60.5,-64.5,-61.5,-64.5,-62,-65,-62.5,-65,-62.5,-65.5,-62.5,-66,-62,-66,-63,-66.5,-63.5,-66.5,-64.5,-67,-65,-67,-65.5,-67.5,-65.5,-68,-65.5,-68.5,-65,-68.5,-64,-69,-63,-69,-63,-69.5,-62.5,-70,-62.5,-70.5,-62,-70.5,-61.5,-71,-61.5,-72,-61,-72.5,-61,-73,-60.5,-73,-61,-73.5,-61.5,-74,-62,-74.5,-63.5,-74.5,-63.5,-75,-64.5,-75.5,-66,-75.5,-67,-76,-68.5,-76,-70,-76,-70.5,-76.5,-72,-76.5,-74,-76.5,-75.5,-76.5,-77,-76.5,-77,-77,-75.5,-77.5,-74.5,-77.5,-73.5,-78,-75,-78,-76.5,-78,-78,-78.5,-78,-79,-77,-79.5,-76.5,-80,-75.5,-80.5,-73,-80.5,-71.5,-80.5,-70,-81,-68,-81.5,-65.5,-81.5,-63.5,-81.5,-61.5,-82,-59.5,-82.5,-58.5,-83,-58,-83,-57,-83,-55.5,-82.5,-53.5,-82.5,-51.5,-82,-50,-81.5,-47.5,-81.5,-45,-82,-43,-82,-42,-81.5,-41,-81.5,-38,-81.5,-36.5,-81,-34.5,-81,-32.5,-81,-30,-80.5,-28.5,-80.5,-29.5,-80,-29.5,-79.5,-31.5,-79.5,-33.5,-79.5,-35.5,-79.5,-36,-79,-36,-78.5,-35.5,-78,-34,-78,-32,-77.5,-31,-77.5,-30,-77,-29,-76.5,-27.5,-76.5,-26,-76.5,-25.5,-76.5,-24,-76,-22.5,-76,-21,-76,-20,-75.5,-19,-75.5,-17.5,-75,-16.5,-75,-15.5,-74.5,-15.5,-74,-16.5,-74,-16,-73.5,-15.5,-73,-14.5,-73,-13.5,-72.5,-12.5,-72.5,-11.5,-72,-11,-71.5,-10.5,-71.5,-9,-71.5,-8.5,-71.5,-7.5,-71.5,-7,-71,-6,-71,-5.5,-71.5,-4.5,-71.5,-3,-71.5,-2,-71,-0.5,-71,0,-71.5,1,-71.5,2,-71,3,-71,4,-71,5,-70.5,6.5,-70.5,7,-70,7.5,-70,8.5,-70,9.5,-70,10.5,-70.5,11,-71,12,-70.5,12.5,-70,13.5,-70,14.5,-70,15,-70.5,16,-70,17,-70,18,-70,19.5,-70,20.5,-70,21.5,-70,22,-70.5,22.5,-70.5,23.5,-70.5,25,-70.5,26,-70.5,27,-70.5,28,-70.5,29,-70,30,-70,31,-70,32,-69.5,33,-69.5,33.5,-69,34,-68.5,35,-68.5,35.5,-69,36,-69,37,-69,38,-69.5,38.5,-70,39.5,-69.5,40,-69,41,-69,42,-68.5,43,-68.5,44,-68.5,45,-68,45.5,-68,46.5,-67.5,47.5,-67.5,48.5,-67.5,49,-67,50,-67,51,-67,51,-66.5,52,-66,52.5,-66,53.5,-66,54.5,-66,55.5,-66,56.5,-66,57,-66,57.5,-66.5,58,-67,58.5,-67.5,60,-67.5,60.5,-67.5,61.5,-68,62.5,-68,63,-68,64,-67.5,65,-67.5,66,-67.5,67,-68,68,-68,69,-68,69.5,-69,69.5,-69.5,68.5,-70,68,-70.5,69,-70.5,69,-71,68.5,-71.5,68,-72,68.5,-72,70,-72.5,71,-72,71.5,-71.5,72,-71.5,72.5,-71,73,-70.5,73.5,-70.5,74,-70,74.5,-70,75.5,-69.5,76.5,-69.5,77.5,-69.5,78,-69,78.5,-68.5,79,-68.5,80,-68,81,-68,81.5,-67.5,82,-67.5,83,-67,84,-67.5,84.5,-67,85.5,-67,87,-67,87.5,-67,88,-66,88.5,-66.5,89,-67,89.5,-67,90.5,-67,91.5,-67,92.5,-67,93.5,-67,94,-67,95,-67,96,-67.5,96.5,-67,98,-67,98.5,-67,99.5,-67,100.5,-67,101,-66.5,101.5,-66.5,103,-65.5,103.5,-65.5,104,-66,105,-66.5,106,-67,107,-67,108,-67,109,-67,110,-66.5,111,-66.5,111.5,-66,113,-66,113.5,-66,114.5,-66,115,-66.5,115.5,-66.5,116.5,-66.5,117.5,-67,118.5,-67,120,-67.5,121,-67,121.5,-67,122.5,-66.5,123,-66.5,124,-66.5,125,-66.5,126,-66.5,127,-66.5,128,-66.5,129,-67,129.5,-66.5,131,-66.5,132,-66.5,133,-66.5,134,-66.5,135,-66,135,-65.5,135.5,-65.5,136,-66,136,-66.5,136.5,-67,137.5,-67,138.5,-67,140,-67,141,-67,142,-67,143,-67,144.5,-67,145.5,-67,146,-67,146,-67.5,146.5,-68,147.5,-68,149,-68.5,150,-68.5,151.5,-68.5,152.5,-69,153.5,-69,154.5,-68.5,155,-69,156,-69,157,-69.5,158,-69.5,159,-69.5,159.5,-70,161,-70,161.5,-70.5,162.5,-70.5,164,-70.5,165,-71,166,-71,167.5,-71,168.5,-71,169.5,-71,170.5,-71.5,171,-71.5,171,-72,170.5,-72.5,170,-73,169.5,-73.5,168,-74,167.5,-74,166,-74.5,165.5,-75,165,-75,164,-75.5,164,-76,163.5,-76,163.5,-76.5,163.5,-77,164,-77.5,164.5,-78,166.5,-78.5,167,-79,165,-79,163.5,-79,162,-79,161,-79.5,160.5,-80,160.5,-80.5,160,-81,161,-81.5,161.5,-81.5,162.5,-82,163.5,-82.5,165,-82.5,166.5,-83,169,-83.5,169.5,-84,172.5,-84,173,-84.5,176,-84,178.5,-84.5,-180,-84.5],[-68,-54,-66.5,-54.5,-65,-54.5,-65.5,-55,-66.5,-55,-67,-55,-67.5,-55.5,-68,-55.5,-69,-55.5,-70,-55,-71,-55,-72.5,-54.5,-73.5,-54,-74.5,-53,-74,-53,-72.5,-53.5,-71,-54,-70.5,-53.5,-70.5,-53,-69.5,-52.5,-68.5,-52.5,-68.5,-53,-68,-54],[-58.5,-51,-57.5,-51.5,-58,-52,-59.5,-52,-60,-52,-60.5,-52.5,-61,-52,-60,-51.5,-59,-51.5,-58.5,-51],[70.5,-49.5,68.5,-50,68.5,-49,69,-49,69,-48.5,69.5,-49,70.5,-49,70.5,-49.5],[145.5,-41,146.5,-41,147,-41,147.5,-41,148.5,-41,148.5,-42,148,-42.5,148,-43,147.5,-43,147,-43.5,146.5,-43.5,146,-43.5,145.5,-42.5,145.5,-42,144.5,-41,144.5,-40.5,145.5,-41],[173,-41,173,-41.5,174,-41,174,-41.5,174,-42,173,-43,172.5,-43.5,173,-44,172.5,-44,171.5,-44,171,-45,170.5,-46,170,-46.5,169.5,-46.5,168.5,-46.5,168,-46.5,166.5,-46,167,-45,168.5,-44,169,-44,169.5,-43.5,170.5,-43,171,-42.5,171.5,-42,172,-41.5,172,-41,173,-40.5,173,-41],[174.5,-36,175.5,-37,175.5,-36.5,176,-37,176,-37.5,177,-38,177.5,-38,178,-37.5,178.5,-37.5,178.5,-38.5,178,-39,177,-39,177,-39.5,177,-40,176.5,-40.5,176,-41.5,175,-41.5,174.5,-41.5,175,-40.5,175,-40,174,-39.5,174,-39,174.5,-39,174.5,-38,174.5,-37.5,174.5,-36.5,174,-36,173,-35,172.5,-34.5,173,-34.5,173.5,-35,174.5,-35.5,174.5,-36],[167,-22,166.5,-22.5,166,-22,165.5,-21.5,165,-21,164,-20.5,164,-20,164.5,-20,165,-20.5,165.5,-21,166,-21,166.5,-21.5,167,-22],[178.5,-17.5,178.5,-18,178,-18.5,177.5,-18,177.5,-17.5,178,-17.5,178.5,-17.5],[-180,-16.5,179.5,-17,178.5,-17,178.5,-16.5,179,-16.5,179.5,-16.5,-180,-16,-180,-16.5],[168,-16.5,167.5,-16.5,167,-16,168,-16.5],[167,-15,167.5,-15.5,167,-15.5,166.5,-15.5,166.5,-14.5,167,-15],[50,-13.5,50,-15,50.5,-15,50.5,-15.5,50,-16,50,-15.5,49.5,-15.5,50,-16.5,50,-17,49.5,-17,49.5,-18,49,-19,48.5,-20.5,48,-22.5,47.5,-24,47,-25,46.5,-25,45.5,-25.5,45,-25.5,44,-25,44,-24.5,43.5,-23.5,43.5,-23,43.5,-22,43.5,-21.5,44,-21,44.5,-20,44.5,-19.5,44,-19,44,-18.5,44,-17.5,44.5,-17,44.5,-16,45,-16,45.5,-16,46,-16,46.5,-16,47,-15,47.5,-14.5,48,-14,48,-13.5,48.5,-14,49,-13,49,-12.5,49,-12,49.5,-12.5,50,-13,50,-13.5],[143.5,-14,144,-14.5,144.5,-14,145,-14.5,145.5,-15,145.5,-15.5,145.5,-16.5,145.5,-17,146,-17,146,-18,146,-18.5,146.5,-19,147.5,-19.5,148,-20,149,-20.5,148.5,-20.5,149.5,-21.5,149.5,-22.5,150,-22,150.5,-22.5,151,-23.5,151.5,-24,152,-24.5,153,-25.5,153,-26,153,-26.5,153,-27.5,153.5,-28,153.5,-29,153.5,-29.5,153,-30.5,153,-31,153,-31.5,152.5,-32.5,151.5,-33,151.5,-34,151,-34.5,150.5,-35,150.5,-35.5,150,-36.5,150,-37,150,-37.5,149.5,-38,148.5,-38,147.5,-38,147,-38.5,146.5,-39,145.5,-38.5,145,-38.5,145,-38,144.5,-38,143.5,-39,142.5,-38.5,142,-38.5,141.5,-38.5,140.5,-38,140,-37.5,140,-36.5,139.5,-36,139,-35.5,138,-35.5,138.5,-35,138,-34.5,137.5,-35,137,-35.5,137.5,-34.5,137.5,-34,138,-33.5,138,-33,137,-34,136.5,-34,136,-35,135,-34.5,135,-34,134.5,-33,134,-33,134.5,-32.5,133,-32,132.5,-32,131.5,-31.5,129.5,-31.5,128,-32,127,-32.5,126,-32,125,-32.5,124,-33,124,-33.5,123.5,-34,123,-34,122,-34,121.5,-34,120.5,-34,120,-34,119.5,-34.5,119,-34.5,118.5,-34.5,118,-35,117.5,-35,116.5,-35,115.5,-34.5,115,-34,115,-33.5,115.5,-33.5,115.5,-33,116,-32,115.5,-31.5,115,-30.5,115,-30,115,-29.5,114.5,-29,114.5,-28.5,114,-28,114,-27.5,113.5,-26.5,113.5,-26,114,-26.5,113.5,-25.5,114,-26,114,-26.5,114,-26,113.5,-25,113.5,-24.5,113.5,-24,113.5,-23.5,114,-23,113.5,-22.5,114,-22,114,-22.5,114.5,-22,115.5,-21.5,116,-21,116.5,-20.5,117,-20.5,117.5,-20.5,118,-20.5,119,-20.5,119,-20,119.5,-20,120,-20,121,-19.5,121.5,-19,121.5,-18.5,122,-18,122.5,-18,122.5,-17.5,123,-16.5,123.5,-17.5,124,-17,123.5,-16.5,124,-16,124.5,-16.5,124.5,-15.5,125,-15,125,-14.5,125.5,-14.5,125.5,-14,126,-14.5,126,-14,126.5,-14,127,-14,128,-14.5,128.5,-15,129,-15,129.5,-15,129.5,-14.5,130,-13.5,130.5,-13.5,130,-13,130.5,-12.5,131,-12,131.5,-12.5,132.5,-12,132.5,-11.5,132,-11.5,132.5,-11,133,-11.5,133.5,-12,134.5,-12,135.5,-12,136,-12,136.5,-12,137,-12.5,136.5,-13,136.5,-13.5,136,-13.5,136,-14,135.5,-14.5,135.5,-15,136.5,-15.5,137,-16,137.5,-16,138.5,-17,139,-17,139.5,-17.5,140,-17.5,141,-17.5,141,-17,141.5,-16.5,141.5,-16,141.5,-15,141.5,-14.5,141.5,-13.5,141.5,-13,142,-12.5,141.5,-12.5,142,-12,142,-11.5,142,-11,142.5,-10.5,143,-11,143,-12,143,-12.5,143.5,-13,143.5,-13.5,143.5,-14],[162,-10.5,162.5,-11,161.5,-11,161.5,-10,162,-10.5],[120.5,-10,120.5,-10.5,119,-9.5,120,-9.5,120.5,-9.5,121,-10,120.5,-10],[161,-10,160.5,-10,160,-10,159.5,-9.5,159.5,-9,160.5,-9.5,161,-10],[161.5,-9.5,161.5,-10,161,-9,160.5,-8.5,161,-8.5,161.5,-9,161.5,-9.5],[124.5,-10,123.5,-10.5,123.5,-10,124,-9.5,125,-9,125,-8.5,126,-8.5,126.5,-8.5,127,-8.5,127.5,-8.5,127,-8.5,126,-9,125,-9.5,124.5,-10],[118,-8,118.5,-8.5,119,-8.5,118,-9,117.5,-9,116.5,-9,117,-8.5,117.5,-8.5,118,-8],[123,-8,123,-8.5,121.5,-9,120,-9,120,-8.5,120.5,-8,121.5,-8.5,122,-8.5,123,-8],[160,-8.5,159,-8,158.5,-8,158,-7.5,158.5,-7.5,159,-7.5,159.5,-8,160,-8.5],[157.5,-7.5,157,-7,156.5,-7,156.5,-6.5,157,-7,157.5,-7.5],[108.5,-7,110.5,-7,111,-6.5,112.5,-7,113,-7.5,114.5,-8,115.5,-8.5,114.5,-9,113.5,-8.5,112.5,-8.5,111.5,-8.5,110.5,-8,109.5,-7.5,108.5,-7.5,108.5,-8,106.5,-7.5,106.5,-7,105.5,-7,106,-6,107.5,-6,108,-6.5,108.5,-6.5,108.5,-7],[134.5,-6,134,-7,134,-6,134.5,-6,134.5,-5.5,134.5,-6],[156,-7,155.5,-7,155,-6.5,154.5,-6,154.5,-5,155,-5.5,155.5,-6,156,-6.5,156,-7],[152,-5.5,151.5,-5.5,151.5,-6,151,-6,150,-6.5,149.5,-6.5,149,-6,148.5,-5.5,149.5,-5.5,150,-5.5,150,-5,150,-5.5,151,-5.5,151,-5,151.5,-5,151.5,-4,152,-4,152.5,-4.5,152.5,-5,152,-5.5],[127,-3.5,127,-4,126,-3.5,126,-3,127,-3,127,-3.5],[130.5,-3,131,-4,130,-3.5,129,-3.5,128.5,-3.5,128,-3.5,128,-3,129.5,-3,130.5,-3],[153,-4.5,153,-5,152.5,-4,152,-3.5,151.5,-3,150.5,-2.5,151,-2.5,151.5,-3,152,-3,152.5,-3.5,153,-4,153,-4.5],[134,-1,134.5,-3,135.5,-3.5,136.5,-2.5,137.5,-1.5,138.5,-1.5,139,-2,140,-2.5,141,-2.5,142.5,-3.5,144.5,-4,145.5,-4.5,146,-5,146,-5.5,147.5,-6,148,-6.5,147,-6.5,147,-7.5,148,-8,148.5,-9,149.5,-9,149.5,-9.5,150,-9.5,149.5,-10,151,-10.5,150.5,-10.5,150,-10.5,149,-10.5,148,-10,147,-9.5,146.5,-9,146,-8,144.5,-7.5,144,-8,143.5,-8,143.5,-9,142.5,-9.5,142,-9,141,-9,140,-8.5,139,-8,139,-8.5,137.5,-8.5,138,-7.5,138.5,-7.5,138.5,-6,138,-5.5,136,-4.5,135,-4.5,133.5,-3.5,133.5,-4,133,-4,133,-3.5,132,-3,133,-2.5,134,-2.5,133.5,-2,132,-2,132,-1.5,131,-1.5,130.5,-1,132,-0.5,132.5,-0.5,134,-1],[125,1.5,124.5,0.5,123.5,0,122.5,0.5,121,0.5,120,0,120,-0.5,121,-1.5,121.5,-1,123.5,-0.5,123.5,-1,123,-1,122.5,-1.5,121.5,-2,122.5,-3,122.5,-3.5,123,-4.5,123,-5.5,122.5,-5.5,122,-5.5,122.5,-4.5,121.5,-5,121.5,-4.5,121.5,-4,121,-3.5,121,-2.5,120.5,-3,120.5,-4,120.5,-5.5,120,-5.5,119.5,-5.5,119.5,-4.5,119.5,-3.5,119,-3.5,119,-3,119,-2,119.5,-1.5,120,0,120,0.5,121,1.5,121.5,1,123,1,124,1,125,1.5],[128.5,1,128.5,0.5,128,0.5,128,-0.5,128.5,-1,128,-1,127.5,-0.5,127.5,1,127.5,2,128,2,128,1.5,128.5,1.5,128.5,1],[106,-6,104.5,-6,104,-5,102.5,-4,102,-3.5,101.5,-3,101,-2,100,-0.5,99.5,0,99,1,98.5,2,97.5,2.5,97,3.5,96.5,4,95.5,5,95.5,5.5,96,5.5,97.5,5,98.5,4.5,99,3.5,99.5,3,100.5,2,101.5,2,102.5,1.5,103,0.5,104,0,103.5,-0.5,104,-1,104.5,-1,104.5,-2,105,-2.5,105.5,-2.5,106,-3,106,-4.5,106,-6],[118,2,119,1,118,1,117.5,0,117.5,-1,116.5,-1.5,116.5,-2.5,116,-4,116,-3.5,115,-4,114.5,-3.5,114,-3.5,113.5,-3,112,-3.5,111.5,-3,111,-3,110,-3,110,-1.5,109.5,-1.5,109,-0.5,109,0.5,109,1.5,109.5,2,110.5,1.5,111,2,111.5,2.5,112,3,113,3,113.5,4,114,4.5,114.5,5,115.5,5.5,116,6,116.5,7,117,7,117.5,6.5,117.5,6,118.5,5.5,119,5.5,119,5,118.5,5,118.5,4.5,118,4,117.5,3,118,2.5,118,2],[126.5,8.5,126.5,8,126.5,7,126,6.5,126,7.5,125.5,7,125.5,6,125.5,5.5,124,6,124,7,124,7.5,123.5,8,123.5,7.5,123,7.5,122,7,122.5,8,123,8.5,123.5,8.5,124,8,124.5,8.5,125,9,125.5,9,125.5,10,126,9.5,126.5,9,126.5,8.5],[81,6,80.5,6,80,7,79.5,8,80,10,81,9.5,81.5,8.5,82,7.5,81.5,6.5,81,6],[-61,10,-62,10,-61.5,10.5,-61.5,11,-61,11,-61,10],[124,10.5,123.5,10,123.5,9.5,123,9,122.5,9.5,122.5,10,123,10.5,123,11,123.5,11,123.5,10.5,124,11,124,10.5],[118.5,9.5,117,8.5,117.5,9,118.5,9.5,119,10.5,119.5,11.5,119.5,10.5,119,10,118.5,9.5],[122,12,122.5,11.5,123,11.5,123,11,122.5,10.5,122,10.5,122,11,122,11.5,122,12],[125.5,12,126,11,125,11.5,125,11,125.5,10.5,125,10,125,11,124.5,11,124.5,11.5,125,11.5,125,12,124.5,12.5,125,12.5,125.5,12],[121.5,13,121.5,12,121,12.5,120.5,13.5,121,13.5,121.5,13],[121.5,18.5,122,18,122,18.5,122.5,18,122,18,122.5,17,122.5,16.5,121.5,16,121.5,15,121.5,14.5,122.5,14,122.5,14.5,124,14,124,13,124,12.5,123.5,13,123,13.5,122.5,13,122,14,121,13.5,120.5,14,120.5,14.5,121,14.5,120.5,15,120.5,14.5,120,15,120,15.5,120,16.5,120.5,16,120.5,17.5,120.5,18.5,121.5,18.5],[-65.5,18,-66,18,-66.5,18,-67,18,-67,18.5,-66.5,18.5,-66,18.5,-65.5,18],[-77,18,-77,17.5,-78,18,-78.5,18,-78,18.5,-77.5,18.5,-77,18.5,-76.5,18,-76,18,-77,18],[-72.5,20,-71.5,19.5,-71.5,20,-71,20,-70,19.5,-69,19.5,-69.5,19,-69,19,-68.5,18.5,-68.5,18,-69,18.5,-69.5,18.5,-70,18.5,-70,18,-70.5,18,-70.5,18.5,-71,18.5,-71.5,17.5,-71.5,18,-72.5,18,-73,18,-73.5,18,-74,18,-74.5,18.5,-73.5,18.5,-72.5,18.5,-73,19,-73,19.5,-73.5,19.5,-73,20,-72.5,20],[110.5,18.5,109.5,18,108.5,18.5,108.5,19.5,109,20,110,20,111,20,111,19.5,110.5,19.5,110.5,18.5],[-155.5,19,-156,19,-156,19.5,-156,20,-156,20.5,-156,20,-155.5,20,-155,20,-155,19.5,-155,19,-155.5,19],[-156,20.5,-156.5,20.5,-156.5,21,-156,21,-156,20.5],[-157.5,21.5,-158,21.5,-158.5,21.5,-158,21.5,-157.5,21.5],[-79.5,23,-79.5,22.5,-78.5,22.5,-78,22.5,-77,21.5,-76.5,21,-76,21,-75.5,21,-75.5,20.5,-75,20.5,-74,20.5,-74.5,20,-75,20,-75.5,20,-76.5,20,-78,20,-77,20.5,-77.5,20.5,-78,20.5,-78.5,21,-78.5,21.5,-79.5,21.5,-80,22,-80.5,22,-82,22,-82,22.5,-83,22.5,-83.5,22,-84,22,-84.5,22,-85,22,-84.5,22,-84,22.5,-84,23,-83.5,23,-82.5,23,-81.5,23,-80.5,23,-79.5,23],[-77.5,24,-78,23.5,-78,24.5,-78.5,24.5,-78,25,-77.5,24.5,-77.5,24],[121,23,120.5,22,120,23,120,23.5,120.5,24.5,121.5,25.5,122,25,122,24.5,121,23],[-78,26.5,-79,26.5,-79,27,-78.5,27,-78,27,-78,26.5],[-77,26.5,-77,26,-77.5,26,-77.5,26.5,-78,27,-77,26.5],[134.5,34,135,34,134,33,134,33.5,133.5,33.5,133,32.5,132.5,33,132.5,33.5,133,34,133.5,34,134,34.5,134.5,34],[34.5,35.5,34,35,33,34.5,32.5,34.5,32.5,35,33,35,33,35.5,33.5,35.5,34.5,35.5],[23.5,35.5,24,35.5,25,35.5,26,35.5,25.5,35,26.5,35.5,26,35,24.5,35,23.5,35.5],[15.5,38,15,37.5,15.5,37,15,36.5,14.5,37,14,37,12.5,37.5,12.5,38,13.5,38,15,38,15.5,38],[9,41,10,40.5,9.5,39,9,39,8.5,39,8.5,40.5,8,41,8.5,41,9,41],[141,37,140.5,36.5,141,36,140.5,35,139,34.5,137,34.5,136,33.5,135,34,135,34.5,133.5,34.5,132,34,131,34,132,33,131.5,31.5,130.5,31,130,31.5,130.5,32.5,130,32.5,129.5,33.5,130.5,33.5,131,34,132,35,132.5,35.5,134.5,35.5,135.5,35.5,136.5,37.5,137.5,37,139,38,139.5,38,140,39.5,140,40.5,140.5,41,141.5,41.5,142,40,142,39,141,38,141,37],[9.5,42,9,41.5,8.5,42.5,9.5,43,9.5,42],[144,44,144.5,44,145.5,44.5,145.5,43.5,144,43,143,42,141.5,42.5,141,41.5,140,41.5,140,42.5,140.5,43.5,141.5,43.5,141.5,45,142,45.5,143,44.5,144,44],[-63.5,46.5,-63,46.5,-62,46.5,-62.5,46,-63,46,-64,46.5,-64.5,46.5,-64,47,-63.5,46.5],[-62,49,-62.5,49,-63.5,49.5,-64.5,50,-64,50,-63,49.5,-62,49.5,-62,49],[-123.5,48.5,-124,48.5,-125.5,49,-126,49,-127,49.5,-127,50,-128,50,-128.5,50.5,-128.5,51,-127.5,50.5,-126.5,50.5,-126,50.5,-125.5,50,-125,49.5,-124,49,-123.5,48.5],[-56,50.5,-57,50,-56,50,-55.5,50,-56,49.5,-55,49.5,-54.5,49.5,-53.5,49,-54,48.5,-53,48.5,-53,48,-52.5,47.5,-53,46.5,-53.5,46.5,-54,47,-54,47.5,-54,48,-55.5,47,-56,47,-55.5,47.5,-56.5,47.5,-57.5,47.5,-59.5,47.5,-59.5,48,-59,48.5,-58.5,49,-57.5,50.5,-56.5,51.5,-56,51.5,-55.5,51.5,-56,50.5],[-132.5,54,-131.5,54,-132,53,-131,52,-131.5,52,-132,52.5,-132.5,53,-133,53.5,-133,54,-132.5,54],[143.5,50.5,144.5,49,143,49.5,142.5,48,143.5,47,143.5,46,142.5,46.5,142,46,142,47,142,48,142,49,142,49.5,142,51,141.5,52,141.5,53.5,142.5,54,142,54,142.5,54.5,143,53.5,143.5,52.5,143,52,143.5,50.5],[-7,52.5,-8.5,51.5,-10,52,-9,53,-9.5,54,-8.5,54.5,-7.5,55,-6.5,55,-5.5,54.5,-6,54,-6,53,-7,52.5],[12.5,55.5,12,55,11,55.5,11,56,12.5,56,12.5,55.5],[-153,57,-154,56.5,-154.5,57,-154.5,57.5,-154,58,-153,58,-152.5,58,-152,57.5,-153,57],[-3,58.5,-4,57.5,-3,57.5,-2,57.5,-2,57,-3,56,-2,56,-1,54.5,-0.5,54.5,0,53.5,0.5,53,1.5,52.5,1.5,52,1,52,1.5,51.5,0.5,51,-1,51,-2.5,50.5,-3,50.5,-3.5,50,-4.5,50.5,-5,50,-6,50,-4.5,51,-3.5,51.5,-5,51.5,-5.5,52,-4,52.5,-5,53,-4.5,53.5,-3,53.5,-3,54,-3.5,54.5,-5,55,-4.5,55.5,-5,56,-5.5,55.5,-5.5,56.5,-6,57,-6,58,-5,58.5,-4,58.5,-3,58.5],[-165.5,60,-166,60,-167,60,-167.5,60,-166.5,60.5,-165.5,60.5,-165.5,60],[-79.5,62,-79.5,61.5,-80,61.5,-80.5,62,-80,62.5,-79.5,62.5,-79.5,62],[-82,62.5,-83,62,-84,62,-84,62.5,-83,63,-82,63,-82,62.5],[-171.5,64,-171,63.5,-170.5,63.5,-169.5,63.5,-168.5,63.5,-169,63,-169.5,63,-170.5,63,-170.5,63.5,-171.5,63.5,-172,63.5,-171.5,64],[-85,65.5,-85,65,-84.5,65.5,-84,65,-83,65,-81.5,64.5,-81.5,64,-81,64,-80,63.5,-81,63.5,-82.5,63.5,-83,64,-84,63.5,-85.5,63,-86,63.5,-87,63.5,-86.5,64,-86,65,-86,65.5,-85,65.5],[-14.5,66.5,-14.5,66,-13.5,65,-15,64.5,-18,63.5,-18.5,63.5,-20,63.5,-23,64,-22,64.5,-24,65,-22,65,-22,65.5,-24.5,65.5,-23.5,66.5,-22,66.5,-20.5,65.5,-19,66.5,-18,66,-16,66.5,-14.5,66.5],[-76,67,-77,67,-77,67.5,-77,68,-76,68.5,-75,68,-75,67.5,-76,67],[-180,69,-177.5,68,-175,67,-175,66.5,-174.5,66.5,-174.5,67,-172,67,-170,66,-171,65.5,-172.5,65.5,-172.5,64.5,-173,64.5,-174,64.5,-174.5,64.5,-176,65,-176,65.5,-177,65.5,-178.5,65.5,-179,65.5,-178.5,66,-180,66,-179.5,65.5,-180,65,180,65,178.5,64.5,177.5,64.5,178.5,64,179,63.5,179.5,63,179.5,62.5,179,62.5,177.5,62.5,174.5,62,173.5,61.5,172,61,170.5,60.5,170.5,60,169,60.5,166.5,60,166,60,165,59.5,163.5,60,163,59,162,58,163,57.5,163,56,162,56,161.5,55.5,162,55,160.5,54.5,160,53,158.5,53,158,52,157,51,156.5,51.5,156,53,155.5,55.5,156,57,157,57.5,157,58,158.5,58,160,59.5,162,60.5,163.5,61,164.5,62.5,163.5,62.5,162.5,61.5,160,60.5,159.5,62,156.5,61.5,154,60,155,59,153,59,151.5,59,151.5,59.5,150,59.5,148.5,59,145.5,59.5,142,59,139,57,135,54.5,136.5,54.5,137,54,138,54,139,54.5,140,54,141.5,53,141.5,52,140.5,51,140.5,50,140,48.5,138.5,47,138,46.5,137,45,135.5,44,135,43.5,133.5,43,133,43,132.5,43.5,131,42.5,131,42,130.5,42.5,130,42,129.5,41.5,129.5,41,129,40.5,128.5,40,128,40,127.5,40,127.5,39.5,127.5,39,128,39,128.5,38.5,129,37.5,129.5,37,129.5,35.5,129,35,128,35,127.5,34.5,126.5,34.5,126.5,35,126.5,35.5,126,36.5,127,37,126,37.5,125.5,38,125.5,37.5,125,38,124.5,38,125,38.5,125,39,125.5,39.5,124.5,39.5,124.5,40,123,39.5,122,39,121,39,121.5,39.5,121.5,40,122,40.5,121.5,41,121,40.5,119.5,40,119,39.5,118,39,117.5,38.5,118,38,119,38,119,37.5,119.5,37,121,38,121.5,37.5,122.5,37.5,122.5,37,121,36.5,120.5,36,119.5,35.5,119,35,120,34.5,120.5,33.5,121,32.5,122,31.5,122,31,121.5,30.5,121.5,30,122,30,122,29,121.5,28,121,28,120.5,27,119.5,25.5,118.5,24.5,117.5,23.5,116,23,115,22.5,114,22,114,22.5,113,22,112,21.5,111,21.5,110.5,20.5,110,20.5,109.5,21,110,21.5,108.5,21.5,108,21.5,106.5,20.5,106,20,105.5,19,106.5,18,107.5,16.5,108.5,16,109,15.5,109.5,13.5,109,11.5,108.5,11,107,10.5,106.5,9.5,105,8.5,105,9,105,10,104.5,10.5,103.5,10.5,103,11,102.5,12,101.5,12.5,101,12.5,101,13.5,100,13.5,100,12.5,99.5,11,99,10,99,9,100,9,100.5,8.5,100.5,7.5,101,7,101.5,6.5,102,6,102.5,6,103,5.5,103.5,5,103.5,4,103.5,3.5,103.5,3,104,2.5,104,1.5,103.5,1,102.5,2,101.5,3,101.5,3.5,100.5,4,100.5,5,100,5.5,100.5,6,100,6.5,99.5,7,99.5,7.5,99,8,98.5,8.5,98.5,8,98,8.5,98.5,9,98.5,10,98.5,10.5,99,11.5,98.5,12,98.5,13,98,13.5,98,15,97.5,16,97,17,96.5,16.5,95.5,15.5,95,16,94,16,94.5,17.5,94.5,18,93.5,19.5,93,20,92.5,20.5,92,21,92,21.5,92,22,91.5,23,90.5,23,90.5,22.5,90.5,22,90,22,89.5,22,89,22,89,21.5,88,21.5,87,21.5,87,20.5,86.5,20,85,19.5,84,18.5,83,17.5,82,17,82,16.5,81.5,16.5,81,16,80.5,16,80,15,80,14,80.5,13,80,12,80,10.5,79.5,10.5,79,9.5,79,9,78.5,9,78,8.5,77.5,8,76.5,9,76,10.5,75.5,11.5,75.5,12,75,12.5,74.5,14,74.5,14.5,73.5,16,73,18,73,19,73,20.5,72.5,21.5,71,21,70.5,21,69,22,69.5,22.5,69.5,23,68,23.5,67.5,24,67,24.5,66.5,25.5,64.5,25,63,25,61.5,25,59.5,25.5,58.5,25.5,57.5,25.5,57,27,56.5,27,55.5,27,54.5,26.5,53.5,27,52.5,27.5,51.5,28,51,29,50,30,49.5,30,49,30.5,48.5,30,48,30,48,29.5,48.5,28.5,49,27.5,49.5,27.5,49.5,27,50,26.5,50,26,50,25.5,50.5,25.5,50.5,25,51,25,50.5,25.5,51,26,51.5,26,51.5,25,51.5,24.5,51.5,24,52,24.5,52,24,52.5,24,53.5,24,54,24,54.5,25,55.5,25.5,56,26,56.5,26.5,56.5,26,56.5,25.5,56.5,25,57,24,57.5,24,58,23.5,58.5,23.5,59,23,59.5,22.5,60,22.5,59.5,21.5,59,21,58.5,20.5,58,20.5,58,20,57.5,19.5,58,19,57.5,19,57,19,56.5,18.5,56.5,18,55.5,18,55.5,17.5,55.5,17,55,17,54,17,53.5,16.5,53,16.5,52.5,16.5,52,16,52,15.5,51,15,49.5,14.5,48.5,14,48,14,47.5,13.5,46.5,13.5,46,13.5,45.5,13.5,45.5,13,45,13,45,12.5,44.5,12.5,44,12.5,43.5,12.5,43,13,43.5,14,43,14,43,15,42.5,15,43,15.5,42.5,15.5,43,16,43,16.5,42.5,17,42.5,17.5,42,18,41,18.5,41,19.5,40,20,40,20.5,39,21.5,39,22,39,22.5,38.5,23.5,38,24,37.5,24.5,37,25,37,25.5,36.5,26,36.5,26.5,35.5,27.5,35,28,34.5,28,35,28.5,35,29,35,29.5,34.5,29,34.5,28.5,34,28,34,27.5,33.5,28,33,28.5,32.5,30,32.5,28.5,33.5,27.5,34,26,34.5,25.5,35,25,35.5,24,35.5,23,36.5,22,37,22,37,21,37,20,37.5,18.5,38,18.5,38.5,18,39,17,39.5,16,40,15.5,41,14.5,41.5,14,42.5,13.5,42.5,13,43,12.5,43.5,12.5,43.5,12,42.5,11.5,43,11.5,43.5,11.5,43.5,11,44,10.5,44.5,10.5,45.5,10.5,46.5,11,47.5,11,48,11,48.5,11.5,49,11.5,49.5,11.5,50.5,11.5,50.5,12,51,12,51,11.5,51,11,51,10.5,50.5,9,50,8,49.5,7,48.5,5.5,47.5,4,46.5,3,45.5,2,44,1,43,0.5,42,-1,42,-1.5,41.5,-1.5,41,-2,40.5,-2.5,40,-3.5,39.5,-4.5,39,-4.5,38.5,-6,39,-6.5,39.5,-7,39,-7.5,39.5,-8,39,-8.5,39.5,-9,40,-10,40.5,-10.5,40.5,-11,40.5,-12,40.5,-12.5,40.5,-14,41,-14.5,40.5,-15.5,40,-16,39.5,-16.5,38.5,-17,37.5,-17.5,36.5,-18.5,36,-19,35,-19.5,35,-20,34.5,-20.5,35,-21.5,35.5,-22,35.5,-23,35.5,-23.5,35.5,-24,35,-24.5,34,-25,33,-25.5,32.5,-25.5,32.5,-26,33,-26,33,-26.5,32.5,-27.5,32.5,-28.5,32,-29,31.5,-29.5,31,-30,30.5,-30.5,30,-31,29,-32,28,-33,27.5,-33,26.5,-33.5,26,-33.5,26,-34,25,-34,24.5,-34,23.5,-34,23,-34,22.5,-34,21.5,-34.5,20.5,-34.5,20,-35,19.5,-35,19,-34.5,18.5,-34,18,-34,18.5,-33.5,18,-32.5,18,-31.5,17.5,-30.5,17,-30,16.5,-28.5,15.5,-28,15,-27,15,-26,14.5,-25.5,14.5,-24,14.5,-22.5,14.5,-22,14,-21.5,13.5,-21,13,-19.5,12.5,-19,12,-18,11.5,-17.5,11.5,-16.5,12,-16,12,-15,12,-14.5,12.5,-13.5,12.5,-13,13.5,-12.5,13.5,-12,13.5,-11.5,13.5,-10.5,13,-10,13,-9,13,-8.5,13,-7.5,12.5,-7,12,-6.5,12.5,-6,12,-6,12,-5,11,-4,10,-3,9.5,-2,9,-1,9,-0.5,9.5,0.5,9.5,1,9.5,2.5,10,3,9.5,3.5,9,4,8.5,4.5,8.5,5,7.5,4.5,7,4.5,6.5,4,6,4.5,5.5,5,5,5.5,4.5,6.5,3.5,6.5,2.5,6.5,2,6,1,6,-0.5,5.5,-1,5,-2,4.5,-3,5,-3.5,5,-4,5,-4.5,5,-6,5,-6.5,4.5,-7.5,4.5,-8,4.5,-9,5,-10,5.5,-11,6,-11.5,7,-12.5,7.5,-13,8,-13,9,-13.5,9.5,-14,10,-14.5,10,-14.5,10.5,-15,11,-15.5,11.5,-16,11.5,-16.5,12,-16.5,12.5,-17,13,-16.5,13.5,-17,14.5,-17.5,14.5,-17,15,-16.5,15.5,-16.5,16,-16.5,16.5,-16.5,17,-16,18,-16.5,19,-16.5,19.5,-16.5,20,-16.5,20.5,-17,21,-17,21.5,-17,22,-16.5,22,-16.5,22.5,-16.5,23,-16,23.5,-15.5,24.5,-15,24.5,-15,25,-15,25.5,-14.5,26.5,-14,26.5,-13,27.5,-12.5,28,-11.5,28,-11,29,-10.5,29,-9.5,30,-10,31,-9.5,32,-9.5,32.5,-8.5,33,-7.5,33.5,-7,34,-6,35,-6,36,-5,36,-4.5,35.5,-3.5,35.5,-2.5,35,-2,35,-1,35.5,0,36,0.5,36.5,1.5,36.5,3,37,5,37,5.5,36.5,6.5,37,7.5,37,8.5,37,9.5,37.5,10,37,10,36.5,11,37,10.5,36.5,10.5,36,11,35.5,11,35,10,34.5,10.5,34,11,34,11,33.5,11.5,33,12.5,33,13,33,14,32.5,15,32.5,15.5,31.5,16.5,31,18,31,19,30.5,19.5,30.5,20,31,20,32,21,32.5,21.5,33,23,32.5,23,32,23.5,32,24,32,25,32,25,31.5,26.5,31.5,27.5,31.5,28.5,31,29,31,29.5,31,30,31.5,31,31.5,31.5,31.5,32,31,32,31.5,33,31,34,31,34.5,31,34.5,31.5,35,32,35,33,35.5,34,36,34.5,36,35.5,36,36,36,36.5,35.5,36.5,34.5,37,34,36,32.5,36,31.5,36.5,30.5,36.5,29.5,36,28.5,36.5,27.5,36.5,27,37.5,26.5,38,27,39,26,39.5,27.5,40.5,29,40.5,29,41,31,41,32.5,41.5,33.5,42,35,42,37,41.5,38.5,41,39.5,41,40.5,41,41.5,41.5,41.5,42,41.5,42.5,41,43,40.5,43,40,43.5,38.5,44.5,37.5,44.5,36.5,45,37.5,45.5,38,46,37.5,46.5,39,47,39,47.5,38,47,37.5,47,37,46.5,36,46.5,35,46.5,35,45.5,35.5,45.5,36.5,45.5,36.5,45,35,45,34,44.5,33.5,44.5,33.5,45,32.5,45.5,33.5,46,31.5,46.5,30.5,46.5,30.5,46,29.5,45.5,29.5,45,29,45,28.5,43.5,28,43.5,27.5,42.5,28,42,28,41.5,29,41.5,29,41,27.5,41,27,40.5,26.5,40,26,40.5,26,41,25.5,41,25,41,23.5,40.5,24.5,40,24,40,23.5,40,23,40.5,22.5,40.5,23,39.5,23.5,39,23,39,23.5,38.5,24,38,24,37.5,23,38,23.5,37.5,23,37.5,23,36.5,22.5,36.5,21.5,37,21.5,37.5,21,38.5,20.5,39,20,39.5,20,40,19.5,40.5,19.5,41.5,19.5,42,19,42,19,42.5,18.5,42.5,17.5,43,17,43,16,43.5,15,44,15.5,44.5,15,44.5,15,45,14.5,45,14,45,13.5,45,13.5,45.5,14,45.5,13,45.5,12.5,45.5,12.5,45,12.5,44.5,12.5,44,13.5,43.5,14,43,15,42,16,42,16,41.5,17,41,17.5,41,18.5,40.5,18.5,40,17.5,40.5,17,40.5,16.5,40,17,39.5,17,39,16.5,39,16,38,15.5,38,16,39,15.5,39.5,15.5,40,15,40,14.5,40.5,14,41,13.5,41,13,41.5,12,41.5,11,42.5,10.5,43,10,44,9.5,44,9,44.5,8.5,44,8,44,7.5,43.5,6.5,43,4.5,43.5,3,43,3,42.5,3,42,2,41,1,41,0.5,40.5,0,40,-0.5,39.5,0,38.5,-0.5,38.5,-0.5,37.5,-1.5,37.5,-2,36.5,-3.5,36.5,-4.5,36.5,-5,36.5,-5.5,36,-6,36,-6,36.5,-6.5,37,-7.5,37,-8,37,-8.5,37,-9,37,-8.5,37.5,-9,38.5,-9.5,38.5,-9.5,39.5,-9,40,-9,41,-9,41.5,-9,42,-9,42.5,-9.5,43,-8,43.5,-7,43.5,-5.5,43.5,-4.5,43.5,-3.5,43.5,-2,43.5,-1.5,44,-1,46,-2,47,-3,47.5,-4.5,48,-4.5,48.5,-3.5,49,-1.5,48.5,-2,50,-1,49.5,1.5,50,1.5,51,2.5,51,3.5,51.5,4,51.5,4.5,53,6,53.5,7,53.5,8,53.5,9,54,8.5,54.5,8.5,55,8,55.5,8,56.5,8.5,57,9.5,57,10,57.5,10.5,57.5,10.5,57,10.5,56.5,11,56.5,10.5,56,9.5,55.5,10,55,10,54.5,11,54.5,11,54,12,54,12.5,54.5,13.5,54,14,54,15,54,16.5,54.5,17.5,55,18.5,54.5,19.5,54.5,20,55,21.5,55,21,56,21,57,21.5,57.5,22.5,58,23.5,57,24,57,24.5,58,24.5,58.5,24,58.5,23.5,58.5,23.5,59,24.5,59.5,26,59.5,27,59.5,28,59.5,29,60,28,60.5,26.5,60.5,24.5,60,23,60,22.5,60.5,21.5,60.5,21.5,61.5,21,62.5,21.5,63,22.5,64,24.5,65,25.5,65,25.5,65.5,24,66,22,65.5,21,65,21.5,64.5,20,63.5,18,62.5,17,61.5,18,60.5,19,60,18,59,17,58.5,16.5,57,16,56,14.5,56,14,55.5,13,55.5,12.5,56.5,12,57.5,11,59,10.5,59.5,8.5,58.5,7,58,5.5,58.5,5.5,59.5,5,62,6,62.5,8.5,63.5,10.5,64.5,12.5,66,15,68,16.5,68.5,19,70,21.5,70.5,23,70,24.5,71,26.5,71,28,71,31.5,70.5,30,70,31,69.5,32,70,34,69.5,36.5,69,40.5,68,41,67.5,41,67,40,66.5,38.5,66,34,67,33,66.5,35,66,35,64.5,36,64,37,64,37,64.5,36.5,65,37,65,39.5,64.5,40.5,65,40,65.5,42,66.5,43,66.5,44,66,44.5,67,43.5,67.5,44,68,43.5,68.5,46.5,68,47,67.5,45.5,67.5,45.5,67,46.5,66.5,48,67,48,67.5,50,68,53.5,69,54.5,69,53.5,68,54.5,68,55.5,68.5,57.5,68.5,59,69,60,68.5,61,69,60,69.5,60.5,70,63.5,69.5,65,69,68.5,68,69,68.5,68,69,68,69.5,67,69.5,67.5,70,66.5,70.5,66.5,71,68.5,72,69,73,70,73,72.5,73,73,72,72,71.5,72.5,71,73,70.5,72.5,69,73.5,68.5,73,67.5,71.5,66.5,72.5,66,73,66.5,74,67,74,67.5,75,68,74.5,68.5,75,69,74,69,73.5,69.5,74.5,70.5,73,71.5,75,72,74.5,73,75,73,75.5,72.5,75.5,71.5,76.5,71,76,72,77.5,72.5,79.5,72.5,81.5,71.5,80.5,72.5,80.5,73.5,82.5,74,84.5,74,87,74,86,74.5,87,75,88.5,75,90.5,75.5,93,76,96,76,96.5,76,99,76.5,101,76.5,101,77,102,77.5,104.5,77.5,106,77.5,104.5,77,107,77,107,76.5,108,76.5,111,76.5,113.5,76,114,76,114,75.5,113,75,110,74.5,109.5,74,110.5,74,112,74,113,74,113.5,73.5,114,73.5,115.5,74,119,73.5,119,73,123,73,123.5,73.5,125.5,73.5,127,73.5,128.5,73,129,72.5,128.5,72,129.5,71,131.5,71,132.5,72,134,71.5,135.5,71.5,137.5,71.5,138,71.5,140,71.5,139,72.5,140.5,73,149.5,72,150.5,71.5,153,71,157,71,159,71,160,70.5,159.5,69.5,161,69.5,162.5,69.5,164,69.5,166,69.5,168,69.5,169.5,68.5,171,69,170,69.5,170.5,70,173.5,70,175.5,70,178.5,69.5,-180,69],[-95.5,69,-96.5,69,-97.5,69,-98.5,69,-100,69.5,-99,69.5,-98,70,-97,70,-96.5,69.5,-95.5,69],[-180,71.5,180,71,179,71,178.5,71,-180,71.5],[-180,71.5,-179,71.5,-177.5,71.5,-177.5,71,-178.5,71,-180,71,-180,71.5],[-90.5,69.5,-90.5,68.5,-89,69.5,-88,68.5,-88.5,68,-87.5,67,-86.5,68,-85.5,69,-85.5,70,-84,70,-82.5,69.5,-81.5,69,-81,68.5,-82,68,-81.5,67.5,-81.5,67,-83.5,66.5,-84.5,66.5,-86,66.5,-86,66,-87,65,-87.5,65,-88.5,64,-90,64,-90.5,63.5,-91,63,-92,63,-93,62,-94,61,-94.5,60,-94.5,59,-93,59,-93,58,-92.5,57,-91,57.5,-89,57,-88,56.5,-87.5,56,-86,55.5,-85,55.5,-83.5,55,-82.5,55,-82.5,54.5,-82,53.5,-81.5,52,-80,51,-79,51.5,-78.5,52.5,-79,54,-80,54.5,-78,55,-77,56,-76.5,56.5,-76.5,57,-77.5,58,-78.5,59,-77.5,60,-78,61,-78,62.5,-77.5,62.5,-75.5,62.5,-74.5,62,-74,62.5,-73,62,-71.5,61.5,-71.5,61,-69.5,61,-69.5,60,-69.5,59,-68.5,59,-67.5,58,-66,59,-65,60,-64.5,60.5,-64,59.5,-62.5,58,-61.5,57,-62,56.5,-60.5,56,-59.5,55,-58,55,-57.5,54.5,-57,54,-56,53.5,-55.5,52,-56.5,52,-57,51.5,-59,51,-60,50,-61.5,50,-64,50.5,-65.5,50.5,-66.5,50,-67,49.5,-68.5,49,-70,47.5,-71,47,-70.5,47,-68.5,48.5,-66.5,49,-65,49,-64,48.5,-65,48,-65,47,-64.5,46,-63,45.5,-61.5,46,-60.5,47,-60.5,46.5,-60,46,-61,45.5,-63.5,44.5,-64,44.5,-65.5,43.5,-66,43.5,-66,44.5,-64.5,45.5,-66,45.5,-67,45,-68,44.5,-69,44,-70,43.5,-70.5,43,-71,43,-71,42.5,-70.5,42,-70,42,-70,41.5,-70.5,41.5,-71,41.5,-72,41.5,-72.5,41.5,-73,41,-73.5,41,-72,41,-73.5,40.5,-74,40.5,-74,41,-74.5,40.5,-74,40.5,-74,39.5,-75,39,-75.5,39.5,-75.5,39,-75,39,-75,38.5,-75.5,38,-76,37,-76,37.5,-75.5,38,-76,38.5,-76.5,39,-76.5,38.5,-76.5,38,-77,38,-76.5,38,-76.5,37,-76,37,-76,36.5,-75.5,35.5,-76.5,35,-77.5,34.5,-78,34,-78.5,34,-79,33.5,-79,33,-80.5,32.5,-81,32,-81.5,31.5,-81.5,30.5,-81.5,30,-81,29,-80.5,28.5,-80.5,28,-80,27,-80,26,-80.5,25,-81,25,-81.5,25.5,-81.5,26,-82,26.5,-82.5,27.5,-83,28,-82.5,28.5,-83,29,-83.5,30,-84,30,-85,29.5,-85.5,29.5,-86,30,-86.5,30.5,-87.5,30.5,-88.5,30.5,-89,30.5,-89.5,30,-89.5,29.5,-89,29.5,-89.5,29,-90,29.5,-90,29,-91,29,-91.5,29.5,-92.5,29.5,-93,30,-94,29.5,-94.5,29.5,-95.5,28.5,-96.5,28.5,-97,28,-97.5,27.5,-97.5,26.5,-97.5,26,-97,26,-97.5,25,-97.5,24.5,-98,23,-98,22.5,-97.5,22,-97.5,21.5,-97,20.5,-96.5,20,-96.5,19.5,-96,19,-95,18.5,-94.5,18,-93.5,18.5,-93,18.5,-92,18.5,-91.5,19,-91,19.5,-90.5,20,-90.5,20.5,-90.5,21,-89.5,21.5,-88.5,21.5,-87.5,21.5,-87,21.5,-87,21,-87.5,20.5,-87.5,19.5,-87.5,19,-88,18.5,-88.5,18.5,-88,18.5,-88,18,-88.5,17.5,-88,17.5,-88.5,17,-88,17,-88.5,16.5,-88.5,16,-89,16,-88.5,15.5,-88.5,16,-88,15.5,-88,16,-87.5,16,-87,16,-86.5,16,-86,16,-85.5,16,-85,16,-84.5,16,-84,15.5,-83.5,15.5,-83,15,-83.5,14.5,-83,14.5,-83.5,14,-83.5,13.5,-83.5,13,-83.5,12.5,-83.5,12,-83.5,11.5,-84,11.5,-84,11,-83.5,11,-83.5,10.5,-83,10,-82.5,9.5,-82,9,-81.5,9,-81,9,-80.5,9,-80,9.5,-79.5,9.5,-79,9.5,-78.5,9.5,-78,9,-77.5,9,-77.5,8.5,-77,8.5,-76,9.5,-75.5,9.5,-75.5,10,-75.5,10.5,-75,11,-74.5,11,-74,11.5,-73.5,11,-72.5,11.5,-72,12,-72,12.5,-71.5,12.5,-71,12,-71.5,12,-71.5,11.5,-72,11.5,-71.5,11,-71.5,10.5,-72,10,-71.5,9,-71,10,-71.5,10,-71.5,11,-70,11.5,-70.5,12,-70,12,-69.5,11.5,-69,11.5,-68,11,-68,10.5,-67.5,10.5,-66,10.5,-65.5,10,-65,10,-64.5,10.5,-63,10.5,-62,10.5,-62.5,10.5,-62.5,10,-61.5,10,-61,9.5,-60.5,8.5,-60,8.5,-59,8,-58.5,7.5,-58.5,7,-58,7,-57.5,6.5,-57,6,-56,6,-55,6,-54,6,-53.5,5.5,-53,5.5,-52,4.5,-51.5,4,-51,3.5,-50.5,2,-50,1.5,-50,1,-50.5,0,-48.5,0,-48.5,-1,-48,-0.5,-46.5,-1,-45,-1.5,-44.5,-2,-44.5,-2.5,-43.5,-2.5,-41.5,-3,-40,-3,-38.5,-3.5,-37,-5,-36.5,-5,-35.5,-5,-35,-5.5,-35,-6.5,-34.5,-7.5,-35,-9,-35.5,-9.5,-37,-11,-37.5,-12,-38.5,-13,-39,-14,-39,-15.5,-39,-17,-39.5,-18,-39.5,-18.5,-40,-19.5,-41,-21,-41,-22,-42,-22.5,-42,-23,-43,-23,-44.5,-23.5,-45.5,-24,-46.5,-24,-47.5,-25,-48.5,-26,-48.5,-26.5,-48.5,-27,-48.5,-28,-49,-28.5,-49.5,-29,-50.5,-31,-51.5,-32,-52.5,-32,-52.5,-33,-53.5,-34,-54,-34.5,-55,-35,-55.5,-35,-56,-35,-57,-34.5,-58,-34.5,-58.5,-34,-58.5,-34.5,-57,-35.5,-57.5,-36,-56.5,-36.5,-57,-37,-57.5,-38,-59,-38.5,-61,-39,-62.5,-39,-62,-39.5,-62.5,-40,-62,-40.5,-62.5,-41,-64,-41,-64.5,-41,-65,-41,-65,-42,-64.5,-42.5,-64,-42,-63.5,-42.5,-64.5,-43,-65,-43.5,-65.5,-44.5,-65.5,-45,-66.5,-45,-67.5,-45.5,-67.5,-46.5,-66.5,-47,-65.5,-47,-66,-48,-67,-48.5,-68,-50,-68.5,-50.5,-69,-50.5,-69,-52,-68,-52.5,-68.5,-52.5,-69.5,-52.5,-70,-52.5,-71,-53,-71,-54,-71.5,-54,-72.5,-53.5,-73.5,-53,-75,-52.5,-75.5,-51.5,-75,-51,-75.5,-50.5,-75.5,-48.5,-75,-47.5,-74,-47,-75.5,-46.5,-74.5,-46,-74.5,-44,-73,-44.5,-72.5,-42.5,-73.5,-42,-73.5,-43.5,-74.5,-43,-74,-42,-73.5,-40,-73,-39.5,-73.5,-38.5,-73.5,-37,-73,-37,-72.5,-35.5,-72,-34,-71.5,-32.5,-71.5,-31,-71.5,-30,-71.5,-29,-71,-27.5,-70.5,-25.5,-70.5,-23.5,-70,-21.5,-70,-20,-70.5,-18.5,-71.5,-18,-71.5,-17.5,-73.5,-16.5,-75,-15.5,-76,-14.5,-76.5,-14,-76.5,-13.5,-77,-12,-78,-10.5,-79,-8.5,-79.5,-8,-80,-7,-80.5,-6.5,-81.5,-6,-81,-5.5,-81.5,-4.5,-81,-4,-80.5,-3.5,-80,-2.5,-80,-2,-80.5,-2.5,-81,-2,-81,-1,-80.5,-1,-80.5,-0.5,-80,0.5,-80,1,-79.5,1,-79,1.5,-78.5,2,-78.5,2.5,-78,2.5,-77.5,3.5,-77,4,-77.5,4,-77.5,4.5,-77.5,5.5,-77.5,6,-77.5,6.5,-78,7,-78,7.5,-78.5,8,-78,8.5,-78.5,8.5,-79,9,-79.5,9,-80,8.5,-80.5,8.5,-80.5,8,-80,7.5,-80.5,7.5,-81,7,-81,8,-81,7.5,-81.5,7.5,-81.5,8,-82,8,-82.5,8.5,-83,8.5,-83,8,-83.5,8.5,-83.5,9,-84,9.5,-84.5,9.5,-84.5,10,-85,10,-85,9.5,-85.5,10,-86,10,-86,10.5,-85.5,11,-86,11,-85.5,11,-86,11.5,-86.5,12,-87,12.5,-87.5,13,-87.5,13.5,-88,13.5,-88,13,-88.5,13,-89,13.5,-89.5,13.5,-90,13.5,-90.5,14,-91,14,-91.5,14,-92,14.5,-93.5,15.5,-94,16,-94.5,16,-95.5,16,-96,16,-96.5,15.5,-97.5,16,-98,16,-99,16.5,-99.5,16.5,-101,17,-101.5,17.5,-102,18,-102.5,18,-103.5,18.5,-104,18.5,-105,19.5,-105.5,20,-105.5,20.5,-105.5,21,-105.5,21.5,-105.5,22,-105.5,22.5,-106,23,-107,24,-108,24.5,-108.5,25,-109.5,25.5,-109.5,26,-109.5,26.5,-110,26.5,-110.5,27,-110.5,28,-111,28,-112,28.5,-112,29,-112.5,29.5,-113,30,-113,31,-114,31.5,-115,32,-115,31.5,-115,31,-114.5,30,-113.5,29,-113,28.5,-113,28,-112.5,27.5,-112,27,-111.5,26.5,-111.5,25.5,-111,25.5,-110.5,25,-110.5,24.5,-110,24.5,-110,24,-109.5,23.5,-109.5,23,-110,23,-110.5,23.5,-111,24,-111.5,24.5,-112,24.5,-112,25.5,-112.5,26,-113,26.5,-113.5,27,-113.5,26.5,-114,27,-114.5,27,-115,27.5,-115,28,-114.5,27.5,-114,28,-114,28.5,-115,29.5,-115.5,29.5,-116,30,-116.5,31,-116.5,31.5,-117,32.5,-117.5,33,-118,33.5,-118.5,33.5,-118.5,34,-119,34,-119.5,34.5,-120.5,34.5,-120.5,35,-121.5,36,-122.5,37.5,-122.5,38,-123,38,-123.5,39,-124,40,-124.5,40.5,-124,41,-124,42,-124.5,43,-124,43.5,-124,45.5,-124,47,-124.5,47.5,-124.5,48,-124.5,48.5,-123,48,-122.5,47,-122.5,47.5,-122.5,48,-123,49,-125,50,-125.5,50.5,-127.5,51,-128,51.5,-128,52.5,-129,53,-129.5,53.5,-130.5,54.5,-130.5,55,-131,55,-132,55.5,-132,56.5,-133.5,57,-134,58,-135,58,-136.5,58,-138,58.5,-140,59.5,-141,59.5,-142.5,60,-144,60,-146,60.5,-147,61,-148,60.5,-148,60,-148.5,60,-149.5,59.5,-150.5,59.5,-151.5,59,-152,59.5,-151.5,60.5,-150.5,61,-150.5,61.5,-152,60.5,-152.5,60,-154,59.5,-153.5,59,-154,58,-155.5,57.5,-156.5,57.5,-156.5,57,-158,56.5,-158.5,56,-159.5,55.5,-160.5,55.5,-161,55.5,-162,55,-163,54.5,-165,54.5,-164,55,-163,55.5,-162,56,-160.5,56,-160,56.5,-158.5,57,-157.5,57.5,-157.5,58.5,-157,59,-158,58.5,-158.5,59,-159,58.5,-159.5,59,-160,58.5,-160.5,59,-161.5,58.5,-162,58.5,-162,59.5,-162.5,60,-164,60,-164.5,60.5,-165.5,60.5,-165.5,61,-166,61.5,-165.5,62,-165,62.5,-164.5,63,-164,63,-163,63,-162.5,63.5,-161.5,63.5,-161,64,-161.5,64.5,-161,65,-161.5,65,-162.5,64.5,-163,64.5,-163.5,64.5,-165,64.5,-166.5,64.5,-167,65,-168,65.5,-166.5,66,-164.5,66.5,-163.5,66.5,-164,66,-161.5,66,-162.5,66.5,-163.5,67,-164.5,67.5,-165.5,68,-167,68.5,-166,69,-164.5,69,-163,69.5,-163,70,-162,70.5,-161,70.5,-159,71,-158,71,-156.5,71.5,-155,71,-154.5,70.5,-154,71,-152,71,-152.5,70.5,-150.5,70.5,-149.5,70.5,-147.5,70,-145.5,70,-145,70,-143.5,70,-142,70,-141,69.5,-139,69.5,-137.5,69,-136.5,69,-135.5,69.5,-134.5,69.5,-133,69.5,-131.5,70,-130,70,-129,70,-128.5,70,-128,70.5,-127.5,70.5,-126,69.5,-124.5,70,-124.5,69.5,-123,69.5,-122.5,70,-121.5,70,-120,69.5,-117.5,69,-116,69,-115,69,-114,68.5,-115.5,68,-113.5,67.5,-111,68,-110,68,-109,67.5,-108,68,-109,68.5,-108,68.5,-107,68.5,-106,69,-105.5,68.5,-104.5,68,-103,68,-101.5,67.5,-100,68,-98.5,68,-98.5,68.5,-97.5,68.5,-96,68,-96,67.5,-95.5,68,-94.5,68,-94,69,-95.5,69.5,-96.5,70,-96.5,71,-95,72,-94,72,-93,71.5,-91.5,70,-92.5,69.5,-90.5,69.5],[-114,73,-114.5,72.5,-112.5,73,-111,72.5,-110,73,-109,72.5,-108,71.5,-107.5,72,-108.5,73,-107.5,73,-106.5,73,-105.5,72.5,-105,71.5,-104.5,71,-103,70.5,-101,70,-101,69.5,-102.5,69.5,-102,69,-102.5,69,-104,69,-106,69,-107,69,-109,69,-112,68.5,-113.5,68.5,-114,69,-115,69.5,-116,69,-117.5,70,-116.5,70,-115,70,-113.5,70,-112.5,70.5,-114.5,70.5,-116.5,70.5,-118,70.5,-118.5,71,-116,71.5,-117.5,71.5,-119.5,71.5,-118.5,72.5,-118,72.5,-115,73.5,-114,73],[-104.5,73.5,-105.5,73,-107,73.5,-106.5,73.5,-105.5,73.5,-104.5,73.5],[-76.5,73,-77.5,73,-78.5,73,-79.5,72.5,-80,73,-81,73.5,-80.5,74,-78,73.5,-76.5,73],[-86.5,73,-86,72.5,-85,73.5,-82.5,74,-80.5,72.5,-81,72,-79,72.5,-78,73,-75.5,72,-74,72,-74,71.5,-72,71.5,-71,71,-69,70.5,-68,70,-67,69,-69,68.5,-66.5,68,-65,68,-63.5,67,-62,67,-62,66,-64,65,-65,65.5,-66.5,66.5,-68,66.5,-68,65.5,-67,65,-65.5,64.5,-64.5,63.5,-65,62.5,-66.5,63,-69,63.5,-67.5,63,-66.5,62.5,-66,62,-69,62.5,-71,63,-72,63.5,-73.5,64,-75,64.5,-77.5,64,-78.5,64.5,-78,65.5,-76,65.5,-74,65.5,-74.5,66,-74,66.5,-72.5,67.5,-73,67.5,-73.5,68,-75,68.5,-77,69,-76,69,-77.5,70,-78,70,-79,70,-79.5,70,-81.5,69.5,-85,70,-87,70.5,-88.5,70.5,-89.5,71,-88.5,71,-90,71,-90,72,-89.5,73,-88.5,73.5,-86,74,-86.5,73],[-100.5,74,-99,73.5,-97.5,74,-97,73.5,-98,73,-96.5,72.5,-96.5,71.5,-98.5,71.5,-99.5,71.5,-100,71.5,-102.5,72.5,-102.5,73,-100.5,72.5,-101.5,73.5,-100.5,74],[143.5,73,142,73,140,73.5,141,74,142,74,143.5,73.5,143.5,73],[-93,73,-94.5,72,-95.5,72,-96,73,-96,73.5,-95.5,74,-94.5,74,-92.5,74,-90.5,74,-92,73,-93,73],[-120.5,71.5,-123,71,-123.5,71.5,-126,72,-125.5,72,-125,73,-124,73.5,-125,74.5,-121.5,74.5,-120,74,-117.5,74,-116.5,74,-115.5,73.5,-117,73,-119,72.5,-120.5,72,-120.5,71.5],[150.5,75,149.5,74.5,148,75,146,75,146.5,75.5,148,75.5,150.5,75],[-93.5,75,-94,74.5,-95.5,74.5,-97,75,-96.5,75.5,-95,75.5,-94,75.5,-93.5,75],[145,75.5,144.5,75,140.5,75,139,74.5,137,75.5,137.5,76,139,76,141.5,76,145,75.5],[-98.5,76.5,-97.5,76.5,-97.5,75.5,-98,75,-100,75,-101,75,-101,75.5,-102.5,75.5,-102.5,76.5,-101.5,76.5,-100,76.5,-98.5,76.5],[-108,76,-107,76,-106,76,-105.5,75.5,-106.5,75,-109.5,75,-112,74.5,-113.5,74.5,-114,74.5,-112,75,-116.5,75,-117.5,75,-116.5,76,-115.5,76.5,-112.5,76,-111,75.5,-109,75.5,-110.5,76.5,-109.5,77,-108.5,76.5,-108,76],[57.5,70.5,57,70.5,53.5,71,51.5,71.5,51.5,72,52.5,72,52.5,73,54.5,73.5,53.5,74,56,74.5,55.5,75,58,75.5,61,76.5,64.5,76.5,66,77,68,77,69,76.5,68,76,64.5,75.5,61.5,75.5,58.5,74.5,57,73.5,55.5,72.5,55.5,71.5,57.5,70.5],[-94.5,77,-93.5,77,-91.5,77,-90.5,76.5,-91,76,-90,76,-89,75.5,-88,75.5,-86.5,75.5,-85,75.5,-83,76,-81,75.5,-80,75.5,-80,75,-80.5,74.5,-82,74.5,-83,74.5,-86,74.5,-88,74.5,-90,74.5,-92.5,75,-93,75.5,-93,76,-94,76.5,-96,76.5,-97,77,-96.5,77,-94.5,77],[-116,77.5,-116.5,77,-117,76.5,-118,76.5,-120,76,-121.5,76,-123,76,-121,77,-119,77.5,-117.5,77.5,-116,77.5],[-94,77.5,-94.5,77.5,-96,77.5,-96.5,78,-94.5,78,-93.5,77.5,-94,77.5],[-110,77.5,-112,77.5,-113.5,77.5,-112.5,78,-111.5,78,-110,78,-110,77.5],[24.5,78,22.5,77.5,20.5,77.5,21.5,78,21,78.5,23,78.5,23.5,78,24.5,78],[-109.5,78.5,-111,78.5,-112.5,78.5,-111.5,79,-111,79,-109.5,78.5],[-96,78,-97.5,78,-98,78,-98.5,78.5,-98.5,79,-97.5,79,-97,79,-95.5,78.5,-96,78],[-100,78.5,-99.5,78,-101.5,78,-103,78.5,-105,78.5,-104,78.5,-105.5,79,-105.5,79.5,-103.5,79,-101,79,-100,78.5],[105,78.5,99.5,78,101.5,79,102,79.5,103,79.5,105.5,78.5,105,78.5],[18.5,79.5,21.5,79,19,78.5,18.5,78,17.5,77.5,17,77,16,77,14,77.5,14.5,77.5,13,78,11,79,10.5,79.5,13,80,13.5,79.5,15,79.5,15.5,80,17,80,18.5,79.5],[25.5,80.5,27.5,80,26,79.5,23,79.5,20,79.5,20,80,18.5,80,17.5,80.5,20.5,80.5,22,80.5,23,80.5,25.5,80.5],[51,80.5,50,80.5,49,80.5,49,80,47.5,80,46.5,80,47,80.5,45,80.5,47,81,48.5,81,48.5,80.5,49,81,50,81,51.5,80.5,51,80.5],[100,79,98,79,95,79,93.5,79.5,92.5,80,91,80.5,94,81,96,81.5,98,80.5,100,80,100,79],[-87,79.5,-86,79.5,-87,79,-89,78.5,-91,78,-93,78.5,-94,79,-93,79.5,-95,79.5,-96,79.5,-96.5,80,-96,80.5,-95.5,81,-94.5,81,-92.5,81.5,-91,80.5,-89.5,80.5,-88,80.5,-87,79.5],[-68.5,83,-66,83,-63.5,83,-62,82.5,-64.5,82,-67,81.5,-67.5,81.5,-65.5,81.5,-68,81,-69.5,80.5,-71,80,-73,79.5,-74,79.5,-77,79.5,-75.5,79,-76,79,-75.5,78.5,-76.5,78,-78,78,-78.5,77.5,-80,77,-79.5,77,-78,77,-80.5,76,-83,76.5,-86,76.5,-87.5,76.5,-89.5,76.5,-89.5,77,-88,77,-88.5,78,-87.5,78,-85,77.5,-86.5,78,-88,78.5,-87,79,-85.5,79,-85,79.5,-86.5,79.5,-87,80.5,-84,80,-83.5,80,-82,80.5,-84,80.5,-87.5,80.5,-89.5,81,-90,81.5,-91.5,81.5,-91.5,82,-90,82,-89,82,-87,82.5,-85.5,82.5,-84.5,82.5,-83,82.5,-82.5,83,-81,83,-79.5,83,-76.5,83,-75.5,83,-73,83,-70.5,83,-68.5,83],[-27,83.5,-21,82.5,-22.5,82.5,-26.5,82.5,-32,82,-31.5,82,-28,82,-25,82,-23,82,-22,81.5,-23,81,-20.5,81.5,-16,82,-13,81.5,-12,81.5,-16.5,80.5,-17,80.5,-20,80,-17.5,80,-19,79.5,-19.5,79,-19.5,77.5,-18.5,77,-20,77,-21.5,76.5,-20,76,-19.5,75,-20.5,75,-19.5,74.5,-21.5,74,-20.5,74,-21,73.5,-22,73.5,-23.5,73.5,-22.5,72.5,-22.5,72,-24.5,72.5,-25,72.5,-23.5,72,-22,71.5,-22,70.5,-23.5,70.5,-24.5,71,-25.5,71.5,-25,71,-26.5,70,-23.5,70,-22.5,70,-25,69.5,-27.5,68.5,-30.5,68,-32,68,-33,67.5,-34,66.5,-36.5,66,-37,66,-38.5,65.5,-40,65.5,-40.5,65,-40.5,64,-41,63.5,-43,62.5,-42.5,62,-43,61,-43.5,60,-45,60,-46.5,61,-48.5,61,-49,61.5,-50,62.5,-51.5,63.5,-52,64.5,-52.5,65,-53.5,66,-53.5,67,-54,67,-53,68.5,-51.5,68.5,-51,69,-51,70,-52,69.5,-52.5,69.5,-53.5,69.5,-54.5,69.5,-55,70.5,-54.5,71,-53.5,71,-51.5,70.5,-53,71,-54,71.5,-55,71.5,-56,71.5,-54.5,72.5,-55.5,73,-56,73.5,-57.5,74.5,-58.5,75,-58.5,75.5,-61.5,76,-63.5,76,-66,76,-68.5,76,-69.5,76.5,-71.5,77,-69,77.5,-67,77.5,-71,77.5,-73.5,78,-73,78.5,-69.5,79,-65.5,79.5,-65.5,80,-68,80,-67,80.5,-63.5,81,-62,81.5,-62.5,82,-60.5,82,-57,82,-54,82,-53,82,-50.5,82.5,-48,82,-46.5,82,-44.5,81.5,-47,82,-47,82.5,-43.5,83,-40,83,-38.5,83.5,-35,83.5,-27,83.5]];
+LAND.forEach(r=>{for(let i=2;i<r.length;i+=2){while(r[i]-r[i-2]>180)r[i]-=360;while(r[i]-r[i-2]<-180)r[i]+=360;}});
+const RAD=Math.PI/180,REK=6371;
+const landMask=(()=>{const W=720,H=360;const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');c.fillStyle='#000';
+ LAND.forEach(r=>{for(const off of[-360,0,360]){c.beginPath();for(let i=0;i<r.length;i+=2){const x=(r[i]+off+180)/360*W,y=(90-r[i+1])/180*H;i?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();c.fill();}});
+ let d;try{d=c.getImageData(0,0,W,H).data;}catch(e){d=null;}const m=new Uint8Array(W*H);if(d)for(let i=0;i<W*H;i++)m[i]=d[i*4+3]>127?1:0;return m;})();
+const wrapL=l=>((l+180)%360+360)%360-180;
+const isLand=(lo,la)=>{let x=Math.floor((wrapL(lo)+180)/360*720),y=Math.floor((90-la)/180*360);x=Math.min(719,Math.max(0,x));y=Math.max(0,Math.min(359,y));return landMask[y*720+x]===1;};
+function gdist(lo1,la1,lo2,la2){const p1=la1*RAD,p2=la2*RAD,dl=(lo2-lo1)*RAD;const s1=Math.sin((p2-p1)/2),s2=Math.sin(dl/2);const a=s1*s1+Math.cos(p1)*Math.cos(p2)*s2*s2;return 2*REK*Math.asin(Math.min(1,Math.sqrt(a)));}
+function region(lo,la){
+ if(la<-60)return'ant';
+ if(lo>-12&&lo<42&&la>35&&la<72)return'eur';
+ if(lo>-128&&lo<-60&&la>24&&la<52)return'na';
+ if(lo>-170&&lo<-52&&la>=52)return'can';
+ if(lo>100&&lo<146&&la>18&&la<46)return'ea';
+ if(lo>66&&lo<92&&la>6&&la<34)return'ind';
+ if(lo>42&&lo<180&&la>=46)return'rus';
+ if(lo>25&&lo<66&&la>12&&la<46)return'me';
+ if(lo>-20&&lo<52&&la>-36&&la<36)return'afr';
+ if(lo>-82&&lo<-34&&la>-56&&la<13)return(lo>-55&&la<-15)?'sas':'sa';
+ if(lo>112&&lo<155&&la>-45&&la<-10)return'aus';
+ if(lo>-75&&lo<-10&&la>59)return'grl';
+ return'oth';}
+const SYNW={ant:.03,eur:1,na:.75,can:.12,ea:.8,ind:.55,rus:.22,me:.3,afr:.08,sas:.3,sa:.11,aus:.2,grl:.05,oth:.3};
+const SONDESP={ant:900,eur:300,na:420,can:650,ea:380,ind:480,rus:520,me:600,afr:1000,sas:700,sa:950,aus:650,grl:700,oth:700};
+const G={syn:[],ship:[],buoy:[],sonde:[],air:[]};
+(function genObs(){const r=rng(2024);const sph=()=>[r()*360-180,Math.asin(2*r()-1)/RAD];
+ let g=0;while(G.syn.length<2600&&g<500000){g++;const [lo,la]=sph();if(la>83||!isLand(lo,la))continue;if(r()<SYNW[region(lo,la)])G.syn.push([lo,la]);}
+ const LANES=[[[-74,40],[-50,45],[-20,50],[-5,49]],[[-80,25],[-40,35],[-10,37],[-6,36]],[[-5,36],[15,37],[32,32],[34,27],[43,13],[60,12],[80,6],[95,6],[103,2]],[[103,2],[110,10],[115,20],[122,30],[130,34]],[[140,35],[170,45],[200,48],[230,45],[237,38]],[[-80,8],[-100,12],[-120,25]],[[-10,30],[-15,10],[0,-20],[18,-36],[40,-30],[60,-5]],[[103,2],[110,-15],[115,-32]],[[0,55],[5,60],[14,68],[25,71]],[[-60,-10],[-35,-25],[-50,-40]],[[150,-34],[175,-38],[190,-20],[225,0],[260,10],[280,8]]];
+ LANES.forEach(L=>{let len=0;const segs=[];for(let i=0;i<L.length-1;i++){const d=Math.hypot(L[i+1][0]-L[i][0],L[i+1][1]-L[i][1]);segs.push(d);len+=d;}
+  const n=Math.round(len*1.1);for(let k=0;k<n;k++){let t=r()*len,i=0;while(t>segs[i]&&i<segs.length-1){t-=segs[i];i++;}const f=t/segs[i];const lo=L[i][0]+(L[i+1][0]-L[i][0])*f+gauss(r)*1.6,la=L[i][1]+(L[i+1][1]-L[i][1])*f+gauss(r)*1.6;if(!isLand(lo,la))G.ship.push([wrapL(lo),la]);}});
+ g=0;while(G.ship.length<700&&g<20000){g++;const [lo,la]=sph();if(la>-50&&la<70&&!isLand(lo,la))G.ship.push([lo,la]);}
+ g=0;let nd=0;while(nd<620&&g<50000){g++;const [lo,la]=sph();if(la<-62||la>66||isLand(lo,la))continue;G.buoy.push([lo,la,0]);nd++;}
+ [137,147,156,165,180,-170,-155,-140,-125,-110,-95].forEach(lo=>[-8,-5,-2,0,2,5,8].forEach(la=>G.buoy.push([lo,la,1])));
+ [[-38,15],[-38,4],[-35,-8],[-23,0],[-23,12],[-23,21],[-10,-10],[-10,-6],[-10,0],[0,0],[0,-6],[8,-6],[-38,8],[-35,-14],[-35,-19]].forEach(p=>G.buoy.push([p[0],p[1],1]));
+ [55,67,80.5,90,95].forEach(lo=>[-16,-12,-8,-5,-1.5,0,1.5,4,8,12].forEach(la=>{if(!isLand(lo,la))G.buoy.push([lo,la,1]);}));
+ g=0;let nc=0;while(nc<80&&g<60000){g++;const lo=r()*360-180,la=r()*60+20;if(isLand(lo,la))continue;const reg=(lo>-80&&lo<-60)||(lo>-130&&lo<-115)||(lo>-15&&lo<15&&la>40)||(lo>125&&lo<145);if(!reg)continue;if(isLand(lo+2,la)||isLand(lo-2,la)||isLand(lo,la+2)||isLand(lo,la-2)){G.buoy.push([lo,la,1]);nc++;}}
+ const NOR=[['Sola',5.6,58.9],['Ørland',9.6,63.7],['Bodø',14.4,67.3],['Jan Mayen',-8.7,70.9],['Bjørnøya',19.0,74.5]];
+ const ISL=[[-28,38.7],[-64.7,32.3],[-157.9,21.3],[-149.6,-17.6],[-14.4,-7.9],[-5.7,-16],[70.2,-49.3],[-21.9,64],[-6.8,62],[15.5,78.2],[37.9,-46.9],[-9.9,-40.3],[72.4,-7.3],[144.8,13.5],[166.6,19.3],[-177.4,28.2],[-109.4,-27.1],[-57.9,-51.7],[55.5,-21],[-15.4,28],[-23.5,15],[-25.6,37.7],[-17,32.6],[171.4,7.1],[-171.7,-13.8],[178.4,-18.1],[159,-31.5],[167.9,-29],[-176.5,-44],[-162.9,-20],[110.5,-66.3],[39.6,-69],[-56.6,-63.4],[166.7,-77.8],[-26.7,-75.5],[77.9,-67.6],[140,-66.7],[-0.9,-70.7]];
+ const sp=[];const bk=new Map();const key=(a,b)=>a+','+b;
+ const add=(lo,la,name)=>{const p=[lo,la,name||null];sp.push(p);const k=key(Math.floor(lo/10),Math.floor(la/10));if(!bk.has(k))bk.set(k,[]);bk.get(k).push(p);};
+ NOR.forEach(n=>add(n[1],n[2],n[0]));ISL.forEach(p=>add(p[0],p[1]));
+ g=0;while(g<70000){g++;const [lo,la]=sph();if(la>82||!isLand(lo,la))continue;const s=SONDESP[region(lo,la)];const bx=Math.floor(lo/10),by=Math.floor(la/10);const nlon=Math.min(18,Math.ceil(s/(1110*Math.max(.1,Math.cos(la*RAD))))+1);let ok=true;
+  for(let dy=-1;dy<=1&&ok;dy++)for(let dx=-nlon;dx<=nlon&&ok;dx++){const arr=bk.get(key(((bx+dx+18)%36+36)%36-18,by+dy));if(arr)for(const q of arr){if(gdist(lo,la,q[0],q[1])<s){ok=false;break;}}}
+  if(ok)add(lo,la);}
+ G.sonde=sp;
+ const H={NYC:[-73.8,40.6],CHI:[-87.9,42],ATL:[-84.4,33.6],LAX:[-118.4,33.9],SFO:[-122.4,37.6],SEA:[-122.3,47.4],DFW:[-97,32.9],MIA:[-80.3,25.8],YYZ:[-79.6,43.7],MEX:[-99.1,19.4],GRU:[-46.5,-23.4],SCL:[-70.8,-33.4],LON:[-0.45,51.5],PAR:[2.55,49],FRA:[8.6,50],AMS:[4.8,52.3],MAD:[-3.6,40.5],IST:[28.8,41.3],DXB:[55.4,25.3],DOH:[51.6,25.3],DEL:[77.1,28.6],BOM:[72.9,19.1],SIN:[104,1.4],BKK:[100.8,13.7],HKG:[113.9,22.3],PEK:[116.6,40.1],PVG:[121.8,31.1],TYO:[139.8,35.6],ICN:[126.4,37.5],SYD:[151.2,-33.9],JNB:[28.2,-26.1],NBO:[36.9,-1.3],ANC:[-149.9,61.2],OSL:[11.1,60.2],CAI:[31.4,30.1],LOS:[3.3,6.6],ADD:[38.8,9]};
+ const RT='NYC-LON 5,NYC-PAR 3,NYC-FRA 3,CHI-LON 2,ATL-AMS 2,YYZ-LON 2,SFO-LON 1,LAX-LON 1,SEA-AMS 1,MIA-MAD 1,NYC-MAD 1,NYC-LAX 4,CHI-LAX 3,ATL-LAX 2,NYC-MIA 2,CHI-DFW 2,SEA-DFW 1,ATL-NYC 2,SFO-CHI 2,MEX-LAX 1,DFW-MEX 1,LON-IST 2,FRA-IST 1,LON-MAD 2,PAR-AMS 1,OSL-LON 1,FRA-OSL 1,LON-DXB 3,FRA-DXB 2,IST-DXB 1,LON-DEL 2,FRA-SIN 2,LON-HKG 2,FRA-PEK 2,PAR-TYO 1,LON-JNB 1,PAR-LOS 1,IST-ADD 1,CAI-LON 1,DXB-SIN 2,DXB-BOM 2,DOH-DEL 1,SIN-HKG 3,HKG-PEK 2,PVG-TYO 3,ICN-TYO 2,PEK-PVG 3,BKK-HKG 2,SIN-SYD 2,HKG-SYD 1,DEL-BOM 2,BKK-SIN 2,TYO-LAX 2,TYO-SFO 1,ICN-LAX 1,HKG-SFO 1,PVG-LAX 1,SYD-LAX 1,ANC-TYO 1,TYO-SEA 1,GRU-MIA 1,GRU-SCL 1,GRU-MAD 1,JNB-NBO 1,NBO-DXB 1,ADD-DXB 1,LOS-DXB 0.5'.split(',');
+ const vec=(lo,la)=>[Math.cos(la*RAD)*Math.cos(lo*RAD),Math.cos(la*RAD)*Math.sin(lo*RAD),Math.sin(la*RAD)];
+ RT.forEach(s=>{const [ab,w]=s.split(' ');const [a,b]=ab.split('-');const A=H[a],B=H[b];const d=gdist(A[0],A[1],B[0],B[1]);const n=Math.round(d/1000*w*3.2);const va=vec(...A),vb=vec(...B);const om=d/REK;
+  for(let k=0;k<n;k++){const t=r();const s1=Math.sin((1-t)*om)/Math.sin(om),s2=Math.sin(t*om)/Math.sin(om);const v=[va[0]*s1+vb[0]*s2,va[1]*s1+vb[1]*s2,va[2]*s1+vb[2]*s2];const la=Math.asin(v[2])/RAD+gauss(r)*.7,lo=Math.atan2(v[1],v[0])/RAD+gauss(r)*.7;G.air.push([wrapL(lo),la]);}});
+ Object.values(H).forEach(h=>{for(let k=0;k<10;k++)G.air.push([h[0]+gauss(r)*.8,h[1]+gauss(r)*.6]);});
+})();
+const LAY=[{k:'syn',name:'Bakkestasjoner (SYNOP)',col:'accent',on:true},{k:'buoy',name:'Bøyer',col:'cold',on:true},{k:'ship',name:'Skip',col:'occl',on:false},{k:'sonde',name:'Radiosonder',col:'warm',on:false},{k:'air',name:'Fly',col:'muted',on:false}];
+let gView='world',gClick=null,gChal=0,gChalRes=null;
+const gl=$('gLayers');
+LAY.forEach(l=>{const b=document.createElement('button');b.setAttribute('aria-pressed',l.on);b.innerHTML=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--${l.col});margin-right:7px"></span>${l.name} <span style="opacity:.65;font-family:var(--mono);font-size:12px">${G[l.k].length}</span>`;b.onclick=()=>{l.on=!l.on;b.setAttribute('aria-pressed',l.on);drawGlob();};gl.appendChild(b);});
+$('gLegend').innerHTML='<span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="3" fill="var(--cold)"/></svg>Drivende bøye</span><span><svg width="12" height="12" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" fill="var(--cold)"/></svg>Forankret bøye</span><span><svg width="12" height="12" aria-hidden="true"><path d="M6 1.5L11 10.5H1z" fill="var(--warm)"/></svg>Radiosonde</span><span><svg width="12" height="12" aria-hidden="true"><path d="M6 1.5L11 10.5H1z" fill="none" stroke="var(--ink)" stroke-width="1.5"/></svg>Norsk radiosondestasjon</span>';
+function gProj(w){if(gView==='world'){const lo0=-180,lo1=180,la0=-80,la1=85;const h=Math.round(w*(la1-la0)/(lo1-lo0));return{lo0,lo1,la0,la1,h,X:lo=>(lo-lo0)/(lo1-lo0)*w,Y:la=>(la1-la)/(la1-la0)*h,inv:(x,y)=>[lo0+x/w*(lo1-lo0),la1-y/h*(la1-la0)],ps:1.5};}
+ const lo0=-70,lo1=45,la0=28,la1=82,cf=Math.cos(56*RAD);const h=Math.round(w*(la1-la0)/((lo1-lo0)*cf));return{lo0,lo1,la0,la1,h,X:lo=>(lo-lo0)/(lo1-lo0)*w,Y:la=>(la1-la)/(la1-la0)*h,inv:(x,y)=>[lo0+x/w*(lo1-lo0),la1-y/h*(la1-la0)],ps:2.6};}
+function activePts(only){const out=[];LAY.forEach(l=>{if(only?l.k===only:l.on)G[l.k].forEach(p=>out.push(p));});return out;}
+function buildIdx(pts){const m=new Map();pts.forEach(p=>{const k=Math.floor(p[0]/5)+','+Math.floor(p[1]/5);if(!m.has(k))m.set(k,[]);m.get(k).push(p);});return m;}
+function nearest(idx,lo,la){let best=1e9,bp=null;const bx=Math.floor(lo/5),by=Math.floor(la/5);for(let R=0;R<40;R++){for(let dy=-R;dy<=R;dy++){const yy=by+dy;if(yy<-18||yy>17)continue;const nl=Math.min(36,R);for(let dx=-nl;dx<=nl;dx++){if(Math.abs(dy)!==R&&Math.abs(dx)!==nl)continue;const xx=((bx+dx+36)%72+72)%72-36;const arr=idx.get(xx+','+yy);if(!arr)continue;for(const p of arr){const d=gdist(lo,la,p[0],p[1]);if(d<best){best=d;bp=p;}}}}if(bp&&best<(R-1)*5*111*Math.cos(Math.min(80,Math.abs(la))*RAD))break;}return{d:best,p:bp};}
+function maxGap(idx,pr,la0,la1){let best=-1,bp=null;for(let la=Math.max(la0,-70)+1;la<Math.min(la1,82);la+=2)for(let lo=pr.lo0+1;lo<pr.lo1;lo+=2){const n=nearest(idx,lo,la);if(n.d>best){best=n.d;bp=[lo,la];}}return{d:best,p:bp};}
+function drawGlob(){const cv=$('cvGlob');const w0=cv.clientWidth||600;const pr=gProj(w0);const {c,w,h}=fit(cv,pr.h/w0);const P=pal();
+ c.fillStyle=P.sea;c.globalAlpha=.55;c.fillRect(0,0,w,h);c.globalAlpha=1;
+ c.fillStyle=P.land;LAND.forEach(r=>{for(const off of [-360,0,360]){c.beginPath();for(let i=0;i<r.length;i+=2){const x=pr.X(r[i]+off),y=pr.Y(Math.max(-89,r[i+1]));i?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();c.fill();}});
+ c.strokeStyle=P.line;c.lineWidth=.6;const gs=gView==='world'?30:10;for(let lo=-180;lo<=180;lo+=gs){c.beginPath();c.moveTo(pr.X(lo),0);c.lineTo(pr.X(lo),h);c.stroke();}for(let la=-60;la<=80;la+=gs){c.beginPath();c.moveTo(0,pr.Y(la));c.lineTo(w,pr.Y(la));c.stroke();}c.lineWidth=1;
+ const showGap=$('gGap').checked||(gChal===2);
+ if(showGap){const pts=gChal===2?activePts('sonde'):activePts();if(pts.length){const idx=buildIdx(pts);const st=gView==='world'?2:1;c.fillStyle=P.warm;
+  for(let la=pr.la1;la>pr.la0;la-=st)for(let lo=pr.lo0;lo<pr.lo1;lo+=st){const n=nearest(idx,lo+st/2,la-st/2);const a=Math.max(0,Math.min(1,(n.d-250)/1550))*0.62;if(a>0.01){c.globalAlpha=a;const x=pr.X(lo),y=pr.Y(la);c.fillRect(x,y,pr.X(lo+st)-x+.5,pr.Y(la-st)-y+.5);}}c.globalAlpha=1;}}
+ $('gGapLegend').hidden=!showGap;
+ const ps=pr.ps;const inV=p=>p[0]>=pr.lo0&&p[0]<=pr.lo1&&p[1]>=pr.la0&&p[1]<=pr.la1;
+ const drawSet=(k,col)=>{const arr=G[k];c.fillStyle=col;c.strokeStyle=col;
+  if(k==='air'){c.globalAlpha=.55;arr.forEach(p=>{if(inV(p))c.fillRect(pr.X(p[0])-ps*.45,pr.Y(p[1])-ps*.45,ps*.9,ps*.9);});c.globalAlpha=1;return;}
+  if(k==='sonde'){arr.forEach(p=>{if(!inV(p))return;const x=pr.X(p[0]),y=pr.Y(p[1]),s=ps*1.7;c.beginPath();c.moveTo(x,y-s);c.lineTo(x+s,y+s*.8);c.lineTo(x-s,y+s*.8);c.closePath();if(p[2]){c.save();c.strokeStyle=P.ink;c.lineWidth=1.6;c.stroke();c.restore();}c.fill();});return;}
+  if(k==='buoy'){arr.forEach(p=>{if(!inV(p))return;const x=pr.X(p[0]),y=pr.Y(p[1]);if(p[2]){c.fillRect(x-ps,y-ps,ps*2,ps*2);}else{c.beginPath();c.arc(x,y,ps,0,7);c.fill();}});return;}
+  arr.forEach(p=>{if(!inV(p))return;c.beginPath();c.arc(pr.X(p[0]),pr.Y(p[1]),ps*.9,0,7);c.fill();});};
+ ['air','syn','ship','buoy','sonde'].forEach(k=>{const l=LAY.find(x=>x.k===k);const show=k==='sonde'?(gChal===2||(l.on&&gChal!==1)):l.on;if(show)drawSet(k,P[l.col]);});
+ const sOn=(LAY.find(x=>x.k==='sonde').on&&gChal!==1)||gChal===2;
+ if(sOn&&gView!=='world'){c.font=`600 11px ${SANS}`;c.textBaseline='middle';G.sonde.forEach(p=>{if(p[2]){const x=pr.X(p[0]),y=pr.Y(p[1]);const tw=c.measureText(p[2]).width+6;c.fillStyle=P.paper;c.globalAlpha=.85;c.fillRect(x+7,y-8,tw,16);c.globalAlpha=1;c.fillStyle=P.ink;c.textAlign='left';c.fillText(p[2],x+10,y);}});}
+ const mark=(lo,la,col,lab)=>{const x=pr.X(lo),y=pr.Y(la);c.strokeStyle=col;c.lineWidth=2.4;c.beginPath();c.arc(x,y,8,0,7);c.stroke();c.beginPath();c.moveTo(x-12,y);c.lineTo(x-4,y);c.moveTo(x+4,y);c.lineTo(x+12,y);c.moveTo(x,y-12);c.lineTo(x,y-4);c.moveTo(x,y+4);c.lineTo(x,y+12);c.stroke();c.lineWidth=1;if(lab){c.font=`700 12px ${SANS}`;c.fillStyle=col;c.textAlign=x>w-90?'right':'left';c.textBaseline='bottom';c.fillText(lab,x+(x>w-90?-12:12),y-8);}};
+ if(gClick)mark(gClick[0],gClick[1],P.ink,gChal===2?'Ditt svar':null);
+ if(gChal===2&&gChalRes)mark(gChalRes.p[0],gChalRes.p[1],P.warm,'Største hull');
+ c.strokeStyle=P.line;c.strokeRect(.5,.5,w-1,h-1);
+ // statistikk
+ const act=activePts();let nh=0,sea=0,vis=0;act.forEach(p=>{if(!inV(p))return;vis++;if(p[1]>0)nh++;if(!isLand(p[0],p[1]))sea++;});
+ $('gN').textContent=vis.toLocaleString('nb-NO');$('gNH').textContent=vis?Math.round(nh/vis*100)+' %':'–';$('gSea').textContent=vis?Math.round(sea/vis*100)+' %':'–';
+ drawLat(pr,h);}
+function drawLat(pr,mh){const cv=$('cvLat');const narrow=cv.parentNode.clientWidth>300;const w0=cv.clientWidth||120;const H=narrow?Math.min(mh,200):mh;const {c,w,h}=fit(cv,H/w0);const P=pal();
+ const bands=[];for(let la=Math.floor(pr.la0/10)*10;la<pr.la1;la+=10)bands.push(la);
+ const vals=bands.map(b=>{const lo=Math.max(b,pr.la0),hi=Math.min(b+10,pr.la1);const area=(Math.sin(hi*RAD)-Math.sin(lo*RAD))*(pr.lo1-pr.lo0);const per={};LAY.forEach(l=>{if(!l.on)return;per[l.k]=G[l.k].filter(p=>p[1]>=lo&&p[1]<hi&&p[0]>=pr.lo0&&p[0]<=pr.lo1).length/Math.max(1e-6,area);});return{lo,hi,per};});
+ const mx=Math.max(1e-9,...vals.map(v=>Object.values(v.per).reduce((a,b)=>a+b,0)));
+ const Y=la=>(pr.la1-la)/(pr.la1-pr.la0)*h;
+ c.strokeStyle=P.line;c.beginPath();c.moveTo(.5,0);c.lineTo(.5,h);c.stroke();
+ vals.forEach(v=>{let x=1;const y1=Y(v.hi),y2=Y(v.lo);LAY.forEach(l=>{if(!l.on)return;const ww=(v.per[l.k]||0)/mx*(w-36);c.fillStyle=P[l.col];c.fillRect(x,y1+1,ww,Math.max(1,y2-y1-2));x+=ww;});});
+ c.fillStyle=P.muted;c.font=`10px ${MONO}`;c.textAlign='right';c.textBaseline='middle';const step=h<150?30:(pr.la1-pr.la0>100?30:20);
+ for(let la=Math.ceil(pr.la0/step)*step;la<=pr.la1;la+=step){const y=Y(la);if(y<6||y>h-6)continue;c.fillText(la===0?'0°':Math.abs(la)+(la>0?'°N':'°S'),w-2,y);}}
+function gInfo(lo,la){const rows=LAY.filter(l=>l.on).map(l=>{const n=nearest(buildIdx(G[l.k]),lo,la);return`<dt>${l.name}</dt><dd>${Math.round(n.d).toLocaleString('nb-NO')} km${l.k==='sonde'&&n.p&&n.p[2]?' ('+n.p[2]+')':''}</dd>`;}).join('');
+ const pos=`${Math.abs(la).toFixed(1).replace('.',',')}° ${la>=0?'N':'S'}, ${Math.abs(lo).toFixed(1).replace('.',',')}° ${lo>=0?'Ø':'V'}`;
+ const all=activePts();const nd=all.length?nearest(buildIdx(all),lo,la).d:null;
+ let verdict='';if(nd!==null){verdict=nd<150?'Godt dekket. Analysen her bygger mye på målinger.':nd<600?'Middels dekket.':'Datahull. Her må analysen stole mest på forrige modellvarsel og satellittdata.';}
+ $('globInfo').innerHTML=`<h4>${pos} · ${isLand(lo,la)?'land':'hav'}</h4><dl>${rows||'<dt>Ingen lag valgt</dt><dd>Slå på minst én observasjonstype.</dd>'}</dl><p>${verdict}</p>`;}
+$('cvGlob').addEventListener('click',e=>{const r=e.target.getBoundingClientRect();const pr=gProj(r.width);const [lo,la]=pr.inv(e.clientX-r.left,e.clientY-r.top);gClick=[lo,la];
+ if(gChal===1){const idx=buildIdx(G.sonde);const mine=nearest(idx,lo,la);gChalRes=maxGap(idx,pr,pr.la0,pr.la1);gChal=2;const pct=Math.round(mine.d/gChalRes.d*100);
+  $('globInfo').innerHTML=`<h4>Resultat</h4><p>Punktet ditt ligger <b>${Math.round(mine.d).toLocaleString('nb-NO')} km</b> fra nærmeste radiosonde. Det største hullet i dette utsnittet er <b>${Math.round(gChalRes.d).toLocaleString('nb-NO')} km</b> (markert i rødt). Du traff ${pct} % av det største hullet. ${pct>80?'Godt observert!':'Se på kartet: Hvor ligger de store hullene, og hvorfor?'}</p><p>Fargene viser nå avstanden til nærmeste radiosonde. Trykk «Avslutt test» for å gå tilbake.</p>`;$('gChal').textContent='Avslutt test';}
+ else if(gChal!==2)gInfo(lo,la);drawGlob();});
+$('gChal').onclick=()=>{if(gChal){gChal=0;gChalRes=null;gClick=null;$('gChal').textContent='Test deg selv';$('globInfo').innerHTML='<h4>Klikk i kartet</h4><p>Klikk et sted for å se hvor langt det er til nærmeste observasjon av hver type.</p>';}else{gChal=1;gClick=null;$('gChal').textContent='Avbryt test';$('globInfo').innerHTML='<h4>Test deg selv</h4><p>Radiosonder gir de viktige profilene oppover i atmosfæren. Klikk på stedet i kartet der du tror det er <b>lengst til nærmeste radiosonde</b>. Radiosondene er skjult til du har svart.</p>';}drawGlob();};
+const gzB=[$('gzW'),$('gzE')];$('gzW').onclick=()=>{gView='world';press(gzB,$('gzW'));drawGlob();};$('gzE').onclick=()=>{gView='natl';press(gzB,$('gzE'));drawGlob();};
+$('gGap').onchange=drawGlob;
+reg(drawGlob);
+
+/* ---------- Vertikalprofil ---------- */
+const PRE={stab:{T0:13,dd:0.5,g1:6,g2:4.5,inv:true,zi:2.0,k:4},byge:{T0:6,dd:3,g1:9,g2:7,inv:false,zi:1.5,k:1},tord:{T0:27,dd:10,g1:8.5,g2:7,inv:false,zi:1.5,k:1.5},taake:{T0:2,dd:0,g1:3,g2:6,inv:true,zi:0.2,k:6}};
+function esat(T){return 6.112*Math.exp(17.67*T/(T+243.5));}
+function computeProfile(o){const dz=0.02,top=12;const env=[],par=[];let T=o.T0,Tp=o.T0;const Td0=o.T0-o.dd;const pz=z=>1013.25*Math.exp(-z/8.4);
+ const w=0.622*esat(Td0)/(1013.25-esat(Td0));let lcl=null;
+ for(let i=0;i*dz<=top+1e-9;i++){const z=i*dz;let lap=z<2?o.g1:o.g2;if(o.inv&&z>=o.zi&&z<o.zi+0.3)lap=-4/0.3;if(z>=11)lap=0;
+  const p=pz(z);const e=w*p/(0.622+w);const l=Math.log(e/6.112);const Tdp=243.5*l/(17.67-l);
+  const zc=o.inv?o.zi:1.0;const Tde=Math.min(T,T-(o.dd+0.25*Math.min(z,zc)+o.k*Math.max(0,z-zc)));env.push({z,T,Td:Tde,p});if(lcl===null&&Tp<=Tdp)lcl=z;par.push({z,T:Tp});
+  let gp;if(lcl===null)gp=9.8;else{const Tk=Tp+273.15;const es=esat(Tp);const rs=0.622*es/(p-es);gp=9.8*(1+2.5e6*rs/(287*Tk))/(1+2.5e6*2.5e6*rs*0.622/(1004*287*Tk*Tk));}
+  T-=lap*dz;Tp-=gp*dz;}
+ let cape=0,cin=0,lfc=null,el=null;for(let i=0;i<env.length;i++){const z=env[i].z;const b=9.81*(par[i].T-env[i].T)/(env[i].T+273.15)*dz*1000;
+  if(lcl!==null&&z>=lcl){if(b>0){if(lfc===null)lfc=z;cape+=b;el=z;}else if(lfc===null)cin+=b;}else if(b<0)cin+=b;}
+ return{env,par,lcl,cape,cin,lfc,el};}
+const prIds=['prT','prD','prG1','prG2','prK','prZi'];const prKeys=['T0','dd','g1','g2','k','zi'];
+function prSet(p){const o=PRE[p];prIds.forEach((id,i)=>$(id).value=o[prKeys[i]]);$('prInv').checked=o.inv;[...document.querySelectorAll('#prPresets button')].forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===p?'true':'false'));drawProf();}
+document.querySelectorAll('#prPresets button').forEach(b=>b.onclick=()=>prSet(b.dataset.p));
+prIds.forEach(id=>$(id).addEventListener('input',()=>{document.querySelectorAll('#prPresets button').forEach(b=>b.setAttribute('aria-pressed','false'));drawProf();}));
+$('prInv').onchange=drawProf;
+function drawProf(){const o={};prIds.forEach((id,i)=>o[prKeys[i]]=+$(id).value);o.inv=$('prInv').checked;
+ $('prTo').textContent=nf(o.T0,1)+' °C';$('prDo').textContent=nf(o.dd,1)+' °C';$('prG1o').textContent=nf(o.g1,1)+' °C/km';$('prG2o').textContent=nf(o.g2,1)+' °C/km';$('prKo').textContent=o.k<1?'fuktig':o.k<4?'middels':'tørr';$('prZio').textContent=nf(o.zi,1)+' km';$('prZi').disabled=!o.inv;
+ const R=computeProfile(o);const cv=$('cvProf');const {c,w,h}=fit(cv,1.05,320,560);const P=pal();
+ const L=36,Rr=w-60,Tp=10,B=h-28,tmin=-60,tmax=35,zmax=12;const X=t=>L+(t-tmin)/(tmax-tmin)*(Rr-L),Y=z=>B-z/zmax*(B-Tp);
+ c.save();c.beginPath();c.rect(L,Tp,Rr-L,B-Tp);c.clip();
+ c.strokeStyle=P.grid;c.lineWidth=1;for(let th=-40;th<=80;th+=10){c.beginPath();c.moveTo(X(th),Y(0));c.lineTo(X(th-9.8*zmax),Y(zmax));c.stroke();}
+ // skyer der luften er mettet
+ c.fillStyle=P.muted;c.globalAlpha=.3;R.env.forEach(e=>{if(e.T-e.Td<1.0)c.fillRect(L,Y(e.z+0.02),Rr-L,Y(e.z)-Y(e.z+0.02)+.6);});c.globalAlpha=1;
+ // positiv/negativ energi
+ R.env.forEach((e,i)=>{if(R.lcl===null||e.z<R.lcl)return;const tp=R.par[i].T;if(R.lfc!==null&&e.z>=R.lfc&&tp>e.T){c.fillStyle=P.warm;c.globalAlpha=.3;}else if(R.lfc===null||e.z<R.lfc){if(tp<e.T){c.fillStyle=P.cold;c.globalAlpha=.15;}else return;}else return;c.fillRect(X(Math.min(tp,e.T)),Y(e.z+0.02),Math.abs(X(tp)-X(e.T)),Y(e.z)-Y(e.z+0.02)+.6);});c.globalAlpha=1;
+ const line=(arr,f,col,lw,dash)=>{c.strokeStyle=col;c.lineWidth=lw;c.setLineDash(dash||[]);c.beginPath();arr.forEach((e,i)=>{const x=X(f(e,i)),y=Y(e.z);i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.setLineDash([]);c.lineWidth=1;};
+ line(R.env,e=>e.T,P.warm,2.8);line(R.env,e=>e.Td,P.cold,2.2,[6,4]);line(R.par,e=>e.T,P.ink,1.8,[3,3]);
+ if(R.lcl!==null){c.strokeStyle=P.ink;c.setLineDash([2,4]);c.beginPath();c.moveTo(L,Y(R.lcl));c.lineTo(Rr,Y(R.lcl));c.stroke();c.setLineDash([]);c.fillStyle=P.ink;c.font=`600 11px ${SANS}`;c.textAlign='left';c.textBaseline='bottom';c.fillText('Skybase',L+4,Y(R.lcl)-3);}
+ c.restore();
+ c.strokeStyle=P.line;c.strokeRect(L,Tp,Rr-L,B-Tp);c.fillStyle=P.muted;c.font=`11px ${MONO}`;
+ c.textAlign='right';c.textBaseline='middle';for(let z=0;z<=12;z+=2){c.fillText(z+' km',L-4,Y(z));c.textAlign='left';c.fillText(Math.round(1013*Math.exp(-z/8.4))+(z===0?' hPa':''),Rr+2,Y(z));c.textAlign='right';}
+ 
+ c.textAlign='center';c.textBaseline='top';for(let t=-60;t<=30;t+=15)c.fillText(t+'°',X(t),B+6);
+ $('prLcl').textContent=R.lcl===null?'over 12 km':R.lcl<0.05?'ved bakken':Math.round(R.lcl*1000/10)*10+' m';
+ $('prCape').textContent=Math.round(R.cape)+' J/kg';$('prEl').textContent=R.cape>=50&&R.el?nf(R.el,1)+' km':'–';
+ const lowFog=R.lcl!==null&&R.lcl<0.06;const layerCloud=R.env.some(e=>e.T-e.Td<1&&e.z>0.1);
+ let t,why;
+ if(R.cape<50){t=lowFog?'Tåke eller svært lavt skydekke, stabil luft':layerCloud?'Stabil atmosfære med lagdelte skyer':'Stabil atmosfære, lite skyer';
+  why=lowFog?'Luften ved bakken er mettet, og luften over er stabil. Uten løft og blanding blir tåka liggende.':'En luftpakke som løftes blir kaldere enn omgivelsene og synker tilbake. Det blir lite eller ingen konveksjon, og liten sannsynlighet for byger.';}
+ else if(R.cape<500){t='Svakt ustabilt: skurer og byger mulig';why='Over skybasen er luftpakken litt varmere enn omgivelsene, så den kan stige noen kilometer. Typisk for kald luft som strømmer over varmere hav.';}
+ else if(R.cape<1500){t='Ustabilt: kraftige byger, mulig torden';why='Luftpakken får mye oppdrift og stiger høyt. Det kan danne seg store bygeskyer (cumulonimbus).';}
+ else{t='Svært ustabilt: fare for kraftig tordenvær';why='Stor oppdrift gir kraftige oppstrømmer og høye skytopper. Med vindskjær i tillegg kan det dannes superceller.';}
+ if(R.cape>=50&&R.cin<-60)why+=' Et lag med negativ energi under kan likevel hindre bygene i å starte uten et ekstra løft, for eksempel over fjell eller ved en front.';
+ if(o.inv&&R.el&&Math.abs(R.el-o.zi)<0.4)why+=' Inversjonen fungerer som et lokk som stopper skyene.';
+ $('prInfo').innerHTML=`<h4>${t}</h4><p>${why}</p>`;}
+prSet('stab');draws.push(drawProf);
+
+/* ---------- Nowcasting ---------- */
+const NCV=[0.45,-0.22];
+const CELLS=[{x:22,y:56,r:7,pk:12,b:-999,d:999,g:1.35},{x:36,y:40,r:5,pk:26,b:-999,d:999,g:1},{x:6,y:28,r:9,pk:4,b:-999,d:999,g:1},{x:48,y:62,r:4.5,pk:18,b:-999,d:35,g:1},{x:62,y:46,r:5,pk:24,b:20,d:999,g:1},{x:-12,y:62,r:11,pk:6,b:-999,d:999,g:1.2},{x:20,y:14,r:4,pk:9,b:-999,d:60,g:1}];
+function cEnv(cl,t){if(t<cl.b)return 0;let a=Math.min(1,(t-cl.b)/20);if(cl.b<-900)a=1;if(t>cl.d-25)a*=Math.max(0,(cl.d-t)/25);return a*(1+(cl.g-1)*Math.max(0,Math.min(1,(t+30)/120)));}
+function rainNc(x,y,t,mode){let s=0;CELLS.forEach(cl=>{let cx,cy,a;if(mode==='nc'&&t>0){a=cEnv(cl,0);cx=cl.x+NCV[0]*t;cy=cl.y+NCV[1]*t;}else{a=cEnv(cl,t);cx=cl.x+NCV[0]*t;cy=cl.y+NCV[1]*t+0.0011*t*Math.abs(t)+0.0004*t*t*(cl.x>30?1:-0.5);}if(a<=0)return;const d2=(x-cx)**2+(y-cy)**2;s+=cl.pk*a*Math.exp(-d2/(2*cl.r*cl.r));});return s;}
+let ncT=0,ncMe=[78,30],ncAnim=null;
+function ncCol(v,P){if(v<0.3)return null;if(v<1.5)return[P.rain,.4];if(v<6)return[P.rain,.85];if(v<18)return[P.amber,.9];return[P.warm,.95];}
+function drawNow(){const cv=$('cvNow');const {c,w,h}=fit(cv,80/120,220,520);const P=pal();const S=w/120;const real=$('ncReal').checked;const mode=ncT<=0?'obs':'nc';
+ c.fillStyle=P.paper;c.fillRect(0,0,w,h);c.strokeStyle=P.grid;for(let k=10;k<120;k+=10){c.beginPath();c.moveTo(k*S,0);c.lineTo(k*S,h);c.stroke();}for(let k=10;k<80;k+=10){c.beginPath();c.moveTo(0,k*S);c.lineTo(w,k*S);c.stroke();}
+ const st=Math.max(3,Math.round(w/200));for(let y=0;y<h;y+=st)for(let x=0;x<w;x+=st){const v=rainNc((x+st/2)/S,(y+st/2)/S,ncT,mode);const cc=ncCol(v,P);if(cc){c.fillStyle=cc[0];c.globalAlpha=cc[1];c.fillRect(x,y,st,st);}}c.globalAlpha=1;
+ if(real&&ncT>0){const nx=Math.ceil(w/6)+1,ny=Math.ceil(h/6)+1;const g=new Float32Array(nx*ny);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)g[j*nx+i]=rainNc(i*6/S,j*6/S,ncT,'obs');c.strokeStyle=P.ink;c.lineWidth=1.6;c.setLineDash([4,3]);[0.5,6].forEach(lev=>{c.beginPath();msq(g,nx,ny,6,lev).forEach(s=>{c.moveTo(s[0][0],s[0][1]);c.lineTo(s[1][0],s[1][1]);});c.stroke();});c.setLineDash([]);c.lineWidth=1;}
+ // bevegelsespil
+ c.strokeStyle=P.ink;c.fillStyle=P.ink;c.lineWidth=2;const ax=14,ay=h-16,al=26;c.beginPath();c.moveTo(ax,ay);c.lineTo(ax+NCV[0]*al*1.8,ay+NCV[1]*al*1.8);c.stroke();c.lineWidth=1;c.font=`11px ${SANS}`;c.textAlign='left';c.textBaseline='middle';c.fillText('Beregnet bevegelse ca. 30 km/t',ax+30,ay+2);
+ const mx=ncMe[0]*S,my=ncMe[1]*S;c.strokeStyle=P.ink;c.lineWidth=2.4;c.beginPath();c.arc(mx,my,7,0,7);c.stroke();c.fillStyle=P.ink;c.beginPath();c.arc(mx,my,2.4,0,7);c.fill();c.lineWidth=1;c.font=`700 12px ${SANS}`;c.fillText('Du er her',mx+11,my-9);
+ c.font=`600 12px ${MONO}`;c.textAlign='right';c.textBaseline='top';const lab=ncT<0?'Radar '+ncT+' min':ncT===0?'Radar nå':'Nowcast +'+ncT+' min';const tw=c.measureText(lab).width+10;c.fillStyle=P.paper;c.globalAlpha=.85;c.fillRect(w-tw-6,6,tw,20);c.globalAlpha=1;c.fillStyle=ncT>0?P.accent:P.ink;c.fillText(lab,w-11,9);
+ c.strokeStyle=P.line;c.strokeRect(.5,.5,w-1,h-1);
+ $('ncTo').textContent=ncT===0?'nå':(ncT>0?'+':'')+ncT+' min';drawNowTs();}
+function drawNowTs(){const cv=$('cvNowTs');const {c,w,h}=fit(cv,0.22,110,170);const P=pal();const real=$('ncReal').checked;
+ const L=34,R=w-8,Tp=8,B=h-22,X=t=>L+(t+60)/150*(R-L),Y=v=>B-Math.min(30,v)/30*(B-Tp);
+ c.fillStyle=P.muted;c.font=`10px ${MONO}`;c.textAlign='right';c.textBaseline='middle';[0,10,20,30].forEach(v=>{c.strokeStyle=P.grid;c.beginPath();c.moveTo(L,Y(v));c.lineTo(R,Y(v));c.stroke();c.fillText(v,L-4,Y(v));});
+ c.textAlign='center';c.textBaseline='top';for(let t=-60;t<=90;t+=30)c.fillText(t===0?'nå':(t>0?'+':'')+t,X(t),B+5);
+ c.save();c.translate(10,(Tp+B)/2);c.rotate(-Math.PI/2);c.textAlign='center';c.textBaseline='middle';c.fillText('mm/t',0,0);c.restore();
+ const series=(mode,t0,t1)=>{const a=[];for(let t=t0;t<=t1;t+=1)a.push([t,rainNc(ncMe[0],ncMe[1],t,mode)]);return a;};
+ const pl=(a,col,lw,dash)=>{c.strokeStyle=col;c.lineWidth=lw;c.setLineDash(dash||[]);c.beginPath();a.forEach(([t,v],i)=>i?c.lineTo(X(t),Y(v)):c.moveTo(X(t),Y(v)));c.stroke();c.setLineDash([]);c.lineWidth=1;};
+ pl(series('obs',-60,0),P.ink,2);const ncs=series('nc',0,90);pl(ncs,P.accent,2.4);let realS=null;if(real){realS=series('obs',0,90);pl(realS,P.ink,1.8,[4,3]);}
+ c.strokeStyle=P.muted;c.setLineDash([2,3]);c.beginPath();c.moveTo(X(ncT),Tp);c.lineTo(X(ncT),B);c.stroke();c.setLineDash([]);
+ const first=a=>{const f=a.find(([t,v])=>v>=0.5);return f?f[0]:null;};const fN=first(ncs);const mxN=Math.max(...ncs.map(x=>x[1]));
+ const nowWet=rainNc(ncMe[0],ncMe[1],0,'obs')>=0.5;
+ $('ncStart').textContent=nowWet?'regner nå':fN===null?'ikke de neste 90 min':'om '+fN+' min';$('ncMax').textContent=mxN<0.5?'–':nf(mxN,1)+' mm/t';
+ if(real){const fR=first(realS);$('ncReal1').textContent=nowWet?'regnet allerede':fR===null?'ingen regn':'etter '+fR+' min';}else $('ncReal1').textContent='skjult';}
+$('ncT').oninput=e=>{ncT=+e.target.value;drawNow();};$('ncReal').onchange=drawNow;
+$('cvNow').addEventListener('pointerdown',e=>{const r=e.target.getBoundingClientRect();ncMe=[(e.clientX-r.left)/r.width*120,(e.clientY-r.top)/r.width*120];drawNow();});
+$('ncPlay').onclick=()=>{if(ncAnim){clearInterval(ncAnim);ncAnim=null;$('ncPlay').textContent='Spill av';return;}if(ncT>=90)ncT=-60;$('ncPlay').textContent='Pause';ncAnim=setInterval(()=>{ncT+=5;$('ncT').value=ncT;drawNow();if(ncT>=90){clearInterval(ncAnim);ncAnim=null;$('ncPlay').textContent='Spill av';}},reduced?600:260);};
+reg(drawNow);
+
+/* ---------- Meteogram ---------- */
+let meteoOn=false;
+function drawMeteo(){if(!meteoOn)return;const cv=$('cvMeteo');const {c,w,h}=fit(cv,0.5,260,380);const P=pal();
+ const ts=[];for(let t=0;t<=36;t+=0.5){const F=fronts(t);const W=windAt(mapPt[0],mapPt[1],F);ts.push({t,p:pAt(mapPt[0],mapPt[1],F),V:W.V,sx:W.sx,sy:W.sy,r:rainAt(mapPt[0],mapPt[1],F)});}
+ const L=46,R=w-10,X=t=>L+t/36*(R-L);const panels=[[6,h*0.36],[h*0.36+14,h*0.66],[h*0.66+14,h-22]];
+ c.font=`10px ${MONO}`;
+ const pmin=Math.floor(Math.min(...ts.map(s=>s.p))/2)*2-2,pmax=Math.ceil(Math.max(...ts.map(s=>s.p))/2)*2+2;
+ const vmax=Math.max(10,Math.ceil(Math.max(...ts.map(s=>s.V))/5)*5);
+ const frame=(pn,lab,lo,hi,fmt)=>{const [a,b]=pn;c.strokeStyle=P.line;c.strokeRect(L,a,R-L,b-a);c.fillStyle=P.muted;c.textAlign='right';c.textBaseline='middle';c.fillText(fmt(hi),L-4,a+6);c.fillText(fmt(lo),L-4,b-6);c.textAlign='left';c.textBaseline='top';c.font=`600 11px ${SANS}`;c.fillText(lab,L+5,a+3);c.font=`10px ${MONO}`;};
+ frame(panels[0],'Lufttrykk (hPa)',pmin,pmax,v=>v);frame(panels[1],'Vind ved bakken (m/s) og retning',0,vmax,v=>v);frame(panels[2],'Nedbør (relativ)',0,1,v=>v?'mye':'0');
+ const yP=v=>panels[0][1]-(v-pmin)/(pmax-pmin)*(panels[0][1]-panels[0][0]-18)-2;c.strokeStyle=P.ink;c.lineWidth=2;c.beginPath();ts.forEach((s,i)=>i?c.lineTo(X(s.t),yP(s.p)):c.moveTo(X(s.t),yP(s.p)));c.stroke();
+ const yV=v=>panels[1][1]-v/vmax*(panels[1][1]-panels[1][0]-18)-2;c.strokeStyle=P.accent;c.beginPath();ts.forEach((s,i)=>i?c.lineTo(X(s.t),yV(s.V)):c.moveTo(X(s.t),yV(s.V)));c.stroke();c.lineWidth=1;
+ c.fillStyle=P.accent;c.strokeStyle=P.accent;ts.forEach(s=>{if(s.t%3!==0)return;const x=X(s.t),y=yV(s.V)-12;const a=Math.atan2(s.sy,s.sx);c.beginPath();c.moveTo(x-Math.cos(a)*7,y-Math.sin(a)*7);c.lineTo(x+Math.cos(a)*7,y+Math.sin(a)*7);c.stroke();c.beginPath();c.moveTo(x+Math.cos(a)*8,y+Math.sin(a)*8);c.lineTo(x+Math.cos(a)*2-Math.sin(a)*4,y+Math.sin(a)*2+Math.cos(a)*4);c.lineTo(x+Math.cos(a)*2+Math.sin(a)*4,y+Math.sin(a)*2-Math.cos(a)*4);c.closePath();c.fill();});
+ const bw=(R-L)/72;c.fillStyle=P.rain;ts.forEach(s=>{const v=Math.min(1,s.r);if(v<0.15)return;const b=panels[2][1],hh=v*(panels[2][1]-panels[2][0]-18);c.fillRect(X(s.t)-bw/2+.5,b-hh,bw-1,hh);});
+ c.strokeStyle=P.warm;c.setLineDash([4,3]);c.beginPath();c.moveTo(X(mapT),panels[0][0]);c.lineTo(X(mapT),panels[2][1]);c.stroke();c.setLineDash([]);
+ c.fillStyle=P.muted;c.textAlign='center';c.textBaseline='top';for(let t=0;t<=36;t+=6)c.fillText(t===0?'analyse':'+'+t+' t',X(t),h-16);}
+$('meteoBtn').onclick=()=>{meteoOn=!meteoOn;$('cvMeteo').hidden=!meteoOn;$('meteoBtn').textContent=meteoOn?'Skjul meteogrammet':'Vis meteogram for punktet';drawMeteo();};
+draws.push(drawMeteo);
+const _dm=drawMap;drawMap=function(){_dm();drawMeteo();};
+draws[draws.indexOf(_dm)]=drawMap;
+
+/* ---------- Rekkefølge ---------- */
+const ORD=['Observasjoner','Dataassimilasjon','Modellkjøring','Etterbehandling og tolking','Formidling','Verifikasjon'];
+const ORDD=['Målinger fra hele kloden samles inn','Målinger og forrige varsel blir til en analyse','Likningene løses steg for steg i rutenettet','Korrigering, værkart og meteorologens vurdering','Varsel med usikkerhet og farevarsler','Varselet sammenlignes med det som skjedde'];
+let ord=[3,0,5,2,4,1];
+function renderOrd(mark){const ol=$('orderList');ol.innerHTML='';ord.forEach((k,i)=>{const li=document.createElement('li');if(mark)li.className=k===i?'ok':'bad';li.innerHTML=`<span class="on">${i+1}</span><div><b>${ORD[k]}</b><small>${ORDD[k]}</small></div><span class="mv"><button aria-label="Flytt opp" ${i===0?'disabled':''}>↑</button><button aria-label="Flytt ned" ${i===ord.length-1?'disabled':''}>↓</button></span>`;
+ const [up,dn]=li.querySelectorAll('button');up.onclick=()=>{[ord[i-1],ord[i]]=[ord[i],ord[i-1]];renderOrd();$('orderMsg').textContent='';};dn.onclick=()=>{[ord[i+1],ord[i]]=[ord[i],ord[i+1]];renderOrd();$('orderMsg').textContent='';};ol.appendChild(li);});}
+$('orderCheck').onclick=()=>{renderOrd(true);const n=ord.filter((k,i)=>k===i).length;$('orderMsg').textContent=n===ord.length?'Alt riktig! Husk at kjeden går i ring: verifikasjonen brukes til å forbedre modellene, og nowcasting tar en snarvei fra radar til varsel.':`${n} av ${ord.length} står på riktig plass. De grønne er riktige.`;};
+$('orderShuffle').onclick=()=>{const r=rng(Date.now()%100000);for(let i=ord.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[ord[i],ord[j]]=[ord[j],ord[i]];}renderOrd();$('orderMsg').textContent='';};
+$('orderShow').onclick=()=>{ord=[0,1,2,3,4,5];renderOrd(true);$('orderMsg').textContent='Slik ser hele kjeden ut. Oversikten under forklarer hvert steg.';};
+renderOrd();
+
+document.querySelectorAll('details.extra').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)redrawAll();}));
+/* Navigasjon: marker aktiv seksjon */
+const links=[...document.querySelectorAll('#navlinks a')];const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const i=secs.indexOf(e.target);links.forEach((l,k)=>l.classList.toggle('on',k===i));const a=links[i];if(a&&a.scrollIntoView&&!reduced){const p=a.parentNode;p.scrollTo({left:a.offsetLeft-p.clientWidth/2+a.clientWidth/2,behavior:'smooth'});}}});},{rootMargin:'-45% 0px -50% 0px'});
+secs.forEach(s=>s&&io.observe(s));
+})();
+</script>
+
+</body></html>
