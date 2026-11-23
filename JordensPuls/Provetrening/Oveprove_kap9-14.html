@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Øveprøve kapittel 9–14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@500&display=swap">
+<style>
+/* Layout: smal lesekolonne med oppgavekort, klebrig poenglinje øverst, nummerkart som navigasjon */
+:root {
+  --bg: #F3F7F7;
+  --surface: #FFFFFF;
+  --surface-2: #E8F1F1;
+  --ink: #0B2A41;
+  --ink-soft: #3E5566;
+  --line: #CBDADA;
+  --accent: #167676;
+  --accent-fill: #33CCCC;
+  --on-accent: #0B2A41;
+  --deep: #0B2A41;
+  --on-deep: #FFFFFF;
+  --ok: #1E6B45;
+  --ok-bg: #E3F2EA;
+  --bad: #A8321F;
+  --bad-bg: #FBE7E2;
+  --part: #8A5A00;
+  --part-bg: #FDF1D8;
+  --gold-bg: #FDF5E4;
+  --gold-line: #E8D29C;
+  --display: "Roboto Slab", Georgia, serif;
+  --body: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Roboto Mono", ui-monospace, Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #08151F; --surface: #0F2333; --surface-2: #143047; --ink: #E4EEF2; --ink-soft: #A7BBC6;
+    --line: #24435A; --accent: #5FD6D6; --accent-fill: #33CCCC; --on-accent: #062030; --deep: #33CCCC; --on-deep: #062030;
+    --ok: #7FD8A7; --ok-bg: #12352A; --bad: #FF9A85; --bad-bg: #3D1B16; --part: #F5C66A; --part-bg: #3A2C0E;
+    --gold-bg: #2C2410; --gold-line: #6B5520; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #08151F; --surface: #0F2333; --surface-2: #143047; --ink: #E4EEF2; --ink-soft: #A7BBC6;
+  --line: #24435A; --accent: #5FD6D6; --accent-fill: #33CCCC; --on-accent: #062030; --deep: #33CCCC; --on-deep: #062030;
+  --ok: #7FD8A7; --ok-bg: #12352A; --bad: #FF9A85; --bad-bg: #3D1B16; --part: #F5C66A; --part-bg: #3A2C0E;
+  --gold-bg: #2C2410; --gold-line: #6B5520; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.25; margin: 0; }
+a { color: var(--accent); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent-fill); outline-offset: 2px; }
+
+/* topp */
+.hero { padding-block: 40px 24px; border-top: 4px solid var(--accent-fill); }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 8px; }
+.hero h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+.hero p.lead { color: var(--ink-soft); max-width: 62ch; margin: 12px 0 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+.facts li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 0.9rem; }
+.facts b { font-family: var(--mono); font-weight: 500; }
+
+/* poenglinje */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; }
+.stat { display: flex; flex-direction: column; min-width: 0; }
+.stat span { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.stat b { font-family: var(--mono); font-weight: 500; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.progress { flex: 1 1 140px; height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; min-width: 120px; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent-fill); transition: width .3s; }
+.btn-ghost { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; }
+.btn-ghost:hover { border-color: var(--accent); }
+.confirm { display: flex; gap: 8px; align-items: center; font-size: 0.85rem; flex-wrap: wrap; }
+
+/* nummerkart */
+.map { padding-block: 24px 8px; }
+.map h2 { font-size: 0.8rem; font-family: var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin: 12px 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink); font-family: var(--mono); font-size: 0.9rem; }
+.chip[data-s="ok"] { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.chip[data-s="part"] { background: var(--part-bg); border-color: var(--part); color: var(--part); }
+.chip[data-s="bad"] { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.chip[data-s="self"] { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.8rem; color: var(--ink-soft); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; border: 1px solid; }
+
+/* seksjoner */
+.part-head { padding-block: 36px 8px; }
+.part-head h2 { font-size: 1.5rem; }
+.part-head p { color: var(--ink-soft); margin: 6px 0 0; max-width: 62ch; }
+.group { margin: 28px 0 12px; padding: 20px; background: var(--surface-2); border-radius: var(--radius); }
+.group .tag { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+.group h3 { font-size: 1.25rem; margin: 2px 0 10px; }
+.group p { margin: 0 0 10px; }
+figure { margin: 12px 0 0; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+details.fig { margin: 0 0 12px; }
+details.fig summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin: 14px 0; scroll-margin-top: 90px; }
+.q-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
+.q-num { font-family: var(--mono); font-size: 0.95rem; color: var(--accent); }
+.q-head h3 { font-size: 1.1rem; flex: 1 1 220px; min-width: 0; }
+.q-meta { font-size: 0.8rem; color: var(--ink-soft); }
+.q-body p { margin: 0 0 10px; }
+.opts { display: grid; gap: 8px; margin: 12px 0; }
+.opt { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface); }
+.opt:hover { border-color: var(--accent); }
+.opt input { margin: 4px 0 0; width: 18px; height: 18px; accent-color: var(--accent); }
+.opt .ex { grid-column: 2; font-size: 0.9rem; color: var(--ink-soft); margin-top: 4px; }
+.opt.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.mark { font-weight: 700; margin-right: 6px; }
+.is-ok .mark, .f-ok { color: var(--ok); }
+.is-bad .mark, .f-bad { color: var(--bad); }
+
+.inline-text { line-height: 2.4; }
+.inline-text select, .match select { border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; background: var(--surface); max-width: 100%; }
+.inline-text select.is-ok, .match select.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.inline-text select.is-bad, .match select.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.fexpl { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; font-size: 0.92rem; }
+.fexpl li { padding: 8px 12px; border-radius: 6px; background: var(--surface-2); }
+
+.match { display: grid; gap: 10px; margin: 12px 0; }
+.match .row { display: grid; grid-template-columns: 1fr minmax(150px, 40%); gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.match .row > div { min-width: 0; }
+.match .row .ex { grid-column: 1 / -1; font-size: 0.9rem; color: var(--ink-soft); }
+@media (max-width: 520px) { .match .row { grid-template-columns: 1fr; } }
+
+.fill input { width: 7em; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-family: var(--mono); }
+.fill input.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.fill input.is-bad { border-color: var(--bad); background: var(--bad-bg); }
+.blank { font-family: var(--mono); color: var(--accent); }
+
+textarea { width: 100%; min-height: 160px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); resize: vertical; line-height: 1.55; }
+.count { font-size: 0.8rem; color: var(--ink-soft); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+.btn { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 500; cursor: pointer; background: var(--deep); color: var(--on-deep); }
+.btn.alt { background: var(--accent-fill); color: var(--on-accent); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.result { font-weight: 500; }
+.result.ok { color: var(--ok); } .result.bad { color: var(--bad); } .result.part { color: var(--part); }
+.explain { margin-top: 12px; padding: 12px 14px; border-left: 3px solid var(--accent-fill); background: var(--surface-2); border-radius: 0 6px 6px 0; }
+.explain p { margin: 0 0 6px; }
+
+.rubric { margin-top: 14px; display: grid; gap: 14px; }
+.rubric h4 { font-family: var(--display); font-size: 1rem; margin: 0 0 6px; }
+.rubric .model { background: var(--gold-bg); border: 1px solid var(--gold-line); border-radius: 8px; padding: 12px 14px; }
+.rubric .model p { margin: 0 0 8px; }
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.tbl th { text-align: left; background: var(--deep); color: var(--on-deep); padding: 7px 10px; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl tr:nth-child(even) td { background: var(--surface-2); }
+.rubric ul { margin: 0; padding-left: 20px; }
+.self { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 8px; }
+.self select { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); }
+.self p { margin: 0; flex: 1 1 260px; font-size: 0.9rem; color: var(--ink-soft); }
+
+/* oppsummering */
+.summary { margin: 40px 0 60px; padding: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.summary h2 { font-size: 1.4rem; margin-bottom: 6px; }
+.big { font-family: var(--mono); font-size: 2rem; font-variant-numeric: tabular-nums; }
+.sumgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; }
+.sumgrid div { padding: 12px 14px; background: var(--surface-2); border-radius: 8px; }
+.sumgrid span { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.kaps { margin: 8px 0 0; padding-left: 20px; }
+.note { font-size: 0.85rem; color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Geofag 2 · Jordens puls · kapittel 9–14</p>
+    <h1>Øveprøve kapittel 9–14</h1>
+    <p class="lead">Dette er en øveprøve før prøven i kapittel 9–14 mandag 30. november. Den har samme oppbygning og de samme oppgavetypene som prøven, men andre situasjoner og figurer. Svar på oppgavene og trykk «Sjekk svar» for å se hva som er riktig, og hvorfor de andre alternativene er feil. På de åpne skriveoppgavene skriver du først et svar, og ser deretter forslag til svar og poengtrappen. Der setter du poeng på deg selv.</p>
+    <ul class="facts">
+      <li><b>29</b> oppgaver</li>
+      <li><b>40</b> poeng</li>
+      <li><b>26</b> poeng rettes automatisk</li>
+      <li><b>14</b> poeng egenvurderes</li>
+      <li>Svarene lagres i nettleseren din</li>
+    </ul>
+  </div>
+</header>
+
+<div class="bar" role="status" aria-live="polite">
+  <div class="wrap">
+    <div class="stat"><span>Rettet</span><b id="s-auto">0 / 26</b></div>
+    <div class="stat"><span>Egenvurdert</span><b id="s-self">0 / 14</b></div>
+    <div class="stat"><span>Sjekket</span><b id="s-done">0 / 29</b></div>
+    <div class="progress" aria-hidden="true"><i id="s-prog"></i></div>
+    <div id="reset-wrap"><button class="btn-ghost" id="reset" type="button">Start på nytt</button></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <nav class="map" aria-label="Oppgaver">
+    <h2>Del 1</h2><div class="chips" id="chips-1"></div>
+    <h2>Del 2</h2><div class="chips" id="chips-2"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok-bg);border-color:var(--ok)"></i>Full score</span>
+      <span><i style="background:var(--part-bg);border-color:var(--part)"></i>Delvis</span>
+      <span><i style="background:var(--bad-bg);border-color:var(--bad)"></i>0 poeng</span>
+      <span><i style="background:var(--surface-2);border-color:var(--accent)"></i>Egenvurdert</span>
+    </div>
+  </nav>
+  <div id="quiz"></div>
+  <section class="summary" id="summary" aria-labelledby="sum-h"></section>
+</main>
+
+<script>
+const DATA = {"groups": [{"id": "A", "title": "Stormen Amy over Utsira", "sec": "del2", "img": "o_a_utsira_amy.png", "alt": "Tre grafer over hverandre for Utsira fyr fra torsdag 2. til mandag 6. oktober 2025, med klokkeslett i UTC. Øverst lufttrykket i hPa, i midten middelvinden i m/s med piler for vindretningen over, og nederst nedbøren i mm per time. Pilene viser hvor vinden blåser mot. Graf.", "stem": "<p>Fredag 3. oktober 2025 traff stormen Amy Irland og Skottland, og natt til lørdag nådde den Vestlandet. Figur A viser målinger fra Utsira fyr utenfor Haugesund fra torsdag 2. til mandag 6. oktober: lufttrykk, middelvind og nedbør hver time. Pilene viser hvor vinden blåser mot.<\/p>"}, {"id": "B", "title": "Kald dal en vintermorgen", "sec": "del2", "img": "o_b_inversjon_dal.png", "alt": "Graf med temperatur fra minus 16 til 0 grader på den vannrette aksen og høyde over dalbunnen fra 0 til 1200 m på den loddrette. En heltrukket linje viser temperaturen kl. 06 og en stiplet linje temperaturen kl. 15. Over 300 m ligger linjene oppå hverandre. Støttelinjer for hver 2. grad og hver 100 m. Graf.", "stem": "<p>En natt i januar var det skyfritt og nesten vindstille i en dal i innlandet. Figur B viser temperaturen fra dalbunnen og opp til 1200 m over dalbunnen kl. 06 og kl. 15. Om dagen skinte sola. Figuren viser en tenkt situasjon.<\/p>"}, {"id": "C", "title": "Regnbeltet som flytter seg", "sec": "del2", "img": "o_c_itcz.png", "alt": "To verdenskart over normal nedbør i mm per døgn, a) januar og b) juli, fra 60 grader sør til 60 grader nord. En stiplet linje viser ITCZ i januar og en heltrukket linje ITCZ i juli. Vendekretsene og ekvator er merket. Kart.", "stem": "<p>Figur C viser normal nedbør i januar og juli (1991–2020). Linjene følger beltet med mest nedbør i tropene, den intertropiske konvergenssonen (ITCZ).<\/p>"}, {"id": "D", "title": "Lavtrykk vest for Norge", "sec": "del2", "img": "o_d_analysekart.png", "alt": "Tenkt analysekart over Nord-Atlanteren og Nord-Europa med isobarer for hver 5. hPa, et lavtrykk på 976 hPa mellom Island og Norge, et høytrykk på 1026 hPa sørvest i kartet og et høytrykk på 1020 hPa over Finland. En kaldfront, en varmfront og en okklusjon går ut fra lavtrykket. Bergen og punktene A, B, C og D er merket, og noen stasjoner viser vind og skydekke. Kart.", "stem": "<p>Figur D er et tenkt analysekart for dag 2 kl. 12 UTC. Et lavtrykk på 976 hPa ligger mellom Island og Norge, og et høytrykk ligger over Finland. Punktene A, B, C og D er merket på kartet. Lavtrykket beveger seg østover mot Midt-Norge.<\/p>"}, {"id": "E", "title": "Orkanen Gabrielle", "sec": "del2", "img": "o_e_gabrielle.png", "alt": "To grafer for orkanen Gabrielle fra 18. til 29. september 2025. a) Sterkeste middelvind i m/s og laveste trykk i sentrum i hPa, med bakgrunnsfarger for tropisk storm, orkan og ekstratropisk lavtrykk. b) Havtemperaturen under sentrum, med en stiplet linje ved 26,5 grader. Graf.", "stem": "<p>Gabrielle ble en tropisk storm øst for De små Antillene i september 2025. Den passerte øst for Bermuda som en kraftig orkan og gikk videre mot Azorene, der den ble et ekstratropisk lavtrykk. Figur E a) viser den sterkeste middelvinden og det laveste trykket i sentrum. Figur E b) viser havtemperaturen under sentrum.<\/p>"}, {"id": "F", "title": "Ekstremværet Jakob", "sec": "del2", "img": "o_f_jakob.png", "alt": "a) Kart over Vestlandet med summert nedbør i mm fra 30. oktober til 1. november 2024, med Bergen, Voss og en linje langs 60,5 grader nord. b) Snitt langs 60,5 grader nord med nedbøren som linje og terrenghøyden som grått område, fra 3 til 13 grader øst, med losiden, lesiden og regnskyggen merket. Kart og graf.", "stem": "<p>Ekstremværet Jakob ga mye nedbør på Vestlandet fra 30. oktober til 1. november 2024. Figur F a) viser nedbøren i hele perioden. Figur F b) viser nedbøren og terrenghøyden i et snitt langs 60,5° N. Tallene er fra ERA5, som glatter ut fjellene.<\/p>"}], "qs": [{"n": 1, "title": "Kreftene på vinden", "group": null, "sec": "del1", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Hvilke påstander om vinden stemmer? Det kan være flere riktige svar.<\/p>", "opts": [{"t": "Over friksjonslaget blåser vinden nesten parallelt med isobarene.", "ok": true, "ex": "Riktig. Trykkgradientkraften og corioliskraften er omtrent i balanse (geostrofisk vind)."}, {"t": "Nær bakken bremser friksjonen vinden, så den krysser isobarene innover.", "ok": true, "ex": "Riktig. Svakere vind gir svakere corioliskraft, så trykkgradientkraften vinner litt."}, {"t": "Jo tettere isobarene ligger, desto større er trykkgradientkraften.", "ok": true, "ex": "Riktig. Stor trykkforskjell over kort avstand gir stor kraft og sterk vind."}, {"t": "Over friksjonslaget blåser vinden rett fra høytrykket og inn mot lavtrykket i sentrum.", "ok": false, "ex": "Feil. Glemmer corioliskraften."}, {"t": "Friksjonen er større over havet enn over land, så vinden er svakest til havs.", "ok": false, "ex": "Feil. Snur det. Land er ruere enn hav, så vinden er sterkest til havs."}, {"t": "Trykkgradientkraften peker fra lavtrykket og ut mot høytrykket.", "ok": false, "ex": "Feil. Snur retningen på kraften."}], "multi": true}, {"n": 2, "title": "Stabil eller ustabil?", "group": null, "sec": "del1", "pts": 1.0, "kap": 10, "type": "choice", "prompt": "<p>En umettet luftpakke løftes 500 m. Lufta rundt har miljøgradienten 0,65 °C per 100 m. Hvordan er luftpakka sammenlignet med lufta rundt etter løftet?<\/p>", "opts": [{"t": "Omtrent 1,75 °C kaldere, så den synker tilbake. Lufta er stabil.", "ok": true, "ex": "Riktig. Pakka avkjøles tørradiabatisk: 5 · 1 = 5 °C. Lufta rundt: 5 · 0,65 = 3,25 °C. Pakka er 1,75 °C kaldere og tyngre."}, {"t": "Omtrent 1,75 °C varmere, så den fortsetter å stige. Lufta er ustabil.", "ok": false, "ex": "Feil. Snur hvem som avkjøles mest."}, {"t": "Omtrent 0,25 °C varmere, så den fortsetter å stige. Lufta er ustabil.", "ok": false, "ex": "Feil. Bruker fuktigadiabaten (0,6) selv om pakka er umettet."}, {"t": "Like varm som lufta rundt, fordi begge avkjøles like mye med høyden.", "ok": false, "ex": "Feil. Blander adiabaten og miljøgradienten."}], "multi": false}, {"n": 3, "title": "Hva ser du på himmelen?", "group": null, "sec": "del1", "pts": 1.0, "kap": 12, "type": "match", "prompt": "<p>Koble det du ser på himmelen med forklaringen som passer best.<\/p>", "pairs": [{"left": "Halo rundt sola", "right": "Tynne skyer av iskrystaller høyt oppe, ofte foran en varmfront", "expl": "Halo rundt sola: tynne skyer av iskrystaller høyt oppe, ofte foran en varmfront."}, {"left": "Hagl og torden", "right": "Høye cumulonimbus med kraftige oppvinder i ustabil luft", "expl": "Hagl og torden: høye cumulonimbus med kraftige oppvinder i ustabil luft."}, {"left": "Yr fra et lavt, grått skylag", "right": "Stratus som dannes når fuktig luft avkjøles i stabil lagdeling", "expl": "Yr fra et lavt, grått skylag: stratus som dannes når fuktig luft avkjøles i stabil lagdeling."}, {"left": "Linseformede skyer over et fjell", "right": "Bølger i lufta på lesiden av fjellet når vinden er sterk", "expl": "Linseformede skyer over et fjell: bølger i lufta på lesiden av fjellet når vinden er sterk."}, {"left": "Tåke en klar og stille høstmorgen", "right": "Bakken emitterer langbølget stråling om natta og kjøler lufta nær bakken", "expl": "Tåke en klar og stille høstmorgen: bakken emitterer langbølget stråling om natta og kjøler lufta nær bakken."}]}, {"n": 4, "title": "Når bølgene står stille", "group": null, "sec": "del1", "pts": 1.0, "kap": 11, "type": "choice", "prompt": "<p>Polarfront-jetstrømmen bukter seg i store rossbybølger. Hva skjer når bølgene blir svært store og står nesten stille i flere dager?<\/p>", "opts": [{"t": "Det samme været blir liggende lenge, fordi trykksystemene står stille.", "ok": true, "ex": "Riktig. Blokkering."}, {"t": "Lavtrykkene flytter seg raskere østover, fordi jetstrømmen blir sterkere.", "ok": false, "ex": "Feil. Tror store bølger betyr sterk og rett jetstrøm."}, {"t": "Været skifter oftere, fordi lavtrykkene følger bølgene i alle retninger.", "ok": false, "ex": "Feil. Har ikke forstått at mønsteret står stille."}, {"t": "Det blir høytrykk overalt, fordi jetstrømmen stopper all stigende luft.", "ok": false, "ex": "Feil. Overdriver. Det er både høytrykk og lavtrykk i en blokkering."}], "multi": false}, {"n": 5, "title": "Lavtrykksbeltet ved 60°", "group": null, "sec": "del1", "pts": 1.0, "kap": 11, "type": "choice", "prompt": "<p>Hvorfor er det et belte med mange lavtrykk rundt 60° nordlig bredde?<\/p>", "opts": [{"t": "Varm luft fra sør møter kald luft, og lufta stiger ved polarfronten.", "ok": true, "ex": "Riktig. Polarfronten og polarfront-jetstrømmen gir lavtrykk her."}, {"t": "Kald luft synker der, fordi den er blitt avkjølt over isen lenger nord.", "ok": false, "ex": "Feil. Synkende luft gir høytrykk, ikke lavtrykk."}, {"t": "Corioliskraften er størst der, så lufta blir slynget opp i høyden.", "ok": false, "ex": "Feil. Corioliskraften løfter ikke luft."}, {"t": "Sola varmer bakken mest der om sommeren, så lufta stiger hele året.", "ok": false, "ex": "Feil. Feil om innstrålingen, og forklarer ikke vinteren."}], "multi": false}, {"n": 6, "title": "Fronter og luftmasser", "group": null, "sec": "del1", "pts": 1.0, "kap": 12, "type": "match", "prompt": "<p>Koble fronten eller området med det du merker når det passerer.<\/p>", "pairs": [{"left": "Varmfront", "right": "Trykket faller, og det regner jevnt i mange timer før det blir mildere", "expl": "Varmfront: trykket faller, og det regner jevnt i mange timer før det blir mildere."}, {"left": "Kaldfront", "right": "Temperaturen faller brått, vinden dreier, og det blir byger", "expl": "Kaldfront: temperaturen faller brått, vinden dreier, og det blir byger."}, {"left": "Varm sektor", "right": "Mildt og fuktig, ofte med lave skyer og yr", "expl": "Varm sektor: mildt og fuktig, ofte med lave skyer og yr."}, {"left": "Høytrykk", "right": "Svak vind og lite skyer, og kalde netter om vinteren", "expl": "Høytrykk: svak vind og lite skyer, og kalde netter om vinteren."}]}, {"n": 7, "title": "Ensemblevarsel", "group": null, "sec": "del1", "pts": 1.0, "kap": 14, "type": "choice", "prompt": "<p>Et ensemblevarsel består av mange kjøringer av den samme værmodellen med litt ulike startverdier. Hvorfor gjør meteorologene det?<\/p>", "opts": [{"t": "Små feil i startverdiene vokser, og spredningen viser hvor sikkert det er.", "ok": true, "ex": "Riktig. Atmosfæren er kaotisk. Ligger kjøringene tett, er varselet sikkert. Sprer de seg, er det usikkert."}, {"t": "Hver kjøring bruker en egen modell, og meteorologene velger den som får rett.", "ok": false, "ex": "Feil. Tror ensemblet er mange forskjellige modeller."}, {"t": "Gjennomsnittet av alle kjøringene blir helt riktig for hver av de neste ti dagene.", "ok": false, "ex": "Feil. Tror ensemblet fjerner all usikkerhet."}, {"t": "Kjøringene brukes til å finne ut hvilke værstasjoner som har målt feil.", "ok": false, "ex": "Feil. Blander ensemble med kvalitetskontroll av målinger."}], "multi": false}, {"n": 8, "title": "Små ruter i værmodellen", "group": null, "sec": "del1", "pts": 1.0, "kap": 14, "type": "choice", "prompt": "<p>Værmodellen MEPS har ruter på 2,5 km, mens den globale modellen fra ECMWF har ruter på omtrent 9 km. Hvorfor varsler MEPS ofte nedbøren på Vestlandet bedre?<\/p>", "opts": [{"t": "Fjell og fjorder kommer bedre fram, så det orografiske løftet blir riktigere.", "ok": true, "ex": "Riktig. Med små ruter blir fjellene høyere og brattere i modellen, og løftet og nedbøren havner på riktig sted."}, {"t": "MEPS bruker flere satellitter, så den vet alltid nøyaktig hvor regnet faller.", "ok": false, "ex": "Feil. Blander oppløsning og observasjoner."}, {"t": "Mindre ruter gjør at modellen kan varsle like godt to uker fram i tid som i morgen.", "ok": false, "ex": "Feil. Små ruter forlenger ikke hvor langt fram vi kan varsle."}, {"t": "MEPS regner bare på Norge, så den slipper å ta hensyn til været i resten av verden.", "ok": false, "ex": "Feil. MEPS trenger randverdier fra en global modell."}], "multi": false}, {"n": 9, "title": "A1: Vindretningen", "group": "A", "sec": "del2", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Fra hvilken retning blåste vinden på Utsira fredag 3. oktober?<\/p>", "opts": [{"t": "Fra sør og sørøst, fordi pilene peker mot nord og nordvest.", "ok": true, "ex": "Riktig. Vindretningen oppgis alltid som retningen vinden kommer fra."}, {"t": "Fra nord og nordvest, fordi pilene peker mot nord og nordvest.", "ok": false, "ex": "Feil. Forveksler hvor vinden kommer fra og hvor den blåser mot."}, {"t": "Fra sørvest og vest, fordi stormer alltid kommer inn fra havet.", "ok": false, "ex": "Feil. Leser ikke figuren, men bruker en huskeregel."}, {"t": "Fra nordøst og øst, fordi pilene peker mot nord og nordvest.", "ok": false, "ex": "Feil. Snur retningen feil vei."}], "multi": false}, {"n": 10, "title": "A2: Natt til lørdag", "group": "A", "sec": "del2", "pts": 1.0, "kap": 12, "type": "choice", "prompt": "<p>Natt til lørdag 4. oktober falt middelvinden brått fra nesten 30 til under 20 m/s, den kraftige nedbøren stoppet, og vinden dreide. Hva passerte Utsira da?<\/p>", "opts": [{"t": "En kaldfront, fordi vinden dreide mot sørvest og den kraftige nedbøren stoppet brått.", "ok": true, "ex": "Riktig. Kraftig nedbør ved fronten, så vinddreining og byger i kaldere luft bak."}, {"t": "En varmfront, fordi vinden dreide mot sørvest og den kraftige nedbøren stoppet brått.", "ok": false, "ex": "Feil. Kjenner tegnene, men ikke hvilken front de hører til."}, {"t": "Sentrum av lavtrykket, fordi trykket var lavest og vinden var svakest akkurat da.", "ok": false, "ex": "Feil. Trykket var ikke lavest da. Det lå lavt hele lørdagen og var lavest søndag morgen."}, {"t": "Et høytrykk, fordi vinden avtok og det sluttet å regne nesten med en gang.", "ok": false, "ex": "Feil. Ser ikke på trykket, som fortsatt var lavt."}], "multi": false}, {"n": 11, "title": "A3: Amy passerer", "group": "A", "sec": "del2", "pts": 3.0, "kap": 12, "type": "open", "prompt": "<p>Bruk figur A og beskriv hvordan trykket, vinden og nedbøren endret seg på Utsira fra torsdag til mandag. Forklar endringene med lavtrykket og frontene som passerte. Bruk begrepene trykkfall, varmfront, kaldfront og vinddreining.<\/p>", "model": "<p>Torsdag var trykket høyt, over 1020 hPa, og det var lite nedbør. Fredag falt trykket med omtrent 40 hPa på et døgn. Et kraftig trykkfall viser at et dypt lavtrykk nærmer seg. Vinden økte fra omtrent 18 til nesten 30 m/s og kom fra sør og sørøst. Fredag formiddag kom det jevn nedbør da varmfronten nærmet seg. Natt til lørdag kom den kraftigste nedbøren, nesten 9 mm på en time. Da passerte kaldfronten. Etter kaldfronten var det en tydelig vinddreining mot sørvest, middelvinden falt brått, og nedbøren gikk over til spredte byger. Trykket sluttet å falle og lå rundt 972 hPa hele lørdagen, mens lavtrykket lå nord eller vest for Utsira. Søndag morgen var trykket lavest, 969 hPa. Etterpå steg det raskt, og vinden dreide mot nord og nordvest da lavtrykket trakk bort og kaldere luft kom inn. Mandag var trykket over 1010 hPa og vinden svak.<\/p>", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>Trykkfallet fredag viser at lavtrykket nærmer seg (tall fra figuren)<\/td>\n<\/tr>\n<tr>\n<td>Vinden fra sør og sørøst øker foran lavtrykket<\/td>\n<\/tr>\n<tr>\n<td>Jevn nedbør ved varmfronten, kraftigst nedbør ved kaldfronten<\/td>\n<\/tr>\n<tr>\n<td>Vinddreining mot sørvest og byger etter kaldfronten<\/td>\n<\/tr>\n<tr>\n<td>Trykket stiger og vinden dreier mot nord når lavtrykket trekker bort<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Nivå<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>1<\/td>\n<td>Lav<\/td>\n<td>Beskriver at trykket falt og vinden økte, uten å koble det til fronter.<\/td>\n<\/tr>\n<tr>\n<td>2<\/td>\n<td>God<\/td>\n<td>Kobler trykkfall og vind til lavtrykket, og plasserer minst én front riktig i tid med en begrunnelse fra figuren.<\/td>\n<\/tr>\n<tr>\n<td>3<\/td>\n<td>Utmerket<\/td>\n<td>Forklarer hele forløpet med både varmfront og kaldfront, bruker tall fra figuren og forklarer vinddreiningen.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Tolker pilene som retningen vinden kommer fra.<\/li>\n<li>Tror kaldfronten kom da trykket var lavest søndag.<\/li>\n<li>Beskriver bare én av de tre grafene.<\/li>\n<\/ul>"}, {"n": 12, "title": "B1: Kaldest i bunnen", "group": "B", "sec": "del2", "pts": 1.0, "kap": 10, "type": "choice", "prompt": "<p>Hvorfor er det kaldest ved dalbunnen kl. 06?<\/p>", "opts": [{"t": "Bakken emitterer mye stråling om natta, og kald, tung luft renner ned dalsidene til bunnen.", "ok": true, "ex": "Riktig. Utstråling gjør bakken kald, og kald luft er tyngre og samler seg i bunnen av dalen."}, {"t": "Varm luft ved dalbunnen stiger om natta, så kald luft fra 1200 m synker ned og tar plassen.", "ok": false, "ex": "Feil. Har ikke forstått at lufta øverst er varmere enn lufta i bunnen."}, {"t": "Høytrykket presser kald luft fra stratosfæren ned mot bakken, slik at bunnen blir kaldest.", "ok": false, "ex": "Feil. Blander synkende luft i høytrykk med kald luft."}, {"t": "Bakken absorberer mer langbølget stråling om natta enn den emitterer, og blir derfor kald.", "ok": false, "ex": "Feil. Snur strålingsbalansen."}], "multi": false}, {"n": 13, "title": "B2: Les av figuren", "group": "B", "sec": "del2", "pts": 1.0, "kap": 10, "type": "inline", "text": "<p>Kl. 06 er det {0} ved dalbunnen enn 300 m over dalbunnen. Kl. 15 avtar temperaturen med {1} per 100 m i de nederste 300 m.<\/p>", "fields": [[{"t": "8 °C kaldere", "ok": true, "ex": "Riktig. −14 °C mot −6 °C gir 8 °C kaldere. Kl. 15: fra −3 til −6 °C over 300 m gir 1 °C per 100 m, altså tørradiabaten. Typiske feil: 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}, {"t": "8 °C varmere", "ok": false, "ex": "Feil. Riktig svar er «8 °C kaldere». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}, {"t": "6 °C kaldere", "ok": false, "ex": "Feil. Riktig svar er «8 °C kaldere». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}, {"t": "14 °C kaldere", "ok": false, "ex": "Feil. Riktig svar er «8 °C kaldere». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}], [{"t": "1 °C", "ok": true, "ex": "Riktig."}, {"t": "3 °C", "ok": false, "ex": "Feil. Riktig svar er «1 °C». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}, {"t": "0,65 °C", "ok": false, "ex": "Feil. Riktig svar er «1 °C». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}, {"t": "0,6 °C", "ok": false, "ex": "Feil. Riktig svar er «1 °C». 6 og 14 (leser bare én av verdiene), 3 °C (glemmer å dele på 3), 0,65 og 0,6 (velger en kjent verdi uten å lese av)."}]]}, {"n": 14, "title": "B3: Vinden langs dalsidene", "group": "B", "sec": "del2", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Hvordan blåser vinden langs dalsidene midt på en solrik dag?<\/p>", "opts": [{"t": "Oppover dalsidene, fordi sola varmer lia, og lufta nær bakken blir lettere.", "ok": true, "ex": "Riktig. Dalvind. Om natta snur det, og kald luft renner ned som fjellvind."}, {"t": "Nedover dalsidene, fordi sola varmer lia, og lufta nær bakken blir tyngre.", "ok": false, "ex": "Feil. Snur sammenhengen mellom temperatur og tetthet."}, {"t": "Nedover dalsidene, fordi kald luft fra fjellet alltid renner ned mot dalen om dagen.", "ok": false, "ex": "Feil. Blander dalvind om dagen og fjellvind om natta."}, {"t": "Oppover dalsidene, fordi corioliskraften bøyer vinden opp mot toppen av fjellet.", "ok": false, "ex": "Feil. Corioliskraften virker horisontalt og betyr lite på så kort avstand."}], "multi": false}, {"n": 15, "title": "B4: Natt og dag i dalen", "group": "B", "sec": "del2", "pts": 3.0, "kap": 10, "type": "open", "prompt": "<p>Forklar hvorfor temperaturen kl. 06 og kl. 15 endrer seg så ulikt med høyden, og hva det betyr for lufta og forurensningen i dalen. Bruk figur B og begrepene inversjon, stabil lagdeling, utstråling og konveksjon.<\/p>", "model": "<p>Kl. 06 stiger temperaturen fra −14 °C ved dalbunnen til −6 °C 300 m opp. Det er en inversjon. I en skyfri og stille natt emitterer bakken mye langbølget stråling, og utstrålingen gjør bakken kald. Lufta nær bakken blir avkjølt, og kald, tung luft renner ned dalsidene og samler seg i bunnen. Med kald luft under varm luft er lagdelingen svært stabil. Lufta blandes ikke, så eksos og røyk blir liggende i dalen. Om dagen varmer sola bakken, og bakken varmer lufta nær bakken. Varm luft stiger i bobler (konveksjon) og blander lufta. Kl. 15 er inversjonen borte, og temperaturen avtar med 1 °C per 100 m i de nederste 300 m, som tørradiabaten. Lufta er godt blandet, og forurensningen blir spredt.<\/p>", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>Inversjon kl. 06, med tall fra figuren<\/td>\n<\/tr>\n<tr>\n<td>Utstråling fra bakken i en klar og stille natt, og kald luft som renner ned dalsidene<\/td>\n<\/tr>\n<tr>\n<td>Stabil lagdeling hindrer blanding, så forurensningen blir liggende<\/td>\n<\/tr>\n<tr>\n<td>Sola varmer bakken, og konveksjon blander lufta om dagen<\/td>\n<\/tr>\n<tr>\n<td>Kl. 15 følger temperaturen tørradiabaten nær bakken<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Nivå<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>1<\/td>\n<td>Lav<\/td>\n<td>Sier at det er kaldere i bunnen om natta og varmere om dagen, uten å forklare hvorfor.<\/td>\n<\/tr>\n<tr>\n<td>2<\/td>\n<td>God<\/td>\n<td>Forklarer inversjonen med utstråling og den stabile lagdelingen, og at sola bryter inversjonen.<\/td>\n<\/tr>\n<tr>\n<td>3<\/td>\n<td>Utmerket<\/td>\n<td>Forklarer både natt og dag med riktige begreper og tall fra figuren, og knytter stabiliteten til forurensningen.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Sier at varm luft synker.<\/li>\n<li>Blander inversjon og høytrykk.<\/li>\n<li>Glemmer at det er bakken.<\/li>\n<li>Ikke lufta.<\/li>\n<li>Som varmes direkte av sola.<\/li>\n<\/ul>"}, {"n": 16, "title": "C1: Cellene i atmosfæren", "group": "C", "sec": "del2", "pts": 1.0, "kap": 11, "type": "match", "prompt": "<p>Koble sammen.<\/p>", "pairs": [{"left": "Hadley-cellen", "right": "Lufta stiger ved ITCZ og synker rundt 30° nordlig og sørlig bredde", "expl": "Hadley-cellen: lufta stiger ved ITCZ og synker rundt 30° nordlig og sørlig bredde."}, {"left": "Ferrel-cellen", "right": "Ligger mellom 30° og 60°, der vestavindene dominerer ved bakken", "expl": "Ferrel-cellen: ligger mellom 30° og 60°, der vestavindene dominerer ved bakken."}, {"left": "Polarcellen", "right": "Kald luft synker over polområdet og strømmer ut mot 60°", "expl": "Polarcellen: kald luft synker over polområdet og strømmer ut mot 60°."}, {"left": "Monsunen", "right": "Vinden snur med årstidene fordi land varmes mer opp enn hav om sommeren", "expl": "Monsunen: vinden snur med årstidene fordi land varmes mer opp enn hav om sommeren."}]}, {"n": 17, "title": "C2: Langt nord over Asia", "group": "C", "sec": "del2", "pts": 1.0, "kap": 11, "type": "choice", "prompt": "<p>I juli ligger ITCZ langt nord over India og Sørøst-Asia (figur C b). Hvorfor flytter den seg så langt der?<\/p>", "opts": [{"t": "Land varmes mer opp enn hav om sommeren, så lufta stiger over land og trekker inn fuktig luft.", "ok": true, "ex": "Riktig. Sommermonsunen i Asia. Lufta stiger over det varme kontinentet, og fuktig luft fra Indiahavet strømmer inn."}, {"t": "Havet varmes mer opp enn land om sommeren, så lufta stiger over havet og skyver regnet inn over land.", "ok": false, "ex": "Feil. Snur oppvarmingen av land og hav."}, {"t": "Corioliskraften er sterkest om sommeren, så vinden bøyes nordover og tar med seg regnbeltet.", "ok": false, "ex": "Feil. Corioliskraften endrer seg ikke med årstidene."}, {"t": "Himalaya stopper passatvindene, slik at regnbeltet blir liggende fast over India hele året.", "ok": false, "ex": "Feil. Leser ikke figuren. Regnbeltet ligger der bare om sommeren."}], "multi": false}, {"n": 18, "title": "C3: Les av figur C", "group": "C", "sec": "del2", "pts": 1.0, "kap": 11, "type": "inline", "text": "<p>Over Atlanterhavet ligger ITCZ i januar {0}, og i juli {1}.<\/p>", "fields": [[{"t": "nær ekvator", "ok": true, "ex": "Riktig. Typiske feil: ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}, {"t": "ved 15° N", "ok": false, "ex": "Feil. Riktig svar er «nær ekvator». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}, {"t": "ved 15° S", "ok": false, "ex": "Feil. Riktig svar er «nær ekvator». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}, {"t": "ved 30° N", "ok": false, "ex": "Feil. Riktig svar er «nær ekvator». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}], [{"t": "ved omtrent 10° N", "ok": true, "ex": "Riktig."}, {"t": "nær ekvator", "ok": false, "ex": "Feil. Riktig svar er «ved omtrent 10° N». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}, {"t": "ved omtrent 25° N", "ok": false, "ex": "Feil. Riktig svar er «ved omtrent 10° N». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}, {"t": "ved omtrent 10° S", "ok": false, "ex": "Feil. Riktig svar er «ved omtrent 10° N». ved 15° S i januar (tror regnbeltet følger sola like langt sør over havet som over land), og ved 25° N i juli (blander ITCZ over havet med monsunen over Asia)."}]]}, {"n": 19, "title": "C4: Våte og tørre belter", "group": "C", "sec": "del2", "pts": 4.0, "kap": 11, "type": "open", "prompt": "<p>Forklar hvorfor det regner mye ved ITCZ og lite rundt 30° nordlig og sørlig bredde, og hvordan Hadley-cellen frakter energi bort fra tropene. Forklar også hvorfor ITCZ flytter seg mellom januar og juli. Bruk figur C og begrepene konvergens, latent varme, synkende luft og Hadley-cellen.<\/p>", "model": "<p>Ved ITCZ møtes passatvindene fra nord og sør. Lufta konvergerer og må stige. Når den fuktige lufta stiger, avkjøles den, vanndampen kondenserer, og det dannes store bygeskyer med mye regn. Figur C viser over 10 mm per døgn i beltet. Kondensasjonen frigjør latent varme, som varmer lufta i høyden og gjør at den stiger enda mer. I høyden strømmer lufta mot polene. Rundt 30° synker den igjen. Synkende luft blir varmere ved kompresjon og tørrere, så skyene løser seg opp, og det blir lite nedbør. Det er der de store ørkenene ligger. Lufta strømmer tilbake mot ekvator ved bakken som passatvinder. Dette er Hadley-cellen. Den frakter energi mot polene som latent varme og som varm luft i høyden. ITCZ følger området der sola varmer mest. I januar ligger den nær ekvator over havet og sør for ekvator over Sør-Amerika, Afrika og Australia. I juli ligger den nord for ekvator, og over Asia langt nord, fordi landet varmes mer opp enn havet.<\/p>", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>Konvergens og stigende luft ved ITCZ gir kraftig nedbør (med figuren)<\/td>\n<\/tr>\n<tr>\n<td>Latent varme frigjøres ved kondensasjon og driver sirkulasjonen<\/td>\n<\/tr>\n<tr>\n<td>Synkende luft rundt 30° varmes og blir tørr, så det blir lite nedbør<\/td>\n<\/tr>\n<tr>\n<td>Hadley-cellen frakter energi mot polene i høyden<\/td>\n<\/tr>\n<tr>\n<td>ITCZ flytter seg med årstidene og lengst over land (med figuren)<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Nivå<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>1<\/td>\n<td>Lav<\/td>\n<td>Sier at det regner mye ved ekvator og lite i ørkenene, uten mekanismen.<\/td>\n<\/tr>\n<tr>\n<td>2<\/td>\n<td>God<\/td>\n<td>Forklarer stigende luft ved ITCZ og synkende luft ved 30° som deler av Hadley-cellen.<\/td>\n<\/tr>\n<tr>\n<td>3<\/td>\n<td>God til utmerket<\/td>\n<td>I tillegg forklarer latent varme og energitransporten mot polene, eller flyttingen av ITCZ med figuren.<\/td>\n<\/tr>\n<tr>\n<td>4<\/td>\n<td>Utmerket<\/td>\n<td>Forklarer alle delene presist og bruker figuren aktivt.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Sier at varm luft synker ved 30° fordi den er kald.<\/li>\n<li>Blander ITCZ og polarfronten.<\/li>\n<li>Forklarer flyttingen med at jorda er nærmere sola om sommeren.<\/li>\n<\/ul>"}, {"n": 20, "title": "D1: Vinden ved A", "group": "D", "sec": "del2", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Hvordan er vinden ved punkt A?<\/p>", "opts": [{"t": "Sterk vind fra nordvest, fordi isobarene ligger tett og lufta går mot klokka.", "ok": true, "ex": "Riktig. Vest for et lavtrykk på den nordlige halvkulen kommer vinden fra nord og nordvest."}, {"t": "Sterk vind fra sørøst, fordi isobarene ligger tett og lufta går med klokka.", "ok": false, "ex": "Feil. Bruker regelen for høytrykk."}, {"t": "Svak vind fra nordvest, fordi lufta går mot klokka og isobarene ligger langt fra hverandre.", "ok": false, "ex": "Feil. Leser avstanden mellom isobarene feil."}, {"t": "Sterk vind rett inn mot sentrum, fordi lufta alltid strømmer fra høyt mot lavt trykk.", "ok": false, "ex": "Feil. Glemmer corioliskraften."}], "multi": false}, {"n": 21, "title": "D2: Les kartet", "group": "D", "sec": "del2", "pts": 2.0, "kap": 12, "type": "inline", "text": "<p>Bergen ligger like vest for {0}, altså i {1}. Punkt C ligger i {2}. Ved punkt D er det {3}.<\/p>", "fields": [[{"t": "varmfronten", "ok": true, "ex": "Riktig. Typiske feil: tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}, {"t": "kaldfronten", "ok": false, "ex": "Feil. Riktig svar er «varmfronten». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}, {"t": "okklusjonen", "ok": false, "ex": "Feil. Riktig svar er «varmfronten». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}], [{"t": "den varme sektoren", "ok": true, "ex": "Riktig."}, {"t": "den kalde lufta bak kaldfronten", "ok": false, "ex": "Feil. Riktig svar er «den varme sektoren». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}, {"t": "den kalde lufta foran varmfronten", "ok": false, "ex": "Feil. Riktig svar er «den varme sektoren». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}], [{"t": "kald luft bak kaldfronten", "ok": true, "ex": "Riktig."}, {"t": "den varme sektoren", "ok": false, "ex": "Feil. Riktig svar er «kald luft bak kaldfronten». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}, {"t": "kald luft foran varmfronten", "ok": false, "ex": "Feil. Riktig svar er «kald luft bak kaldfronten». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}], [{"t": "svak vind og lite skyer", "ok": true, "ex": "Riktig."}, {"t": "sterk vind og mye nedbør", "ok": false, "ex": "Feil. Riktig svar er «svak vind og lite skyer». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}, {"t": "sterk vind og lite skyer", "ok": false, "ex": "Feil. Riktig svar er «svak vind og lite skyer». tror Bergen ligger foran varmfronten fordi byen ligger nær linjen, tror C er varm fordi punktet ligger lenger sør, og tror høytrykk gir sterk vind fordi tallet er høyt."}]]}, {"n": 22, "title": "D3: Hva stemmer?", "group": "D", "sec": "del2", "pts": 1.0, "kap": 12, "type": "choice", "prompt": "<p>Hvilke påstander stemmer med kartet? Det kan være flere riktige svar.<\/p>", "opts": [{"t": "Vinden er sterkere ved A enn ved C, fordi isobarene ligger tettere.", "ok": true, "ex": "Riktig. Tette isobarer betyr stor trykkgradient og sterk vind."}, {"t": "Når kaldfronten passerer Bergen, faller temperaturen, og vinden dreier.", "ok": true, "ex": "Riktig. Bak kaldfronten kommer kaldere luft, og vinden dreier fra sørvest mot vest og nordvest."}, {"t": "Lavtrykket har begynt å okkludere nær sentrum, der fronten er lilla.", "ok": true, "ex": "Riktig. Den lilla linjen er en okklusjon, der kaldfronten har tatt igjen varmfronten."}, {"t": "Det er varmere ved C enn ved B, fordi C ligger lenger sør på kartet enn B.", "ok": false, "ex": "Feil. Ser bare på breddegraden, ikke på luftmassene."}, {"t": "Lufta ved D stiger og gir mange skyer, fordi trykket er høyt der i midten.", "ok": false, "ex": "Feil. Snur vertikalbevegelsen i høytrykket."}], "multi": true}, {"n": 23, "title": "D4: Varsel for Bergen", "group": "D", "sec": "del2", "pts": 4.0, "kap": 12, "type": "open", "prompt": "<p>Lag et værvarsel for Bergen for de neste 12 timene, mens lavtrykket beveger seg østover mot Midt-Norge. Varselet skal si noe om temperatur, nedbør og vind, og hvordan været endrer seg når kaldfronten passerer. Begrunn varselet med kartet. Bruk begrepene varm sektor, kaldfront, vinddreining og byger.<\/p>", "model": "<p>Bergen ligger nå i den varme sektoren, mellom varmfronten og kaldfronten. Det er mildt og fuktig, med lave skyer og yr eller regn. Isobarene ligger ganske tett, og vinden er frisk fra sørvest. De neste timene kommer kaldfronten inn fra vest. Ved fronten blir det kraftig regn og kanskje vindkast. Når kaldfronten har passert, er det en tydelig vinddreining fra sørvest til vest eller nordvest. Kaldere luft kommer inn, temperaturen faller noen grader, og det blir byger, kanskje med hagl, fordi kald luft over varmere hav er ustabil. Når lavtrykket trekker østover mot Midt-Norge, stiger trykket, og vinden avtar etter hvert.<\/p>", "moment": "<table>\n<thead>\n<tr>\n<th>Moment<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>Bergen i varm sektor nå: mildt, fuktig, lave skyer og regn<\/td>\n<\/tr>\n<tr>\n<td>Vind fra sørvest, frisk fordi isobarene ligger tett<\/td>\n<\/tr>\n<tr>\n<td>Kraftig regn når kaldfronten passerer<\/td>\n<\/tr>\n<tr>\n<td>Vinddreining mot vest eller nordvest og fallende temperatur etter fronten<\/td>\n<\/tr>\n<tr>\n<td>Byger i kald, ustabil luft bak fronten, og stigende trykk når lavtrykket trekker bort<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "trapp": "<table>\n<thead>\n<tr>\n<th>Poeng<\/th>\n<th>Nivå<\/th>\n<th>Kjennetegn<\/th>\n<\/tr>\n<\/thead>\n<tbody>\n<tr>\n<td>1<\/td>\n<td>Lav<\/td>\n<td>Gir et varsel med regn og vind uten å bruke kartet.<\/td>\n<\/tr>\n<tr>\n<td>2<\/td>\n<td>God<\/td>\n<td>Plasserer Bergen i den varme sektoren og varsler at kaldfronten kommer, med nedbør.<\/td>\n<\/tr>\n<tr>\n<td>3<\/td>\n<td>God til utmerket<\/td>\n<td>I tillegg varsler riktig vindretning før og etter fronten, og temperaturfall og byger etter fronten.<\/td>\n<\/tr>\n<tr>\n<td>4<\/td>\n<td>Utmerket<\/td>\n<td>Gir et helhetlig varsel med tidsforløp og begrunner hver del med kartet.<\/td>\n<\/tr>\n<\/tbody>\n<\/table>", "feil": "<ul>\n<li>Varsler oppklarning med en gang kaldfronten har passert.<\/li>\n<li>Glemmer bygene.<\/li>\n<li>Gir vind fra feil retning.<\/li>\n<\/ul>"}, {"n": 24, "title": "E1: Lufta i orkanen", "group": "E", "sec": "del2", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Gabrielle lå på den nordlige halvkulen. Hvordan strømmer lufta nær havoverflaten i orkanen?<\/p>", "opts": [{"t": "Mot klokka og inn mot sentrum, fordi friksjonen mot havet bremser vinden.", "ok": true, "ex": "Riktig. Corioliskraften gir rotasjon mot klokka på den nordlige halvkulen, og friksjonen gjør at lufta strømmer litt innover."}, {"t": "Med klokka og inn mot sentrum, fordi friksjonen mot havet bremser vinden.", "ok": false, "ex": "Feil. Bruker regelen fra den sørlige halvkulen."}, {"t": "Mot klokka og ut fra sentrum, fordi lufta i øyet presses ned og ut.", "ok": false, "ex": "Feil. Blander lufta ved havet med lufta som strømmer ut i høyden."}, {"t": "Mot klokka rundt sentrum, uten å strømme inn, fordi det ikke er friksjon på hav.", "ok": false, "ex": "Feil. Det er friksjon mot havet også, bare mindre enn over land."}], "multi": false}, {"n": 25, "title": "E2: Trykkfallet", "group": "E", "sec": "del2", "pts": 1.0, "kap": 13, "type": "fill", "prompt": "<p>Hvor mye falt trykket i sentrum fra 22. september kl. 00 til 23. september kl. 00? Svar i hele hPa. Svar: <span class=\"blank\">___<\/span> hPa<\/p>", "answer": 41.0, "tol": 4.0, "expl": "<p>Fasit: cirka 41 hPa (985 → 944 hPa). Svar fra 37 til 45 godtas, fordi avlesningen ikke kan bli helt nøyaktig. Typiske feil: 944 (leser av verdien i stedet for endringen) og 60 (regner fra 1004 hPa i starten).<\/p>"}, {"n": 26, "title": "E3: Svakere mot Azorene", "group": "E", "sec": "del2", "pts": 1.0, "kap": 13, "type": "choice", "prompt": "<p>Fra 24. september ble Gabrielle svakere. Hvilke forklaringer stemmer med figur E og det du vet om orkaner? Det kan være flere riktige svar.<\/p>", "opts": [{"t": "Havet under sentrum ble kaldere enn 26,5 °C, så det kom mindre latent varme.", "ok": true, "ex": "Riktig. Figur E b) viser at havtemperaturen falt under 26,5 °C rundt 25. september."}, {"t": "Gabrielle ble ekstratropisk og fikk energien fra forskjeller mellom luftmasser.", "ok": true, "ex": "Riktig. Figur E a) viser at Gabrielle ble et ekstratropisk lavtrykk 26. september."}, {"t": "Gabrielle kom inn over land, og friksjonen mot bakken bremset vinden mye.", "ok": false, "ex": "Feil. Gabrielle var over havet hele tiden."}, {"t": "Trykket i sentrum falt, og lavere trykk i sentrum gir svakere vind rundt.", "ok": false, "ex": "Feil. Snur trykket. Det steg."}, {"t": "Corioliskraften blir svakere lenger nord, så orkanen klarte ikke å holde rotasjonen.", "ok": false, "ex": "Feil. Snur det. Corioliskraften blir sterkere mot nord."}], "multi": true}, {"n": 27, "title": "F1: Les av snittet", "group": "F", "sec": "del2", "pts": 1.0, "kap": 13, "type": "fill", "prompt": "<p>Hvor mye mindre nedbør kom det ved 9° Ø enn der det kom mest nedbør i snittet? Svar i hele mm. Svar: <span class=\"blank\">___<\/span> mm<\/p>", "answer": 113.0, "tol": 8.0, "expl": "<p>Fasit: cirka 113 mm (142 − 29 mm). Svar fra 105 til 121 godtas, fordi avlesningen ikke kan bli helt nøyaktig. Typiske feil: 29 (leser av verdien ved 9° Ø) og 142 (leser av toppen).<\/p>"}, {"n": 28, "title": "F2: Før de høyeste fjellene", "group": "F", "sec": "del2", "pts": 1.0, "kap": 9, "type": "choice", "prompt": "<p>Hvorfor kom det mest nedbør rundt 6° Ø og ikke ved de høyeste fjellene rundt 8° Ø?<\/p>", "opts": [{"t": "Lufta ble mettet og ga mye regn i de første bakkene, så mye av vannet hadde falt ut før toppen.", "ok": true, "ex": "Riktig. Orografisk løft over de første fjellene ga mest nedbør. Lufta som nådde de høyeste fjellene, hadde mistet mye av vannet."}, {"t": "Lufta ble varmere da den steg, så den kunne holde på mer vanndamp oppe ved de høyeste fjellene.", "ok": false, "ex": "Feil. Snur temperaturendringen ved løft."}, {"t": "Vinden var svakest ved kysten, så skyene ble liggende stille og regnet ut over de lave fjellene.", "ok": false, "ex": "Feil. Det var vinden som løftet lufta."}, {"t": "Det var kaldest ved 6° Ø, fordi fjellene lenger øst skygget for sola gjennom hele døgnet.", "ok": false, "ex": "Feil. Blander skygge for sola med regnskygge."}], "multi": false}, {"n": 29, "title": "F3: Konsekvenser", "group": "F", "sec": "del2", "pts": 1.0, "kap": 13, "type": "choice", "prompt": "<p>Hvilken konsekvens var mest sannsynlig der det kom mest nedbør under Jakob?<\/p>", "opts": [{"t": "Flom og skred, fordi bakken ikke klarte å ta unna så mye vann.", "ok": true, "ex": "Riktig. Over 140 mm på to døgn gir mye vann i bekker og elver og fare for jord- og flomskred."}, {"t": "Stormflo langs hele kysten, fordi mye regn får havnivået til å stige mye.", "ok": false, "ex": "Feil. Blander nedbør og stormflo, som skyldes lavt trykk og vind."}, {"t": "Tørke og skogbrann, fordi fønvinden gjorde lufta varm og tørr på losiden.", "ok": false, "ex": "Feil. Blander lo og le."}, {"t": "Tett tåke og frost, fordi regnet kjølte ned lufta til under null grader.", "ok": false, "ex": "Feil. Har ikke koblet nedbørsmengden til flom."}], "multi": false}]};
+const KEY = "geofag2-oveprove-k9-14-v1";
+const fmt = n => (Math.round(n * 100) / 100).toString().replace(".", ",");
+let S = { a: {}, done: {}, self: {}, seed: Math.floor(Math.random() * 1e9) };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+save();
+
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function shuffled(arr, salt) { const r = rng(S.seed + salt * 7919); const a = arr.map((v, i) => [v, i]); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const el = (tag, attrs = {}, html = "") => { const e = document.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
+const TYPE = { choice: "Flervalg", inline: "Velg fra liste", match: "Finn par", fill: "Fyll inn tall", open: "Åpen skriveoppgave" };
+const groups = Object.fromEntries(DATA.groups.map(g => [g.id, g]));
+const qById = Object.fromEntries(DATA.qs.map(q => [q.n, q]));
+
+function scoreOf(q) {
+  const a = S.a[q.n];
+  if (q.type === "open") return S.self[q.n] ?? null;
+  if (a == null) return 0;
+  if (q.type === "choice") {
+    if (!q.multi) return q.opts[a]?.ok ? q.pts : 0;
+    const sel = new Set(a); const n = q.opts.length;
+    if (sel.size === 0 || sel.size === n) return 0;
+    return q.opts.reduce((s, o, i) => s + ((sel.has(i) === o.ok) ? q.pts / n : 0), 0);
+  }
+  if (q.type === "inline") return q.fields.reduce((s, f, i) => s + (f[a[i]]?.ok ? q.pts / q.fields.length : 0), 0);
+  if (q.type === "match") return q.pairs.reduce((s, p, i) => s + (a[i] === i ? q.pts / q.pairs.length : 0), 0);
+  if (q.type === "fill") { const v = parseNum(a); return v != null && Math.abs(v - q.answer) <= q.tol + 1e-9 ? q.pts : 0; }
+  return 0;
+}
+function parseNum(s) { if (s == null) return null; const t = String(s).replace(/−/g, "-").replace(/,/g, ".").replace(/°\s*c|grader|hpa|mm|m\/s|m\b/gi, "").replace(/\s+/g, "").replace(/^\+/, ""); if (!/^-?\d+(\.\d+)?$/.test(t)) return null; return parseFloat(t); }
+
+function render() {
+  const root = document.getElementById("quiz");
+  let sec = null, grp = null;
+  DATA.qs.forEach(q => {
+    if (q.sec !== sec) {
+      sec = q.sec;
+      const h = el("div", { class: "part-head" });
+      h.innerHTML = sec === "del1"
+        ? "<h2>Del 1: Grunnleggende forståelse</h2><p>Enkeltstående oppgaver om begreper og prosesser fra kapittel 9–14.</p>"
+        : "<h2>Del 2: Sammensatte oppgaver</h2><p>Seks temaer, A–F. Hvert tema starter med en situasjonsbeskrivelse, ofte med en figur. Deloppgavene handler om den samme situasjonen.</p>";
+      root.appendChild(h);
+    }
+    let showFigAgain = false;
+    if (q.group && q.group !== grp) {
+      grp = q.group; const g = groups[grp];
+      const gd = el("section", { class: "group", id: "tema-" + g.id });
+      gd.innerHTML = `<span class="tag">Oppgave ${g.id}</span><h3>${g.title}</h3>${g.stem || ""}` +
+        (g.img ? `<figure><img src="fig/${g.img}" alt="${g.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure>` : "");
+      root.appendChild(gd);
+    } else if (q.group) { showFigAgain = !!groups[q.group].img; }
+    root.appendChild(renderQ(q, showFigAgain));
+  });
+}
+
+function renderQ(q, figAgain) {
+  const card = el("article", { class: "q", id: "q" + q.n });
+  const title = q.group ? `${q.title} – ${groups[q.group].title}` : q.title;
+  card.innerHTML = `<div class="q-head"><span class="q-num">${q.n}</span><h3>${title}</h3><span class="q-meta">${TYPE[q.type]} · ${fmt(q.pts)} poeng · kap. ${q.kap}</span></div>`;
+  const body = el("div", { class: "q-body" });
+  if (figAgain) { const g = groups[q.group]; body.innerHTML += `<details class="fig"><summary>Vis figuren igjen</summary><figure><img src="fig/${g.img}" alt="${g.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure></details>`; }
+  if (q.img) { const fig = `<figure style="margin:0 0 12px"><img src="fig/${q.img}" alt="${q.alt.replace(/"/g, "&quot;")}" loading="lazy"></figure>`; const k = q.prompt.indexOf("</p>") + 4; body.innerHTML += q.prompt.slice(0, k) + fig + q.prompt.slice(k); body.dataset.p = 1; }
+  card.appendChild(body);
+  const area = el("div"); card.appendChild(area);
+  const actions = el("div", { class: "actions" }); card.appendChild(actions);
+  const fb = el("div"); card.appendChild(fb);
+  const draw = () => build(q, body, area, actions, fb);
+  draw();
+  return card;
+}
+
+function build(q, body, area, actions, fb) {
+  area.innerHTML = ""; actions.innerHTML = ""; fb.innerHTML = "";
+  const done = !!S.done[q.n];
+  const a = S.a[q.n];
+  if (q.type === "choice") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const box = el("div", { class: "opts", role: q.multi ? "group" : "radiogroup" });
+    shuffled(q.opts, q.n).forEach(([o, i]) => {
+      const id = `q${q.n}o${i}`;
+      const checked = q.multi ? (a || []).includes(i) : a === i;
+      const lab = el("label", { class: "opt", for: id });
+      lab.innerHTML = `<input type="${q.multi ? "checkbox" : "radio"}" name="q${q.n}" id="${id}" ${checked ? "checked" : ""} ${done ? "disabled" : ""}><span>${done ? `<span class="mark">${o.ok ? "✔" : "✘"}</span>` : ""}${o.t}</span>` + (done && (o.ok || checked) ? `<span class="ex">${o.ex}</span>` : "");
+      if (done) lab.classList.add(o.ok ? "is-ok" : (checked ? "is-bad" : "x"));
+      lab.querySelector("input").addEventListener("change", e => {
+        if (q.multi) { const s = new Set(S.a[q.n] || []); e.target.checked ? s.add(i) : s.delete(i); S.a[q.n] = [...s]; }
+        else S.a[q.n] = i;
+        save(); syncBtn();
+      });
+      box.appendChild(lab);
+    });
+    if (q.multi) area.insertAdjacentHTML("beforeend", `<p class="note">Velg alle riktige svar. Poengene fordeles likt på alle alternativene: du får poeng både for å krysse av riktige og for å la gale stå uten kryss.</p>`);
+    area.appendChild(box);
+    if (done) fb.insertAdjacentHTML("beforeend", `<p class="note">Forklaringen står under alternativet du valgte og under det riktige svaret.</p>`);
+  }
+  if (q.type === "inline") {
+    let html = q.text;
+    q.fields.forEach((f, fi) => {
+      const sel = (a || [])[fi];
+      const opts = shuffled(f, q.n * 10 + fi).map(([o, i]) => `<option value="${i}" ${sel === i ? "selected" : ""}>${o.t}</option>`).join("");
+      const cls = done ? (f[sel]?.ok ? "is-ok" : "is-bad") : "";
+      html = html.replace(`{${fi}}`, `<select id="q${q.n}f${fi}" data-f="${fi}" class="${cls}" aria-label="Felt ${fi + 1}" ${done ? "disabled" : ""}><option value="">Velg …</option>${opts}</select>`);
+    });
+    area.appendChild(el("div", { class: "inline-text" }, html));
+    area.querySelectorAll("select").forEach(s => s.addEventListener("change", () => {
+      const arr = S.a[q.n] || []; arr[+s.dataset.f] = s.value === "" ? null : +s.value; S.a[q.n] = arr; save(); syncBtn();
+    }));
+    if (done) {
+      const ul = el("ul", { class: "fexpl" });
+      q.fields.forEach((f, fi) => {
+        const sel = (a || [])[fi]; const right = f.findIndex(o => o.ok);
+        let li = `<b>Felt ${fi + 1}:</b> `;
+        if (f[sel]?.ok) li += `<span class="f-ok">✔ ${f[sel].t}.</span> ${f[sel].ex.replace(/^Riktig\.\s*/, "")}`;
+        else li += (sel != null ? `<span class="f-bad">✘ ${f[sel].t}.</span> ${f[sel].ex} ` : `<span class="f-bad">Ikke besvart.</span> `) + `Riktig svar er <b>${f[right].t}</b>.`;
+        ul.appendChild(el("li", {}, li));
+      });
+      fb.appendChild(ul);
+    }
+  }
+  if (q.type === "match") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const box = el("div", { class: "match" });
+    const rights = shuffled(q.pairs, q.n * 31);
+    shuffled(q.pairs, q.n * 17).forEach(([p, i]) => {
+      const sel = (a || [])[i];
+      const row = el("div", { class: "row" });
+      const cls = done ? (sel === i ? "is-ok" : "is-bad") : "";
+      row.innerHTML = `<div><label for="q${q.n}m${i}">${p.left}</label></div><div><select id="q${q.n}m${i}" data-i="${i}" class="${cls}" ${done ? "disabled" : ""}><option value="">Velg …</option>${rights.map(([r, j]) => `<option value="${j}" ${sel === j ? "selected" : ""}>${r.right}</option>`).join("")}</select></div>` +
+        (done ? `<div class="ex">${sel === i ? '<span class="f-ok">✔</span>' : `<span class="f-bad">✘</span> Riktig: <b>${p.right}</b>.`} ${p.expl.replace(/^[^.]+\.\s*/, "")}</div>` : "");
+      box.appendChild(row);
+    });
+    area.appendChild(box);
+    area.querySelectorAll("select").forEach(s => s.addEventListener("change", () => {
+      const arr = S.a[q.n] || []; arr[+s.dataset.i] = s.value === "" ? null : +s.value; S.a[q.n] = arr; save(); syncBtn();
+    }));
+  }
+  if (q.type === "fill") {
+    const id = `q${q.n}in`;
+    const ok = done && scoreOf(q) > 0;
+    const p = q.prompt.replace('<span class="blank">___</span>', `<input id="${id}" inputmode="decimal" autocomplete="off" aria-label="Svar" class="${done ? (ok ? "is-ok" : "is-bad") : ""}" ${done ? "disabled" : ""}>`);
+    area.appendChild(el("div", { class: "fill" }, p));
+    const inp = area.querySelector("input"); inp.value = a ?? "";
+    inp.addEventListener("input", () => { S.a[q.n] = inp.value; save(); syncBtn(); });
+    area.insertAdjacentHTML("beforeend", `<p class="note">Skriv bare tallet.</p>`);
+    if (done) fb.appendChild(el("div", { class: "explain" }, q.expl));
+  }
+  if (q.type === "open") {
+    if (!body.dataset.p) { body.insertAdjacentHTML("beforeend", q.prompt); body.dataset.p = 1; }
+    const id = `q${q.n}txt`;
+    area.innerHTML = `<label class="note" for="${id}">Skriv svaret ditt her. Bruk hele setninger og begrepene som er nevnt i oppgaven.</label><textarea id="${id}"></textarea><div class="count" id="${id}c"></div>`;
+    const ta = area.querySelector("textarea"); ta.value = a ?? "";
+    const cnt = area.querySelector(".count");
+    const upd = () => { const w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0; cnt.textContent = w + " ord"; };
+    upd();
+    ta.addEventListener("input", () => { S.a[q.n] = ta.value; save(); upd(); syncBtn(); });
+  }
+  // knapper
+  const check = el("button", { class: "btn", type: "button" }, q.type === "open" ? "Vis forslag og vurdering" : "Sjekk svar");
+  const retry = el("button", { class: "btn-ghost", type: "button" }, q.type === "open" ? "Skjul og skriv videre" : "Prøv igjen");
+  const res = el("span", { class: "result", "aria-live": "polite" });
+  function syncBtn() {
+    const v = S.a[q.n];
+    let ready = v != null && !(Array.isArray(v) && v.filter(x => x != null).length === 0) && v !== "";
+    if (q.type === "open") ready = (v || "").trim().split(/\s+/).filter(Boolean).length >= 15;
+    check.disabled = !ready;
+    if (q.type === "open" && !ready && !done) res.textContent = "Skriv minst 15 ord før du ser forslaget.";
+    else if (!done) res.textContent = "";
+  }
+  if (!done) { actions.appendChild(check); actions.appendChild(res); syncBtn(); }
+  else {
+    if (q.type !== "open") {
+      const s = scoreOf(q);
+      res.textContent = `${fmt(s)} av ${fmt(q.pts)} poeng`;
+      res.className = "result " + (s >= q.pts - 1e-9 ? "ok" : s > 0 ? "part" : "bad");
+      actions.appendChild(res);
+    }
+    actions.appendChild(retry);
+  }
+  check.addEventListener("click", () => { S.done[q.n] = true; save(); build(q, body, area, actions, fb); refresh(); });
+  retry.addEventListener("click", () => {
+    S.done[q.n] = false;
+    if (q.type !== "open") delete S.a[q.n];
+    save(); build(q, body, area, actions, fb); refresh();
+  });
+  if (q.type === "open" && done) {
+    area.querySelector("textarea").readOnly = true;
+    const r = el("div", { class: "rubric" });
+    const opts = []; for (let v = 0; v <= q.pts; v += 0.5) opts.push(`<option value="${v}" ${S.self[q.n] === v ? "selected" : ""}>${fmt(v)}</option>`);
+    r.innerHTML = `<div class="model"><h4>Forslag til svar</h4>${q.model}</div>
+      <div><h4>Faglige momenter</h4><div class="tbl">${q.moment}</div></div>
+      <div><h4>Poengtrapp</h4><div class="tbl">${q.trapp}</div></div>
+      <div><h4>Typiske feil</h4>${q.feil}</div>
+      <div class="self"><p>Sammenlign svaret ditt med momentene og poengtrappen. Hvor mange poeng ville du gitt deg selv?</p>
+      <label for="q${q.n}self" class="note">Mine poeng</label>
+      <select id="q${q.n}self"><option value="">–</option>${opts.join("")}</select><span class="note">av ${fmt(q.pts)}</span></div>`;
+    fb.appendChild(r);
+    r.querySelector("select").addEventListener("change", e => {
+      if (e.target.value === "") delete S.self[q.n]; else S.self[q.n] = parseFloat(e.target.value);
+      save(); refresh();
+    });
+  }
+}
+
+function status(q) {
+  if (q.type === "open") return S.self[q.n] != null ? "self" : "";
+  if (!S.done[q.n]) return "";
+  const s = scoreOf(q); return s >= q.pts - 1e-9 ? "ok" : s > 0 ? "part" : "bad";
+}
+
+function refresh() {
+  let auto = 0, self = 0, done = 0;
+  const lost = {};
+  DATA.qs.forEach(q => {
+    if (q.type === "open") { if (S.self[q.n] != null) { self += S.self[q.n]; done++; lost[q.kap] = (lost[q.kap] || 0) + q.pts - S.self[q.n]; } }
+    else if (S.done[q.n]) { const s = scoreOf(q); auto += s; done++; lost[q.kap] = (lost[q.kap] || 0) + q.pts - s; }
+  });
+  document.getElementById("s-auto").textContent = `${fmt(auto)} / 26`;
+  document.getElementById("s-self").textContent = `${fmt(self)} / 14`;
+  document.getElementById("s-done").textContent = `${done} / 29`;
+  document.getElementById("s-prog").style.width = (done / 29 * 100) + "%";
+  ["1", "2"].forEach(d => {
+    const c = document.getElementById("chips-" + d); c.innerHTML = "";
+    DATA.qs.filter(q => q.sec === "del" + d).forEach(q => {
+      const a = el("a", { class: "chip", href: "#q" + q.n, "data-s": status(q), "aria-label": `Oppgave ${q.n}` }, String(q.n));
+      c.appendChild(a);
+    });
+  });
+  const weak = Object.entries(lost).filter(([k, v]) => v > 0.01).sort((x, y) => y[1] - x[1]);
+  const sum = document.getElementById("summary");
+  sum.innerHTML = `<h2 id="sum-h">Resultat så langt</h2>
+    <p class="note">Poengene for de automatiske oppgavene følger de samme reglene som i itslearning. Poengene på de åpne oppgavene er din egen vurdering.</p>
+    <div class="sumgrid">
+      <div><span>Totalt</span><b class="big">${fmt(auto + self)}</b> / 40</div>
+      <div><span>Rettet automatisk</span><b class="big">${fmt(auto)}</b> / 26</div>
+      <div><span>Egenvurdert</span><b class="big">${fmt(self)}</b> / 14</div>
+    </div>
+    ${done === 0 ? `<p>Når du har sjekket noen oppgaver, ser du her hvilke kapitler du bør lese mer i.</p>` :
+      weak.length ? `<p><b>Her mistet du flest poeng:</b></p><ul class="kaps">${weak.slice(0, 4).map(([k, v]) => `<li>Kapittel ${k} i Jordens puls: ${fmt(v)} poeng tapt</li>`).join("")}</ul>` :
+      `<p>Du har full score på alt du har sjekket så langt.</p>`}`;
+}
+
+function bindReset() { document.getElementById("reset").addEventListener("click", () => {
+  const w = document.getElementById("reset-wrap");
+  w.innerHTML = `<span class="confirm">Slette alle svarene? <button class="btn-ghost" id="r-yes" type="button">Ja, start på nytt</button><button class="btn-ghost" id="r-no" type="button">Avbryt</button></span>`;
+  document.getElementById("r-yes").onclick = () => { S = { a: {}, done: {}, self: {}, seed: Math.floor(Math.random() * 1e9) }; save(); location.reload(); };
+  document.getElementById("r-no").onclick = () => { w.innerHTML = `<button class="btn-ghost" id="reset" type="button">Start på nytt</button>`; bindReset(); };
+}); }
+bindReset();
+
+render(); refresh();
+</script>
+
+</body>
+</html>
