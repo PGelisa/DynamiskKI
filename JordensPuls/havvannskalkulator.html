@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<!--
+  Havvannskalkulator til kapittel 9 (delkapittel 9.1) i Jordens puls, 2. utgave.
+  Laget av Elisabeth Engum med kodestøtte fra KI-assistenten Claude (Anthropic), 2026.
+  Bygger på Elisabeths havvannskalkulator fra 2025 i DynamiskKI (JordensPuls/havvannKalk.html).
+  Siden: Illustrasjon av Elisabeth Engum, 2026, CC BY-SA 4.0. I figurteksten
+  i boken: Illustrasjon av Elisabeth Engum (KI), 2026, CC BY-SA 4.0.
+
+  Beregningen er TEOS-10, havvannsligningen fra 2010 (IOC, SCOR og IAPSO, 2010.
+  The international thermodynamic equation of seawater 2010. Intergovernmental
+  Oceanographic Commission, Manuals and Guides No. 56, UNESCO), portert til
+  JavaScript fra C-koden i GSW, Gibbs SeaWater Oceanographic Toolbox, versjon 3.6.23
+  (McDougall, T. J. og Barker, P. M., 2011. Getting started with TEOS-10 and the
+  Gibbs Seawater (GSW) Oceanographic Toolbox. SCOR/IAPSO WG127). GSW er lisensiert
+  med BSD-3-lisensen, Copyright (c) 2011, SCOR/IAPSO WG127 (Scientific Committee
+  on Oceanic Research/ International Association for the Physical Sciences of the
+  Oceans, Working Group 127). Tettheten bruker uttrykket med 75 ledd fra
+  Roquet mfl. (2015), slik gsw_rho gjør.
+
+  Beregningen (samme som gsw i Python):
+    SA  = gsw.SR_from_SP(SP)          referansesalinitet, fordi eleven ikke oppgir posisjon
+    p   = gsw.p_from_z(-dyp, 60)      trykk fra dyp ved 60° N
+    CT  = gsw.CT_from_t(SA, t, p)     konservativ temperatur
+    rho = gsw.rho(SA, CT, p)          tetthet der vannet er (in situ)
+    rho0 = gsw.rho(SA, CT, 0)         tetthet ved overflaten, det tallet isopyknalene viser
+                                      (bestemt av Elisabeth 17.11.2026, se
+                                      docs/bakgrunn/isopyknaler-ts-diagram/)
+    tf  = gsw.t_freezing(SA, p, 0)    frysepunkt (startpolynomet i gsw_t_freezing,
+                                      innenfor 0,0003 °C av den eksakte verdien)
+  Avvikene mot gsw er testet med havvannskalkulator.py i samme mappe. Tettheten er
+  bitvis lik gsw 3.6.23, og frysepunktet avviker høyst 0,0003 °C (52 250 punkter,
+  SP 0–42, dyp 0–6000 m, t fra frysepunktet til 35 °C).
+
+  Eksemplene er årsmiddel for 1991–2020 fra World Ocean Atlas 2023 (WOA23,
+  NOAA NCEI, felt t_an og s_an i woa23_decav91C0_t00 og _s00, hentet med OPeNDAP
+  17.11.2026). Temperaturen er in situ, og saliniteten er praktisk salinitet.
+    atlanterhavsvann:  1°-rute 63,5° N 2,5° Ø, 100 m:     7,98 °C, 35,21
+    kystvann:          0,25°-rute 61,125° N 4,625° Ø, 10 m: 8,99 °C, 32,89
+    Østersjøen:        0,25°-rute 57,375° N 20,125° Ø, 0 m: 9,22 °C, 6,99
+    Middelhavet:       1°-rute 34,5° N 26,5° Ø, 300 m:     14,74 °C, 38,96
+    Rødehavet:         1°-rute 20,5° N 38,5° Ø, 500 m:     21,58 °C, 40,50
+    Norskehavet:       1°-rute 69,5° N 0,5° Ø, 2500 m:     −0,82 °C, 34,91
+    Weddellhavet:      1°-rute 64,5° S 29,5° V, 4500 m:    −0,47 °C, 34,64
+  Vannmasse B i blandingsmodusen (−1 °C) er tenkt, ikke ekte data.
+-->
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Havvannskalkulator</title>
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>
+:root{--tekst:#10283F;--dempet:#3d5367;--havbla:#17566D;--turkis:#57979E;--disbla:#7798B4;--oransje:#C65F37;--rav:#F3A348;--bakgrunn:#ffffff;--flate:#f4f7f9;--kant:#d5dee5;--feltkant:#5f7486;--knappetekst:#ffffff;--fokus:#C65F37;--varsel:#a8394f;--varsel-flate:#f8e6e9;
+  --isopyknal:#57979E;--frys:#17566D;--is:#e3edf3;--rutenett:#e6ecf0;--akse:#3d5367;--punkt:#C65F37;--punkt-kant:#10283F;--ab:#17566D;--fremhevet:#C65F37;--halo:#ffffff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tekst:#F5EAD0;--dempet:#cfd8df;--havbla:#8fc1d4;--bakgrunn:#10283F;--flate:#17344f;--kant:#2d4a64;--feltkant:#7d95ab;--knappetekst:#10283F;--fokus:#FFDA88;--varsel:#f0a3b1;--varsel-flate:#4a2430;
+  --isopyknal:#7798B4;--frys:#8fc1d4;--is:#1c3a55;--rutenett:#1f3d58;--akse:#cfd8df;--punkt:#F3A348;--punkt-kant:#F5EAD0;--ab:#8fc1d4;--fremhevet:#F3A348;--halo:#10283F}}
+:root[data-theme="dark"]{--tekst:#F5EAD0;--dempet:#cfd8df;--havbla:#8fc1d4;--bakgrunn:#10283F;--flate:#17344f;--kant:#2d4a64;--feltkant:#7d95ab;--knappetekst:#10283F;--fokus:#FFDA88;--varsel:#f0a3b1;--varsel-flate:#4a2430;
+  --isopyknal:#7798B4;--frys:#8fc1d4;--is:#1c3a55;--rutenett:#1f3d58;--akse:#cfd8df;--punkt:#F3A348;--punkt-kant:#F5EAD0;--ab:#8fc1d4;--fremhevet:#F3A348;--halo:#10283F}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;padding:16px;font-family:"Source Sans 3",system-ui,sans-serif;font-size:17px;line-height:1.5;color:var(--tekst);background:var(--bakgrunn)}
+h1,h2,h3{color:var(--havbla);line-height:1.2;margin:0}
+h1{font-size:1.45rem;margin-bottom:.3rem}
+h2{font-size:1.1rem;margin:0 0 .5rem}
+p{margin:.4em 0}
+.kalk{max-width:62rem;margin:0 auto}
+.ingress{margin:0 0 .8rem;max-width:44rem}
+fieldset{border:1px solid var(--kant);border-radius:.6rem;margin:0 0 .8rem;padding:.5rem .8rem .7rem}
+legend{font-weight:600;color:var(--havbla);padding:0 .3rem}
+.modus{display:flex;flex-wrap:wrap;gap:.4rem .6rem;border:none;padding:0;margin:0 0 .9rem}
+.modus legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.modus label{display:inline-flex;align-items:center;gap:.45rem;min-height:2.75rem;padding:.4rem .9rem;border:2px solid var(--havbla);border-radius:999px;cursor:pointer;font-weight:600;color:var(--havbla);background:var(--bakgrunn)}
+.modus input{position:absolute;opacity:0;width:1px;height:1px}
+.modus input:checked + span{color:var(--knappetekst)}
+.modus label:has(input:checked){background:var(--havbla)}
+.modus label:has(input:focus-visible){outline:3px solid var(--fokus);outline-offset:2px}
+.oppsett{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;align-items:start}
+@media (min-width:720px){.oppsett{grid-template-columns:minmax(16rem,20rem) minmax(0,1fr)}}
+.panel{background:var(--flate);border:1px solid var(--kant);border-radius:1rem;padding:1rem}
+.felt{margin:0 0 .7rem}
+.felt:last-child{margin-bottom:0}
+.felt label,.felt .etikett{display:block;font-weight:600}
+.felt input[type="text"],.felt select{display:block;width:100%;font:inherit;color:var(--tekst);background:var(--bakgrunn);border:2px solid var(--feltkant);border-radius:.4rem;padding:.35rem .55rem;min-height:2.75rem}
+.felt input[aria-invalid="true"]{border-color:var(--varsel)}
+.hjelp{font-size:.9rem;color:var(--dempet);margin:.15rem 0 0}
+.feil{font-size:.9rem;color:var(--varsel);font-weight:600;margin:.15rem 0 0}
+.feil:empty{display:none}
+input[type="range"]{width:100%;accent-color:var(--havbla);min-height:2.75rem}
+input:focus-visible,select:focus-visible,summary:focus-visible,svg:focus-visible{outline:3px solid var(--fokus);outline-offset:2px}
+.utdata{display:block;font-weight:600;font-variant-numeric:tabular-nums}
+.resultat{margin:0 0 1rem;background:var(--bakgrunn);border:1px solid var(--kant);border-radius:.6rem;padding:.7rem .9rem}
+.resultat dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.15rem 1rem;margin:0;align-items:baseline}
+.resultat dt{color:var(--dempet)}
+.resultat dd{margin:0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.resultat dd.stor{font-size:1.25rem;color:var(--havbla)}
+.resultat p{font-size:.95rem}
+.resrad{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 1rem}
+.resnavn{color:var(--dempet)}
+.resverdi{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.resverdi.stor{font-size:1.25rem;color:var(--havbla)}
+.resultat .restekst{font-size:.88rem;color:var(--dempet);margin:0 0 .5rem}
+.varsel{background:var(--varsel-flate);border-left:4px solid var(--varsel);padding:.4rem .6rem;border-radius:.3rem}
+.varsel:empty{display:none}
+.diagram{margin:0;min-width:0}
+.diagram .boks{background:var(--bakgrunn);border:1px solid var(--kant);border-radius:.6rem;padding:.3rem}
+.diagram svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.diagram svg.klikkbar{cursor:crosshair}
+.diagram figcaption{font-size:.92rem;color:var(--dempet);margin:.4rem .2rem 0}
+.utsnitt{display:flex;flex-wrap:wrap;gap:.2rem 1rem;margin:.5rem 0 0;padding:.35rem .7rem .45rem;font-size:.95rem}
+.utsnitt label{display:inline-flex;align-items:center;gap:.35rem;min-height:2.2rem;cursor:pointer}
+.utsnitt input{accent-color:var(--havbla);width:1.1rem;height:1.1rem}
+details{margin-top:.5rem;max-width:44rem;font-size:.95rem}
+summary{cursor:pointer;font-weight:600;color:var(--havbla);min-height:2.2rem}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* T-S-diagrammet */
+.ts text{font-family:"Source Sans 3",system-ui,sans-serif;fill:var(--akse)}
+.ts .aksetittel{font-weight:600;font-size:14px}
+.ts .tick{font-size:13px}
+.ts .rutenett{stroke:var(--rutenett);stroke-width:1}
+.ts .ramme{fill:none;stroke:var(--akse);stroke-width:1}
+.ts .isopyknal{fill:none;stroke:var(--isopyknal);stroke-width:1.4}
+.ts .isotekst{font-size:12px;fill:var(--dempet);paint-order:stroke;stroke:var(--halo);stroke-width:4px;stroke-linejoin:round}
+.ts .fremhevet{fill:none;stroke:var(--fremhevet);stroke-width:2.4}
+.ts .fremhevettekst{font-size:12.5px;font-weight:700;fill:var(--fremhevet);paint-order:stroke;stroke:var(--halo);stroke-width:4px;stroke-linejoin:round}
+.ts .frys{fill:none;stroke:var(--frys);stroke-width:1.8;stroke-dasharray:6 4}
+.ts .isflate{fill:var(--is);stroke:none}
+.ts .frystekst{font-size:12px;font-style:italic;fill:var(--frys);paint-order:stroke;stroke:var(--halo);stroke-width:4px;stroke-linejoin:round}
+.ts .blandelinje{fill:none;stroke:var(--ab);stroke-width:2;stroke-dasharray:3 3}
+.ts .punkt{fill:var(--punkt);stroke:var(--punkt-kant);stroke-width:1.6}
+.ts .abpunkt{fill:var(--ab);stroke:var(--halo);stroke-width:1.6}
+.ts .punkttekst{font-size:13.5px;font-weight:700;fill:var(--tekst);paint-order:stroke;stroke:var(--halo);stroke-width:4px;stroke-linejoin:round}
+@media (max-width:480px){body{padding:8px}.panel{padding:.8rem}}
+/* Kildelinje nederst på siden, samme tekst som i bildene (bestemt av Elisabeth 31.10.2026) */
+.kildelinje{margin:1rem 0 0;font-size:.8rem;line-height:1.4;text-align:left;color:#4c5e6f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .kildelinje{color:#b3c0cb}}
+:root[data-theme="dark"] .kildelinje{color:#b3c0cb}
+</style>
+</head>
+<body>
+<main class="kalk">
+<h1>Havvannskalkulator</h1>
+<p class="ingress">Tettheten til sjøvann avhenger av temperatur, salinitet og trykk. Skriv inn verdiene for en vannmasse, så regner kalkulatoren ut tettheten og frysepunktet og viser vannmassen i et T-S-diagram.</p>
+
+<fieldset class="modus">
+<legend>Velg hva du vil gjøre</legend>
+<label><input type="radio" name="modus" value="kalk" checked><span>Regn ut tetthet</span></label>
+<label><input type="radio" name="modus" value="bland"><span>Bland to vannmasser</span></label>
+</fieldset>
+
+<div class="oppsett">
+<div>
+<section class="panel" id="panelKalk" aria-labelledby="kalkTittel">
+<h2 id="kalkTittel">Vannmassen</h2>
+<div class="felt">
+<label for="eksempel">Velg et eksempel</label>
+<select id="eksempel" aria-describedby="eksempelTekst">
+<option value="">Egne verdier</option>
+</select>
+<p class="hjelp" id="eksempelTekst"></p>
+</div>
+<div class="felt">
+<label for="temp">Temperatur (°C)</label>
+<input type="text" id="temp" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="tempFeil">
+<p class="feil" id="tempFeil"></p>
+</div>
+<div class="felt">
+<label for="salt">Salinitet (g/kg)</label>
+<input type="text" id="salt" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="saltHjelp saltFeil">
+<p class="hjelp" id="saltHjelp">Salinitet måles i PSU. I praksis er 35 PSU omtrent det samme som 35 g/kg, altså 35 gram salt i hver kilo sjøvann.</p>
+<p class="feil" id="saltFeil"></p>
+</div>
+<div class="felt">
+<label for="dyp">Dyp (m)</label>
+<input type="text" id="dyp" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="dypHjelp dypFeil">
+<p class="hjelp" id="dypHjelp">Fra 0 m ved overflaten ned til 6000 m.</p>
+<p class="feil" id="dypFeil"></p>
+</div>
+</section>
+
+<section class="panel" id="panelBland" aria-labelledby="blandTittel" hidden>
+<h2 id="blandTittel">Bland to vannmasser</h2>
+<p>A og B har samme tetthet, men ulik temperatur og salinitet. Hva tror du skjer med tettheten når du blander dem? Flytt glideren og se.</p>
+<fieldset>
+<legend>Vannmasse A</legend>
+<div class="felt">
+<label for="tempA">Temperatur (°C)</label>
+<input type="text" id="tempA" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="tempAFeil">
+<p class="feil" id="tempAFeil"></p>
+</div>
+<div class="felt">
+<label for="saltA">Salinitet (g/kg)</label>
+<input type="text" id="saltA" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="saltAFeil">
+<p class="feil" id="saltAFeil"></p>
+</div>
+</fieldset>
+<fieldset>
+<legend>Vannmasse B</legend>
+<div class="felt">
+<label for="tempB">Temperatur (°C)</label>
+<input type="text" id="tempB" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="tempBFeil">
+<p class="feil" id="tempBFeil"></p>
+</div>
+<div class="felt">
+<span class="etikett" id="saltBEtikett">Salinitet (g/kg)</span>
+<output class="utdata" id="saltB" aria-labelledby="saltBEtikett" aria-describedby="saltBHjelp"></output>
+<p class="hjelp" id="saltBHjelp">Saliniteten til B regnes ut slik at B får samme tetthet som A.</p>
+</div>
+</fieldset>
+<div class="felt">
+<label for="andel">Andel av B i blandingen <output id="andelUt" for="andel">50 %</output></label>
+<input type="range" id="andel" min="0" max="100" step="5" value="50" aria-valuetext="50 prosent">
+</div>
+<p class="hjelp">Tettheten regnes ut ved overflaten, slik at bare temperatur og salinitet teller.</p>
+</section>
+
+</div>
+
+<div class="hoyre">
+<section class="resultat" aria-labelledby="kalkResTittel" role="status" aria-live="polite" aria-atomic="true" id="kalkResultat">
+<h2 id="kalkResTittel" class="sr-only">Resultat</h2>
+<div class="resrad"><span class="resnavn">Tetthet ved overflaten</span><span class="resverdi stor" id="rho0"></span></div>
+<p class="restekst">Dette er tallet du leser av i T-S-diagrammet.</p>
+<div id="dypBlokk">
+<div class="resrad"><span class="resnavn" id="rhoNavn">Tetthet der vannet er</span><span class="resverdi" id="rho"></span></div>
+<p class="restekst">Trykket fra vannet over presser sjøvannet bare litt sammen, omtrent 2 % på de største dypene.</p>
+</div>
+<div class="resrad"><span class="resnavn" id="frysNavn">Frysepunkt</span><span class="resverdi" id="frys"></span></div>
+<p id="overflate"></p>
+<p class="varsel" id="kalkVarsel"></p>
+</section>
+
+<section class="resultat" aria-labelledby="blandResTittel" role="status" aria-live="polite" aria-atomic="true" id="blandResultat" hidden>
+<h2 id="blandResTittel" class="sr-only">Resultat av blandingen</h2>
+<dl>
+<dt>Tetthet i A og B</dt><dd id="rhoAB"></dd>
+<dt>Blandingen</dt><dd id="blandTS"></dd>
+<dt>Tetthet i blandingen</dt><dd class="stor" id="rhoM"></dd>
+</dl>
+<p id="blandForklaring"></p>
+<p class="varsel" id="blandVarsel"></p>
+</section>
+
+<figure class="diagram">
+<div class="boks" id="tsBoks">
+<svg class="ts" id="ts" role="img" aria-labelledby="tsTittel" aria-describedby="tsBeskrivelse" xmlns="http://www.w3.org/2000/svg">
+<title id="tsTittel">T-S-diagram</title>
+<desc id="tsBeskrivelse"></desc>
+<g id="tsInnhold"></g>
+</svg>
+</div>
+<fieldset class="utsnitt" id="utsnittValg">
+<legend>Utsnitt</legend>
+<label><input type="radio" name="utsnitt" value="hele" checked> Hele diagrammet</label>
+<label><input type="radio" name="utsnitt" value="naer"> Nærbilde</label>
+</fieldset>
+<figcaption id="tsTekst"></figcaption>
+</figure>
+</div>
+</div>
+
+<details>
+<summary>Slik regner kalkulatoren</summary>
+<p>Kalkulatoren bruker havvannsligningen TEOS-10, som er den internasjonale standarden for å regne ut egenskapene til sjøvann. Dypet blir regnet om til trykk, og saliniteten til gram salt per kilo sjøvann.</p>
+<p>Kalkulatoren viser først tettheten vannet ville hatt ved overflaten. Det er dette tallet linjene i T-S-diagrammet viser, og det bruker du når du sammenligner vannmasser fra ulike dyp.</p>
+<p>Når dypet er større enn 0 m, viser kalkulatoren også tettheten der vannet er. Trykket fra vannet over presser sjøvannet litt sammen, så tettheten øker med dypet selv om temperatur og salinitet er de samme.</p>
+<p>Frysepunktet er temperaturen der sjøvannet begynner å fryse. Salt senker frysepunktet, og det gjør også høyt trykk.</p>
+</details>
+
+<p class="kildelinje">Regnet ut med havvannsligningen TEOS-10 og GSW (IOC, SCOR og IAPSO, 2010; McDougall og Barker, 2011). Datakilde: World Ocean Atlas 2023, NOAA NCEI.<br>Illustrasjon av Elisabeth Engum, 2026, CC BY-SA 4.0.</p>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  // Følger temaet i boken hvis siden ligger i en iframe på samme domene (Quarto setter quarto-dark på body).
+  try {
+    var foreldre = window.parent && window.parent !== window ? window.parent.document : null;
+    if (foreldre && foreldre.body) {
+      var settTema = function(){ document.documentElement.setAttribute("data-theme", foreldre.body.classList.contains("quarto-dark") ? "dark" : "light"); };
+      if (foreldre.body.classList.contains("quarto-dark") || foreldre.body.classList.contains("quarto-light")) {
+        settTema();
+        new MutationObserver(settTema).observe(foreldre.body, {attributes: true, attributeFilter: ["class"]});
+      }
+    }
+  } catch (e) { /* annen opprinnelse, bruk prefers-color-scheme */ }
+})();
+</script>
+
+<script id="teos10">
+// TEOS10-START
+// TEOS-10 portert fra GSW-C 3.6.23 (gsw_oceanographic_toolbox.c), BSD-3-lisens,
+// Copyright (c) 2011, SCOR/IAPSO WG127. Funksjonene har samme navn og gir
+// samme svar som gsw i Python. Testet mot gsw med havvannskalkulator.py.
+var TEOS10 = (function () {
+  "use strict";
+  var SSO = 35.16504, UPS = SSO / 35.0, SFAC = 0.0248826675584615,
+      OFFSET = 5.971840214030754e-1, CP0 = 3991.86795711963, T0 = 273.15,
+      DB2PA = 1.0e4, GAMMA = 2.26e-7, DEG2RAD = Math.PI / 180.0;
+
+  // Koeffisientene til specvol med 75 ledd (Roquet mfl., 2015), navngitt som i GSW-C.
+  var v000=1.0769995862e-3, v001=-6.0799143809e-5, v002=9.9856169219e-6, v003=-1.1309361437e-6, v004=1.0531153080e-7,
+    v005=-1.2647261286e-8, v006=1.9613503930e-9, v010=-3.1038981976e-4, v011=2.4262468747e-5, v012=-5.8484432984e-7,
+    v013=3.6310188515e-7, v014=-1.1147125423e-7, v020=6.6928067038e-4, v021=-3.4792460974e-5, v022=-4.8122251597e-6,
+    v023=1.6746303780e-8, v030=-8.5047933937e-4, v031=3.7470777305e-5, v032=4.9263106998e-6, v040=5.8086069943e-4,
+    v041=-1.7322218612e-5, v042=-1.7811974727e-6, v050=-2.1092370507e-4, v051=3.0927427253e-6, v060=3.1932457305e-5,
+    v100=-1.5649734675e-5, v101=1.8505765429e-5, v102=-1.1736386731e-6, v103=-3.6527006553e-7, v104=3.1454099902e-7,
+    v110=3.5009599764e-5, v111=-9.5677088156e-6, v112=-5.5699154557e-6, v113=-2.7295696237e-7, v120=-4.3592678561e-5,
+    v121=1.1100834765e-5, v122=5.4620748834e-6, v130=3.4532461828e-5, v131=-9.8447117844e-6, v132=-1.3544185627e-6,
+    v140=-1.1959409788e-5, v141=2.5909225260e-6, v150=1.3864594581e-6, v200=2.7762106484e-5, v201=-1.1716606853e-5,
+    v202=2.1305028740e-6, v203=2.8695905159e-7, v210=-3.7435842344e-5, v211=-2.3678308361e-7, v212=3.9137387080e-7,
+    v220=3.5907822760e-5, v221=2.9283346295e-6, v222=-6.5731104067e-7, v230=-1.8698584187e-5, v231=-4.8826139200e-7,
+    v240=3.8595339244e-6, v300=-1.6521159259e-5, v301=7.9279656173e-6, v302=-4.6132540037e-7, v310=2.4141479483e-5,
+    v311=-3.4558773655e-6, v312=7.7618888092e-9, v320=-1.4353633048e-5, v321=3.1655306078e-7, v330=2.2863324556e-6,
+    v400=6.9111322702e-6, v401=-3.4102187482e-6, v402=-6.3352916514e-8, v410=-8.7595873154e-6, v411=1.2956717783e-6,
+    v420=4.3703680598e-6, v500=-8.0539615540e-7, v501=5.0736766814e-7, v510=-3.3052758900e-7, v600=2.0543094268e-7;
+  var h006 = -2.10787688100e-9, h007 = 2.80192913290e-10;
+
+  // gsw_specvol: spesifikt volum (m³/kg) fra SA (g/kg), CT (°C) og p (dbar)
+  function specvol(sa, ct, p) {
+    var xs = Math.sqrt(SFAC * sa + OFFSET), ys = ct * 0.025, z = p * 1e-4;
+    return v000
+      + xs*(v010 + xs*(v020 + xs*(v030 + xs*(v040 + xs*(v050
+      + v060*xs))))) + ys*(v100 + xs*(v110 + xs*(v120 + xs*(v130 + xs*(v140
+      + v150*xs)))) + ys*(v200 + xs*(v210 + xs*(v220 + xs*(v230 + v240*xs)))
+      + ys*(v300 + xs*(v310 + xs*(v320 + v330*xs)) + ys*(v400 + xs*(v410
+      + v420*xs) + ys*(v500 + v510*xs + v600*ys))))) + z*(v001 + xs*(v011
+      + xs*(v021 + xs*(v031 + xs*(v041 + v051*xs)))) + ys*(v101 + xs*(v111
+      + xs*(v121 + xs*(v131 + v141*xs))) + ys*(v201 + xs*(v211 + xs*(v221
+      + v231*xs)) + ys*(v301 + xs*(v311 + v321*xs) + ys*(v401 + v411*xs
+      + v501*ys)))) + z*(v002 + xs*(v012 + xs*(v022 + xs*(v032 + v042*xs)))
+      + ys*(v102 + xs*(v112 + xs*(v122 + v132*xs)) + ys*(v202 + xs*(v212
+      + v222*xs) + ys*(v302 + v312*xs + v402*ys))) + z*(v003 + xs*(v013
+      + v023*xs) + ys*(v103 + v113*xs + v203*ys) + z*(v004 + v014*xs + v104*ys
+      + z*(v005 + v006*z)))));
+  }
+
+  // gsw_rho: tetthet in situ (kg/m³)
+  function rho(sa, ct, p) { return 1.0 / specvol(sa, ct, p); }
+
+  // gsw_sr_from_sp: referansesalinitet (g/kg) fra praktisk salinitet
+  function SR_from_SP(sp) { return sp * UPS; }
+
+  // gsw_entropy_part
+  function entropy_part(sa, t, p) {
+    var x2 = SFAC * sa, x = Math.sqrt(x2), y = t * 0.025, z = p * 1e-4;
+    var g03 = z*(-270.983805184062 +
+      z*(776.153611613101 + z*(-196.51255088122 +
+      (28.9796526294175 - 2.13290083518327*z)*z))) +
+      y*(-24715.571866078 + z*(2910.0729080936 +
+      z*(-1513.116771538718 + z*(546.959324647056 +
+      z*(-111.1208127634436 + 8.68841343834394*z)))) +
+      y*(2210.2236124548363 + z*(-2017.52334943521 +
+      z*(1498.081172457456 + z*(-718.6359919632359 +
+      (146.4037555781616 - 4.9892131862671505*z)*z))) +
+      y*(-592.743745734632 + z*(1591.873781627888 +
+      z*(-1207.261522487504 + (608.785486935364 -
+      105.4993508931208*z)*z)) +
+      y*(290.12956292128547 + z*(-973.091553087975 +
+      z*(602.603274510125 + z*(-276.361526170076 +
+      32.40953340386105*z))) +
+      y*(-113.90630790850321 + y*(21.35571525415769 -
+      67.41756835751434*z) +
+      z*(381.06836198507096 + z*(-133.7383902842754 +
+      49.023632509086724*z)))))));
+    var g08 = x2*(z*(729.116529735046 +
+      z*(-343.956902961561 + z*(124.687671116248 +
+      z*(-31.656964386073 + 7.04658803315449*z)))) +
+      x*( x*(y*(-137.1145018408982 + y*(148.10030845687618 +
+      y*(-68.5590309679152 + 12.4848504784754*y))) -
+      22.6683558512829*z) + z*(-175.292041186547 +
+      (83.1923927801819 - 29.483064349429*z)*z) +
+      y*(-86.1329351956084 + z*(766.116132004952 +
+      z*(-108.3834525034224 + 51.2796974779828*z)) +
+      y*(-30.0682112585625 - 1380.9597954037708*z +
+      y*(3.50240264723578 + 938.26075044542*z)))) +
+      y*(1760.062705994408 + y*(-675.802947790203 +
+      y*(365.7041791005036 + y*(-108.30162043765552 +
+      12.78101825083098*y) +
+      z*(-1190.914967948748 + (298.904564555024 -
+      145.9491676006352*z)*z)) +
+      z*(2082.7344423998043 + z*(-614.668925894709 +
+      (340.685093521782 - 33.3848202979239*z)*z))) +
+      z*(-1721.528607567954 + z*(674.819060538734 +
+      z*(-356.629112415276 + (88.4080716616 -
+      15.84003094423364*z)*z)))));
+    return -(g03 + g08) * 0.025;
+  }
+
+  // gsw_entropy_part_zerop
+  function entropy_part_zerop(sa, pt0) {
+    var x2 = SFAC * sa, x = Math.sqrt(x2), y = pt0 * 0.025;
+    var g03 = y*(-24715.571866078 + y*(2210.2236124548363 +
+      y*(-592.743745734632 + y*(290.12956292128547 +
+      y*(-113.90630790850321 + y*21.35571525415769)))));
+    var g08 = x2*(x*(x*(y*(-137.1145018408982 + y*(148.10030845687618 +
+      y*(-68.5590309679152 + 12.4848504784754*y)))) +
+      y*(-86.1329351956084 + y*(-30.0682112585625 +
+      y*3.50240264723578))) +
+      y*(1760.062705994408 + y*(-675.802947790203 +
+      y*(365.7041791005036 + y*(-108.30162043765552 +
+      12.78101825083098*y)))));
+    return -(g03 + g08) * 0.025;
+  }
+
+  // gsw_gibbs_pt0_pt0
+  function gibbs_pt0_pt0(sa, pt0) {
+    var x2 = SFAC * sa, x = Math.sqrt(x2), y = pt0 * 0.025;
+    var g03 = -24715.571866078 +
+      y*(4420.4472249096725 +
+      y*(-1778.231237203896 +
+      y*(1160.5182516851419 +
+      y*(-569.531539542516 + y*128.13429152494615))));
+    var g08 = x2*(1760.062705994408 + x*(-86.1329351956084 +
+      x*(-137.1145018408982 + y*(296.20061691375236 +
+      y*(-205.67709290374563 + 49.9394019139016*y))) +
+      y*(-60.136422517125 + y*10.50720794170734)) +
+      y*(-1351.605895580406 + y*(1097.1125373015109 +
+      y*(-433.20648175062206 + 63.905091254154904*y))));
+    return (g03 + g08) * 0.000625;
+  }
+
+  // gsw_pt0_from_t: potensiell temperatur med referansetrykk 0 dbar
+  function pt0_from_t(sa, t, p) {
+    var s1 = sa / UPS;
+    var pt0 = t + p*( 8.65483913395442e-6 -
+      s1 *  1.41636299744881e-6 -
+      p *  7.38286467135737e-9 +
+      t *(-8.38241357039698e-6 +
+      s1 *  2.83933368585534e-8 +
+      t *  1.77803965218656e-8 +
+      p *  1.71155619208233e-10));
+    var dentropy_dt = CP0 / ((T0 + pt0) * (1.0 - 0.05 * (1.0 - sa / SSO)));
+    var true_entropy_part = entropy_part(sa, t, p);
+    for (var i = 1; i <= 2; i++) {
+      var pt0_old = pt0;
+      var dentropy = entropy_part_zerop(sa, pt0_old) - true_entropy_part;
+      pt0 = pt0_old - dentropy / dentropy_dt;
+      var pt0m = 0.5 * (pt0 + pt0_old);
+      dentropy_dt = -gibbs_pt0_pt0(sa, pt0m);
+      pt0 = pt0_old - dentropy / dentropy_dt;
+    }
+    return pt0;
+  }
+
+  // gsw_ct_from_pt: konservativ temperatur fra potensiell temperatur
+  function CT_from_pt(sa, pt) {
+    var x2 = SFAC * sa, x = Math.sqrt(x2), y = pt * 0.025;
+    var pot_enthalpy = 61.01362420681071e0 + y*(168776.46138048015e0 +
+      y*(-2735.2785605119625e0 + y*(2574.2164453821433e0 +
+      y*(-1536.6644434977543e0 + y*(545.7340497931629e0 +
+      (-50.91091728474331e0 - 18.30489878927802e0*y)*y))))) +
+      x2*(268.5520265845071e0 + y*(-12019.028203559312e0 +
+      y*(3734.858026725145e0 + y*(-2046.7671145057618e0 +
+      y*(465.28655623826234e0 + (-0.6370820302376359e0 -
+      10.650848542359153e0*y)*y)))) +
+      x*(937.2099110620707e0 + y*(588.1802812170108e0 +
+      y*(248.39476522971285e0 + (-3.871557904936333e0 -
+      2.6268019854268356e0*y)*y)) +
+      x*(-1687.914374187449e0 + x*(246.9598888781377e0 +
+      x*(123.59576582457964e0 - 48.5891069025409e0*x)) +
+      y*(936.3206544460336e0 +
+      y*(-942.7827304544439e0 + y*(369.4389437509002e0 +
+      (-33.83664947895248e0 - 9.987880382780322e0*y)*y))))));
+    return pot_enthalpy / CP0;
+  }
+
+  // gsw_ct_from_t: konservativ temperatur fra in situ-temperatur
+  function CT_from_t(sa, t, p) { return CT_from_pt(sa, pt0_from_t(sa, t, p)); }
+
+  // gsw_specvol_sso_0 og gsw_enthalpy_sso_0, brukt av p_from_z
+  function specvol_SSO_0(p) {
+    var z = p * 1.0e-4;
+    return 9.726613854843870e-04 + z*(-4.505913211160929e-05
+      + z*(7.130728965927127e-06 + z*(-6.657179479768312e-07
+      + z*(-2.994054447232880e-08 + z*(v005 + v006*z)))));
+  }
+  function enthalpy_SSO_0(p) {
+    var z = p * 1.0e-4;
+    var d = z*( 9.726613854843870e-4 + z*(-2.252956605630465e-5
+      + z*( 2.376909655387404e-6 + z*(-1.664294869986011e-7
+      + z*(-5.988108894465758e-9 + z*(h006 + h007*z))))));
+    return d * DB2PA * 1.0e4;
+  }
+
+  // gsw_p_from_z: trykk (dbar) fra høyde z (m, negativ i havet) og breddegrad
+  function p_from_z(z, lat) {
+    if (z > 5) return NaN;
+    var sinlat = Math.sin(lat * DEG2RAD), sin2 = sinlat * sinlat;
+    var gs = 9.780327 * (1.0 + (5.2792e-3 + (2.32e-5 * sin2)) * sin2);
+    var c1 = 5.25e-3 * sin2 + 5.92e-3;
+    var p = -2.0 * z / ((1 - c1) + Math.sqrt((1 - c1) * (1 - c1) + 8.84e-6 * z));
+    var df_dp = DB2PA * specvol_SSO_0(p);
+    var f = enthalpy_SSO_0(p) + gs * (z - 0.5 * GAMMA * (z * z));
+    var p_old = p;
+    p = p_old - f / df_dp;
+    var p_mid = 0.5 * (p + p_old);
+    df_dp = DB2PA * specvol_SSO_0(p_mid);
+    p = p_old - f / df_dp;
+    return p;
+  }
+
+  // Frysepunktet (°C) for luftfritt sjøvann. Startpolynomet i gsw_t_freezing,
+  // som ligger innenfor 0,0003 °C av den eksakte verdien for SA 0–42 g/kg og p 0–6100 dbar.
+  function t_freezing(sa, p) {
+    var sa_r = sa * 1e-2, x = Math.sqrt(sa_r), p_r = p * 1e-4;
+    return 0.002519
+      + sa_r*(-5.946302841607319 + x*(4.136051661346983 + x*(-1.115150523403847e1
+      + x*(1.476878746184548e1 + x*(-1.088873263630961e1 + 2.961018839640730*x)))))
+      + p_r*(-7.433320943962606 + p_r*(-1.561578562479883 + 4.073774363480365e-2*p_r))
+      + sa_r*p_r*(1.158414435887717e-2 + p_r*(-1.123186915628260e-1
+      + p_r*(4.140574258089767e-2 + 2.349147739749606e-1*sa_r))
+      + sa_r*(5.715012685553502e-1 - 1.205825928146808e-2*p_r + 1.877244474023750e-2*sa_r)
+      + x*(-4.122639292422863e-1 + p_r*(2.021682115652684e-1 - 2.812172968619369e-1*p_r)
+      + sa_r*(-6.034228641903586e-1 - 1.204395563789007e-1*p_r + 2.748444541144219e-3*sa_r)));
+  }
+
+  // Det kalkulatoren viser, regnet ut fra praktisk salinitet, in situ-temperatur og dyp.
+  var BREDDE = 60;
+  function vannmasse(sp, t, dyp) {
+    var sa = SR_from_SP(sp), p = p_from_z(-dyp, BREDDE), ct = CT_from_t(sa, t, p);
+    return {SA: sa, p: p, CT: ct, rho: rho(sa, ct, p), rho0: rho(sa, ct, 0), tf: t_freezing(sa, p)};
+  }
+  function tetthet(sp, t, p) {
+    var sa = SR_from_SP(sp);
+    return rho(sa, CT_from_t(sa, t, p), p);
+  }
+  // Tettheten vannet ville hatt ved overflaten: rho(SA, CT_from_t(SA, t, p), 0).
+  // t er in situ-temperatur ved trykket p. Isopyknalene i T-S-diagrammet regnes slik,
+  // så punktet for vannmassen ligger på linjen for sin egen tetthet ved overflaten.
+  function overflatetetthet(sp, t, p) {
+    var sa = SR_from_SP(sp);
+    return rho(sa, CT_from_t(sa, t, p), 0);
+  }
+  // Praktisk salinitet der overflatetettheten er lik maal ved in situ-temperatur t og
+  // trykk p. Tettheten øker alltid med saliniteten, så halvering finner svaret.
+  function salt_for_overflatetetthet(maal, t, p, smin, smaks) {
+    var a = smin, b = smaks;
+    if (overflatetetthet(a, t, p) > maal || overflatetetthet(b, t, p) < maal) return NaN;
+    for (var i = 0; i < 50; i++) {
+      var m = 0.5 * (a + b);
+      if (overflatetetthet(m, t, p) < maal) a = m; else b = m;
+    }
+    return 0.5 * (a + b);
+  }
+
+  return {specvol: specvol, rho: rho, SR_from_SP: SR_from_SP, CT_from_t: CT_from_t,
+          pt0_from_t: pt0_from_t, CT_from_pt: CT_from_pt, p_from_z: p_from_z,
+          t_freezing: t_freezing, vannmasse: vannmasse, tetthet: tetthet,
+          overflatetetthet: overflatetetthet, salt_for_overflatetetthet: salt_for_overflatetetthet};
+})();
+// TEOS10-END
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var T = TEOS10;
+  var $ = function (id) { return document.getElementById(id); };
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  // Eksempler: årsmiddel 1991–2020 fra World Ocean Atlas 2023 (se kommentaren øverst i fila).
+  var EKSEMPLER = [
+    {id: "atlanterhavsvann", navn: "Atlanterhavsvann, 100 m", kort: "atlanterhavsvann", t: 8.0, s: 35.21, dyp: 100,
+     tekst: "Utenfor Møre. Relativt varmt og salt vann som Den norske atlanterhavsstrømmen fører nordover langs Norge."},
+    {id: "kystvann", navn: "Kystvann, 10 m", kort: "kystvann", t: 9.0, s: 32.89, dyp: 10,
+     tekst: "Utenfor Sognefjorden. Ferskvann fra elver og isbreer gjør kystvannet mindre salt enn atlanterhavsvannet. Den norske kyststrømmen fører det nordover."},
+    {id: "ostersjoen", navn: "Østersjøen, overflaten", kort: "Østersjøen", t: 9.2, s: 6.99, dyp: 0,
+     tekst: "Ved Gotland. Mange elver og smale, grunne sund mot Kattegat gjør Østersjøen nesten fersk. Slikt vann kalles brakkvann."},
+    {id: "middelhavet", navn: "Middelhavet, 300 m", kort: "Middelhavet", t: 14.7, s: 38.96, dyp: 300,
+     tekst: "Sørøst for Kreta. Middelhavet er varmt, og sterk fordampning gjør vannet salt. Det renner ut gjennom Gibraltarstredet og kan spores langt ut i Atlanterhavet."},
+    {id: "rodehavet", navn: "Rødehavet, 500 m", kort: "Rødehavet", t: 21.6, s: 40.50, dyp: 500,
+     tekst: "Rødehavet er et av de salteste havområdene på jorden. Selv på 500 m dyp er vannet over 20 °C."},
+    {id: "norskehavet", navn: "Norskehavet, 2500 m", kort: "dypvann i Norskehavet", t: -0.8, s: 34.91, dyp: 2500,
+     tekst: "Kaldt dypvann i Norskehavet. Det har sunket fra overflaten lenger nord, blant annet i Grønlandshavet."},
+    // Antarktisk bunnvann kalles ikke det tetteste vannet. Ved samme trykk er dypvannet i Norskehavet
+    // litt tettere, men ryggen mellom Grønland og Skottland holder det tilbake. Kilder: SNL «bunnvann»,
+    // Svensson (2025, Bjerknessenteret), Østerhus mfl. (2019), Barthel (2026, SNL «havstrøm").
+    // Se docs/bakgrunn/tetteste-vannet/rapport.md.
+    {id: "bunnvann", navn: "Antarktisk bunnvann, 4500 m", kort: "antarktisk bunnvann", t: -0.5, s: 34.64, dyp: 4500,
+     tekst: "I Weddellhavet. Antarktisk bunnvann dannes når havis fryser langs Antarktis og saltet blir igjen i vannet, og det fyller de dypeste delene av de fleste havbassengene. Dypvannet i Norskehavet er litt tettere, men ryggen mellom Grønland og Skottland holder det tilbake."}
+  ];
+
+  var tilstand = {modus: "kalk", utsnitt: "hele"};
+
+  // ---------- tall og tekst ----------
+  function tall(s) {
+    s = String(s).trim().replace(/−/g, "-").replace(/\s/g, "").replace(",", ".");
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+    return parseFloat(s);
+  }
+  function fmt(x, d) {
+    if (Math.abs(x) < 0.5 * Math.pow(10, -d)) x = 0;
+    return x.toFixed(d).replace(".", ",").replace(/^-/, "−");
+  }
+  function settFelt(id, x, d) { $(id).value = fmt(x, d).replace("−", "-"); }
+
+  function sjekk(id, min, maks, enhet) {
+    var el = $(id), v = tall(el.value), feil = $(id + "Feil"), melding = "";
+    if (el.value.trim() === "") melding = "Skriv inn et tall.";
+    else if (isNaN(v)) melding = "Skriv inn et tall, for eksempel 8,5.";
+    else if (v < min || v > maks) melding = "Velg et tall fra " + fmt(min, 0) + " til " + fmt(maks, 0) + " " + enhet + ".";
+    feil.textContent = melding;
+    el.setAttribute("aria-invalid", melding ? "true" : "false");
+    return melding ? NaN : v;
+  }
+
+  // ---------- T-S-diagrammet ----------
+  function el(navn, attr, forelder) {
+    var e = document.createElementNS(SVGNS, navn);
+    for (var k in attr) e.setAttribute(k, attr[k]);
+    if (forelder) forelder.appendChild(e);
+    return e;
+  }
+  function tekst(x, y, innhold, klasse, forelder, ekstra) {
+    var a = {x: x.toFixed(1), y: y.toFixed(1), "class": klasse};
+    for (var k in ekstra) a[k] = ekstra[k];
+    var e = el("text", a, forelder);
+    e.textContent = innhold;
+    return e;
+  }
+  function pent(spenn, maks) {
+    var steg = [0.1, 0.2, 0.25, 0.5, 1, 2, 5, 10, 20];
+    for (var i = 0; i < steg.length; i++) if (spenn / steg[i] <= maks) return steg[i];
+    return 50;
+  }
+  function desimaler(steg) { return steg >= 1 ? 0 : (steg >= 0.5 || steg === 0.2 || steg === 0.1 ? 1 : 2); }
+  function sti(punkter) {
+    return punkter.map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join("");
+  }
+
+  // Isopyknalene viser tettheten ved overflaten (se overflatetetthet i TEOS10).
+  var saltForTetthet = T.salt_for_overflatetetthet;
+
+  var sisteRamme = null;
+
+  function tegn(d) {
+    // d = {smin, smaks, tmin, tmaks, p, punkter: [{s, t, klasse, etikett}], linje: [[s,t],[s,t]], fremhev: tetthet}
+    // p er trykket for dypet eleven har valgt. Linjene viser tettheten ved overflaten for vann med
+    // in situ-temperatur t på dette trykket, og frysepunktlinjen viser frysepunktet ved overflaten.
+    var svg = $("ts"), g = $("tsInnhold");
+    var B = Math.max(300, Math.round($("tsBoks").clientWidth - 8));
+    var H = Math.round(Math.min(480, Math.max(280, B * 0.74)));
+    svg.setAttribute("viewBox", "0 0 " + B + " " + H);
+    svg.setAttribute("width", B);
+    svg.setAttribute("height", H);
+    while (g.firstChild) g.removeChild(g.firstChild);
+
+    var mv = 54, mh = 14, mt = 12, mb = 46;
+    var bx = B - mv - mh, by = H - mt - mb;
+    var X = function (s) { return mv + (s - d.smin) / (d.smaks - d.smin) * bx; };
+    var Y = function (t) { return mt + (d.tmaks - t) / (d.tmaks - d.tmin) * by; };
+    sisteRamme = {d: d, mv: mv, mt: mt, bx: bx, by: by, B: B, H: H};
+
+    var klippId = "tsKlipp";
+    var defs = el("defs", {}, g);
+    var cp = el("clipPath", {id: klippId}, defs);
+    el("rect", {x: mv, y: mt, width: bx, height: by}, cp);
+
+    // rutenett og akser
+    var smaxTicks = B < 420 ? 5 : 8, tmaxTicks = H < 340 ? 6 : 8;
+    var ds = pent(d.smaks - d.smin, smaxTicks), dt = pent(d.tmaks - d.tmin, tmaxTicks);
+    var nett = el("g", {}, g);
+    var s0 = Math.ceil(d.smin / ds - 1e-9) * ds;
+    for (var s = s0; s <= d.smaks + 1e-9; s += ds) {
+      el("line", {x1: X(s), x2: X(s), y1: mt, y2: mt + by, "class": "rutenett"}, nett);
+      tekst(X(s), mt + by + 17, fmt(s, desimaler(ds)), "tick", g, {"text-anchor": "middle"});
+    }
+    var t0 = Math.ceil(d.tmin / dt - 1e-9) * dt;
+    for (var t = t0; t <= d.tmaks + 1e-9; t += dt) {
+      el("line", {x1: mv, x2: mv + bx, y1: Y(t), y2: Y(t), "class": "rutenett"}, nett);
+      tekst(mv - 6, Y(t) + 4.5, fmt(t, desimaler(dt)), "tick", g, {"text-anchor": "end"});
+    }
+    tekst(mv + bx / 2, H - 8, "Salinitet (PSU)", "aksetittel", g, {"text-anchor": "middle"});
+    tekst(14, mt + by / 2, "Temperatur (°C)", "aksetittel", g, {"text-anchor": "middle", transform: "rotate(-90 14 " + (mt + by / 2).toFixed(1) + ")"});
+
+    var innhold = el("g", {"clip-path": "url(#" + klippId + ")"}, g);
+    var etiketter = el("g", {}, g);
+
+    // frysepunktet ved overflaten, som i T-S-diagrammene på eksamen
+    var frys = [];
+    for (var i = 0; i <= 60; i++) {
+      var sf = d.smin + (d.smaks - d.smin) * i / 60;
+      frys.push([X(sf), Y(T.t_freezing(T.SR_from_SP(sf), 0))]);
+    }
+    el("path", {d: sti(frys) + "L" + (mv + bx) + " " + (mt + by) + "L" + mv + " " + (mt + by) + "Z", "class": "isflate"}, innhold);
+    el("path", {d: sti(frys), "class": "frys"}, innhold);
+    var fSlutt = frys[frys.length - 1];
+    if (fSlutt[1] < mt + by - 6 && fSlutt[1] > mt + 14) {
+      tekst(mv + bx - 4, fSlutt[1] - 6, "frysepunkt ved overflaten", "frystekst", etiketter, {"text-anchor": "end"});
+    }
+
+    // linjer med lik tetthet
+    var rmin = Infinity, rmaks = -Infinity;
+    for (var a = 0; a <= 12; a++) for (var b = 0; b <= 12; b++) {
+      var r = T.overflatetetthet(d.smin + (d.smaks - d.smin) * a / 12, d.tmin + (d.tmaks - d.tmin) * b / 12, d.p);
+      rmin = Math.min(rmin, r); rmaks = Math.max(rmaks, r);
+    }
+    var maksLinjer = B < 420 ? 7 : 10;
+    var dr = pent(rmaks - rmin, maksLinjer);
+    var nivaaer = [];
+    for (var nv = Math.ceil(rmin / dr) * dr; nv <= rmaks; nv += dr) nivaaer.push(Math.round(nv * 100) / 100);
+    var nT = 70;
+    function isolinje(nivaa) {
+      var deler = [], del = [];
+      for (var k = 0; k <= nT; k++) {
+        var tt = d.tmin + (d.tmaks - d.tmin) * k / nT;
+        var ss = saltForTetthet(nivaa, tt, d.p, d.smin, d.smaks);
+        if (isNaN(ss)) { if (del.length > 1) deler.push(del); del = []; }
+        else del.push([X(ss), Y(tt)]);
+      }
+      if (del.length > 1) deler.push(del);
+      return deler;
+    }
+    // Etiketter som ikke skal overlappe. Bredden er et overslag ut fra antall tegn.
+    var brukte = [];
+    function ledig(x, y, innhold, anker, storrelse) {
+      var b = innhold.length * storrelse * 0.55 + 6, h = storrelse + 4;
+      var x0 = anker === "end" ? x - b : (anker === "middle" ? x - b / 2 : x);
+      var boks = [x0, y - storrelse, x0 + b, y - storrelse + h];
+      var kolliderer = brukte.some(function (u) { return boks[0] < u[2] && boks[2] > u[0] && boks[1] < u[3] && boks[3] > u[1]; });
+      if (!kolliderer) brukte.push(boks);
+      return !kolliderer;
+    }
+
+    // linjen med samme tetthet som A og B, med etikett midt på linjen, på den lette siden
+    var fremhevede = [];
+    if (d.fremhev) {
+      isolinje(d.fremhev).forEach(function (del) {
+        fremhevede.push(del);
+        var q = del[Math.floor(del.length / 2)];
+        var etikett = fmt(d.fremhev, 2) + " kg/m³";
+        var x = Math.max(q[0] - 10, mv + 90), y = Math.max(q[1] - 8, mt + 16);
+        if (ledig(x, y, etikett, "end", 12.5)) tekst(x, y, etikett, "fremhevettekst", etiketter, {"text-anchor": "end"});
+      });
+    }
+
+    nivaaer.forEach(function (nivaa) {
+      isolinje(nivaa).forEach(function (del) {
+        el("path", {d: sti(del), "class": "isopyknal"}, innhold);
+        // etikett der linjen går ut av diagrammet øverst eller til høyre
+        var q = del[del.length - 1], x = q[0], y = q[1], anker = "middle";
+        if (y < mt + 3) { y = mt + 15; x = Math.min(Math.max(x, mv + 22), mv + bx - 22); }
+        else { x = Math.min(x, mv + bx - 4); anker = "end"; y = Math.max(y - 4, mt + 15); }
+        var etikett = fmt(nivaa, desimaler(dr));
+        if (ledig(x, y, etikett, anker, 12)) tekst(x, y, etikett, "isotekst", etiketter, {"text-anchor": anker});
+      });
+    });
+    fremhevede.forEach(function (del) { el("path", {d: sti(del), "class": "fremhevet"}, innhold); });
+
+    // blandingslinje og punkter
+    if (d.linje) {
+      el("line", {x1: X(d.linje[0][0]), y1: Y(d.linje[0][1]), x2: X(d.linje[1][0]), y2: Y(d.linje[1][1]), "class": "blandelinje"}, innhold);
+    }
+    d.punkter.forEach(function (pk) {
+      var x = X(pk.s), y = Y(pk.t);
+      if (pk.form === "ruter") {
+        el("path", {d: "M" + x + " " + (y - 8) + "L" + (x + 8) + " " + y + "L" + x + " " + (y + 8) + "L" + (x - 8) + " " + y + "Z", "class": pk.klasse}, innhold);
+      } else {
+        el("circle", {cx: x, cy: y, r: 6.5, "class": pk.klasse}, innhold);
+      }
+      if (pk.etikett) {
+        var venstre = x > mv + bx * 0.62;
+        var ty = pk.under ? y + 22 : y - 11;
+        if (ty < mt + 12) ty = y + 22;
+        if (ty > mt + by - 4) ty = y - 11;
+        tekst(venstre ? x - 10 : x + 10, ty, pk.etikett, "punkttekst", etiketter, {"text-anchor": venstre ? "end" : "start"});
+      }
+    });
+
+    el("rect", {x: mv, y: mt, width: bx, height: by, "class": "ramme"}, g);
+    return {nivaaer: nivaaer, dr: dr};
+  }
+
+  // ---------- kalkulatoren ----------
+  function ramme(sp, t, p) {
+    if (tilstand.utsnitt === "hele") {
+      var tmin = Math.min(-4, Math.floor(t) - 1);
+      return {smin: 0, smaks: 42, tmin: tmin, tmaks: 35};
+    }
+    var smin = Math.max(0, sp - 2.5), smaks = Math.min(42, smin + 5);
+    smin = Math.max(0, smaks - 5);
+    var tfr = T.t_freezing(T.SR_from_SP(sp), 0);
+    var lo = Math.min(t - 1, Math.max(tfr - 1.5, t - 6)), hi = lo + 12;
+    if (hi > 36) { hi = 36; lo = 24; }
+    return {smin: smin, smaks: smaks, tmin: lo, tmaks: hi};
+  }
+
+  var sisteKalk = null;
+  function oppdaterKalk() {
+    var t = sjekk("temp", -8, 40, "°C"), s = sjekk("salt", 0, 42, "g/kg"), dyp = sjekk("dyp", 0, 6000, "m");
+    var varsel = "";
+    if (isNaN(t) || isNaN(s) || isNaN(dyp)) {
+      $("rho0").textContent = "ikke regnet ut"; $("rho").textContent = "ikke regnet ut"; $("frys").textContent = "ikke regnet ut";
+      $("overflate").textContent = "";
+      $("kalkVarsel").textContent = "Rett opp tallene i feltene som er merket.";
+      return;
+    }
+    var v = T.vannmasse(s, t, dyp);
+    sisteKalk = {s: s, t: t, dyp: dyp, v: v};
+    $("rho0").textContent = fmt(v.rho0, 2) + " kg/m³";
+    $("rho").textContent = fmt(v.rho, 2) + " kg/m³";
+    $("frys").textContent = fmt(v.tf, 2) + " °C";
+    $("dypBlokk").hidden = !(dyp > 0);
+    $("rhoNavn").textContent = "Tetthet der vannet er, på " + fmt(dyp, 0) + " m dyp";
+    $("frysNavn").textContent = dyp > 0 ? "Frysepunkt på " + fmt(dyp, 0) + " m dyp" : "Frysepunkt";
+    $("overflate").textContent = dyp > 0 ? "" : "Vannet er ved overflaten. Prøv et større dyp og se hvordan trykket endrer tettheten.";
+    if (t < v.tf) varsel = "Temperaturen er lavere enn frysepunktet. Slikt sjøvann ville begynt å fryse til is.";
+    else if (s > 0 && s < 2 && t > -0.5) varsel = "Med så lite salt er dette nesten ferskvann.";
+    $("kalkVarsel").textContent = varsel;
+
+    var r = ramme(s, t, v.p);
+    var ex = EKSEMPLER.filter(function (e) { return e.id === $("eksempel").value; })[0];
+    var etikett = ex ? ex.kort.charAt(0).toUpperCase() + ex.kort.slice(1) : "Vannmassen";
+    var info = tegn({smin: r.smin, smaks: r.smaks, tmin: r.tmin, tmaks: r.tmaks, p: v.p,
+      punkter: [{s: Math.min(Math.max(s, r.smin), r.smaks), t: Math.min(Math.max(t, r.tmin), r.tmaks), klasse: "punkt", etikett: etikett}]});
+    $("tsTekst").textContent = "Punktet viser vannmassen. Linjene viser tettheten i kg/m³ som vannet ville hatt ved overflaten, " +
+      "slik at du kan sammenligne vannmasser fra ulike dyp. Den stiplede linjen viser frysepunktet ved overflaten. " +
+      "Klikk i diagrammet for å velge en ny vannmasse.";
+    // tekst for skjermlesere
+    var under = Math.floor(v.rho0 / info.dr) * info.dr, over = under + info.dr;
+    $("tsTittel").textContent = "T-S-diagram med vannmassen " + fmt(t, 1) + " °C og " + fmt(s, 2) + " PSU";
+    $("tsBeskrivelse").textContent = "Salinitet fra " + fmt(r.smin, 1) + " til " + fmt(r.smaks, 1) +
+      " PSU langs den vannrette aksen og temperatur fra " + fmt(r.tmin, 0) + " til " + fmt(r.tmaks, 0) +
+      " °C langs den loddrette aksen. Linjene viser tettheten vannet ville hatt ved overflaten, fra " + fmt(info.nivaaer[0], desimaler(info.dr)) +
+      " til " + fmt(info.nivaaer[info.nivaaer.length - 1], desimaler(info.dr)) +
+      " kg/m³. Tettheten øker mot høyre, der vannet er saltere, og nedover, der vannet er kaldere. Linjene er krumme. " +
+      "Vannmassen ligger mellom linjene for " + fmt(under, desimaler(info.dr)) + " og " + fmt(over, desimaler(info.dr)) +
+      " kg/m³, og tettheten ved overflaten er " + fmt(v.rho0, 2) + " kg/m³." +
+      (dyp > 0 ? " Der vannet er, på " + fmt(dyp, 0) + " m dyp, er tettheten " + fmt(v.rho, 2) + " kg/m³." : "") +
+      " En stiplet linje nederst viser frysepunktet ved overflaten.";
+  }
+
+  function velgEksempel() {
+    var ex = EKSEMPLER.filter(function (e) { return e.id === $("eksempel").value; })[0];
+    $("eksempelTekst").textContent = ex ? ex.tekst : "Skriv inn dine egne tall, eller klikk i diagrammet.";
+    if (ex) { settFelt("temp", ex.t, 1); settFelt("salt", ex.s, 2); settFelt("dyp", ex.dyp, 0); }
+    oppdaterKalk();
+  }
+
+  // ---------- blanding ----------
+  function oppdaterBland() {
+    var tA = sjekk("tempA", -2, 35, "°C"), sA = sjekk("saltA", 0, 42, "g/kg"), tB = sjekk("tempB", -2, 35, "°C");
+    var f = Number($("andel").value) / 100;
+    $("andelUt").textContent = Math.round(f * 100) + " %";
+    $("andel").setAttribute("aria-valuetext", Math.round(f * 100) + " prosent");
+    var tom = function (melding) {
+      $("saltB").textContent = "ikke regnet ut"; $("rhoAB").textContent = "ikke regnet ut"; $("blandTS").textContent = "ikke regnet ut"; $("rhoM").textContent = "ikke regnet ut";
+      $("blandForklaring").textContent = ""; $("blandVarsel").textContent = melding;
+    };
+    if (isNaN(tA) || isNaN(sA) || isNaN(tB)) { tom("Rett opp tallene i feltene som er merket."); return; }
+    var rA = T.overflatetetthet(sA, tA, 0);
+    var sB = saltForTetthet(rA, tB, 0, 0, 42);
+    if (isNaN(sB)) {
+      tom("Med denne temperaturen finnes det ingen salinitet mellom 0 og 42 g/kg som gir B samme tetthet som A. Velg en annen temperatur for B.");
+      return;
+    }
+    var varsel = "";
+    if (tA < T.t_freezing(T.SR_from_SP(sA), 0) || tB < T.t_freezing(T.SR_from_SP(sB), 0)) varsel = "En av vannmassene er kaldere enn frysepunktet og ville begynt å fryse.";
+    if (Math.abs(tA - tB) < 0.5) varsel = "A og B er nesten like. Gi B en annen temperatur enn A, så blir forskjellen tydeligere.";
+    var tM = (1 - f) * tA + f * tB, sM = (1 - f) * sA + f * sB, rM = T.overflatetetthet(sM, tM, 0);
+    var diff = rM - rA;
+    $("saltB").textContent = fmt(sB, 2);
+    $("rhoAB").textContent = fmt(rA, 2) + " kg/m³";
+    $("blandTS").textContent = fmt(tM, 1) + " °C og " + fmt(sM, 2) + " g/kg";
+    $("rhoM").textContent = fmt(rM, 2) + " kg/m³";
+    if (f === 0 || f === 1) {
+      $("blandForklaring").textContent = "Nå er blandingen bare " + (f === 0 ? "A" : "B") + ". Flytt glideren for å blande inn litt av den andre vannmassen.";
+    } else if (diff >= 0.005) {
+      $("blandForklaring").textContent = "Blandingen er " + fmt(diff, 2) + " kg/m³ tettere enn både A og B. " +
+        "Linjene med lik tetthet i T-S-diagrammet er krumme, mens blandingen havner på den rette linjen mellom A og B. " +
+        "Den rette linjen ligger på den tette siden av den krumme linjen, så blandingen kan synke. Oseanografer kaller dette cabbeling.";
+    } else {
+      $("blandForklaring").textContent = "Blandingen er nesten like tett som A og B. Prøv en større forskjell i temperatur mellom A og B.";
+    }
+    $("blandVarsel").textContent = varsel;
+
+    // utsnitt rundt A og B
+    var s1 = Math.min(sA, sB), s2 = Math.max(sA, sB), t1 = Math.min(tA, tB), t2 = Math.max(tA, tB);
+    var ds = Math.max(s2 - s1, 0.4), dt = Math.max(t2 - t1, 2);
+    var r = {smin: Math.max(0, s1 - 0.35 * ds), smaks: Math.min(42, s2 + 0.35 * ds), tmin: t1 - 0.3 * dt, tmaks: t2 + 0.3 * dt};
+    var aVenstre = sA <= sB;
+    var info = tegn({smin: r.smin, smaks: r.smaks, tmin: r.tmin, tmaks: r.tmaks, p: 0, fremhev: rA,
+      linje: [[sA, tA], [sB, tB]],
+      punkter: [
+        {s: sA, t: tA, klasse: "abpunkt", etikett: "A"},
+        {s: sB, t: tB, klasse: "abpunkt", etikett: "B"},
+        {s: sM, t: tM, klasse: "punkt", etikett: "Blandingen", form: "ruter", under: true}
+      ]});
+    $("tsTekst").textContent = "A og B ligger på den samme krumme linjen for lik tetthet. Blandingen ligger på den rette, stiplede linjen mellom dem. " +
+      "Linjene viser tettheten i kg/m³ ved overflaten, og den stiplede linjen nederst viser frysepunktet ved overflaten.";
+    $("tsTittel").textContent = "T-S-diagram med blanding av to vannmasser";
+    $("tsBeskrivelse").textContent = "Vannmasse A har " + fmt(tA, 1) + " °C og " + fmt(sA, 2) + " PSU. Vannmasse B har " +
+      fmt(tB, 1) + " °C og " + fmt(sB, 2) + " PSU. Begge ligger på den krumme linjen for " + fmt(rA, 2) +
+      " kg/m³. Blandingen har " + fmt(tM, 1) + " °C og " + fmt(sM, 2) + " PSU og ligger på den rette linjen mellom A og B, på den tette siden av den krumme linjen. " +
+      "Tettheten i blandingen er " + fmt(rM, 2) + " kg/m³.";
+    void aVenstre; void info;
+  }
+
+  // ---------- hendelser ----------
+  function oppdater() {
+    if (tilstand.modus === "kalk") oppdaterKalk(); else oppdaterBland();
+    $("ts").classList.toggle("klikkbar", tilstand.modus === "kalk");
+  }
+  var tidtaker = null;
+  function snart() { clearTimeout(tidtaker); tidtaker = setTimeout(oppdater, 250); }
+
+  EKSEMPLER.forEach(function (e) {
+    var o = document.createElement("option");
+    o.value = e.id; o.textContent = e.navn;
+    $("eksempel").appendChild(o);
+  });
+  $("eksempel").addEventListener("change", velgEksempel);
+  ["temp", "salt", "dyp"].forEach(function (id) {
+    $(id).addEventListener("input", function () { $("eksempel").value = ""; $("eksempelTekst").textContent = "Egne verdier."; snart(); });
+  });
+  ["tempA", "saltA", "tempB"].forEach(function (id) { $(id).addEventListener("input", snart); });
+  $("andel").addEventListener("input", oppdaterBland);
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="modus"]'), function (r) {
+    r.addEventListener("change", function () {
+      tilstand.modus = r.value;
+      $("panelKalk").hidden = r.value !== "kalk";
+      $("panelBland").hidden = r.value !== "bland";
+      $("utsnittValg").hidden = r.value !== "kalk";
+      $("kalkResultat").hidden = r.value !== "kalk";
+      $("blandResultat").hidden = r.value !== "bland";
+      oppdater();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="utsnitt"]'), function (r) {
+    r.addEventListener("change", function () { tilstand.utsnitt = r.value; oppdater(); });
+  });
+
+  // Klikk i diagrammet velger temperatur og salinitet (bare i kalkulatoren; feltene gjør det samme med tastatur).
+  $("ts").addEventListener("click", function (ev) {
+    if (tilstand.modus !== "kalk" || !sisteRamme) return;
+    var rr = $("ts").getBoundingClientRect(), f = sisteRamme;
+    var x = (ev.clientX - rr.left) * f.B / rr.width, y = (ev.clientY - rr.top) * f.H / rr.height;
+    if (x < f.mv || x > f.mv + f.bx || y < f.mt || y > f.mt + f.by) return;
+    var s = f.d.smin + (x - f.mv) / f.bx * (f.d.smaks - f.d.smin);
+    var t = f.d.tmaks - (y - f.mt) / f.by * (f.d.tmaks - f.d.tmin);
+    var ds = f.d.smaks - f.d.smin > 10 ? 1 : 2;
+    s = Math.round(s * Math.pow(10, ds)) / Math.pow(10, ds);
+    t = Math.round(t * 10) / 10;
+    $("eksempel").value = ""; $("eksempelTekst").textContent = "Egne verdier, valgt i diagrammet.";
+    settFelt("temp", t, 1); settFelt("salt", s, ds);
+    oppdaterKalk();
+  });
+
+  // Startverdier
+  $("eksempel").value = "atlanterhavsvann";
+  settFelt("tempA", 8.0, 1); settFelt("saltA", 35.21, 2); settFelt("tempB", -1.0, 1);
+  velgEksempel();
+
+  // Tegner diagrammet på nytt når bredden endrer seg.
+  var sistBredde = 0;
+  if (window.ResizeObserver) {
+    new ResizeObserver(function () {
+      var b = $("tsBoks").clientWidth;
+      if (Math.abs(b - sistBredde) > 4) { sistBredde = b; oppdater(); }
+    }).observe($("tsBoks"));
+  }
+
+  // Sender høyden til boken, som reserve for iframe-hoyde.html.
+  var sist = 0;
+  function sendHoyde() {
+    var h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+    if (h !== sist && window.parent && window.parent !== window) {
+      sist = h;
+      window.parent.postMessage({type: "jordenspuls-hoyde", hoyde: h}, "*");
+    }
+  }
+  if (window.ResizeObserver) new ResizeObserver(sendHoyde).observe(document.documentElement);
+  window.addEventListener("load", sendHoyde);
+  sendHoyde();
+})();
+</script>
+</body>
+</html>
